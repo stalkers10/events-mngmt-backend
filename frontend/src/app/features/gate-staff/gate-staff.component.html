@@ -1,0 +1,107 @@
+<div class="gate-staff-page">
+  <header class="page-header">
+    <h1 class="text-headline-md">{{ 'gateStaff.pageTitle' | translate }}</h1>
+    <p class="text-body-sm subtitle">{{ 'gateStaff.pageSubtitle' | translate }}</p>
+  </header>
+
+  <!-- ---- Create form ---- -->
+  <section class="card create-card">
+    <h2 class="text-headline-sm section-title">{{ 'gateStaff.createSectionTitle' | translate }}</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="create-form">
+      <div class="form-field">
+        <label for="username">{{ 'gateStaff.username' | translate }}</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          [placeholder]="'gateStaff.usernamePlaceholder' | translate"
+        />
+        @if (form.controls.username.touched && form.controls.username.invalid) {
+          <p class="field-error">{{ 'gateStaff.usernameError' | translate }}</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="password">{{ 'gateStaff.password' | translate }}</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [placeholder]="'gateStaff.passwordPlaceholder' | translate"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p class="field-error">{{ 'gateStaff.passwordError' | translate }}</p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary submit-btn"
+        [disabled]="form.invalid || isSubmitting()"
+      >
+        {{ (isSubmitting() ? 'gateStaff.creating' : 'gateStaff.createButton') | translate }}
+      </button>
+    </form>
+  </section>
+
+  <!-- ---- List ---- -->
+  <section class="card list-card">
+    <h2 class="text-headline-sm section-title">{{ 'gateStaff.listSectionTitle' | translate }}</h2>
+
+    @if (isLoadingList()) {
+      <p class="text-body-sm muted">{{ 'common.loading' | translate }}</p>
+    } @else if (staff().length === 0) {
+      <p class="text-body-sm muted">{{ 'gateStaff.listEmpty' | translate }}</p>
+    } @else {
+      <table class="staff-table">
+        <thead>
+          <tr>
+            <th class="text-label-caps">{{ 'gateStaff.colUsername' | translate }}</th>
+            <th class="text-label-caps">{{ 'gateStaff.colStatus' | translate }}</th>
+            <th class="text-label-caps">{{ 'gateStaff.colCreated' | translate }}</th>
+            <th class="text-label-caps actions-col">{{ 'gateStaff.colActions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (account of staff(); track account.id) {
+            <tr>
+              <td class="username-cell" [attr.data-label]="'gateStaff.colUsername' | translate">{{ account.username }}</td>
+              <td [attr.data-label]="'gateStaff.colStatus' | translate">
+                @if (account.is_active) {
+                  <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
+                } @else {
+                  <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
+                }
+              </td>
+              <td class="text-body-sm muted" [attr.data-label]="'gateStaff.colCreated' | translate">
+                {{ account.created_at | date: 'MMM d, y' : undefined : (translation.language() === 'fr' ? 'fr' : 'en') }}
+              </td>
+              <td [attr.data-label]="'gateStaff.colActions' | translate">
+                @if (account.is_active) {
+                  <button
+                    type="button"
+                    class="btn btn-secondary deactivate-btn"
+                    [disabled]="processingId() === account.id"
+                    (click)="deactivate(account)"
+                  >
+                    {{ (processingId() === account.id ? 'common.deactivating' : 'common.deactivate') | translate }}
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn btn-primary reactivate-btn"
+                    [disabled]="processingId() === account.id"
+                    (click)="reactivate(account)"
+                  >
+                    {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</div>

@@ -1,0 +1,50 @@
+import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+import { requireAuth, requireRole } from '../middlewares/auth.middleware';
+import { RoleType } from '../types/auth';
+import { TicketsService } from '../services/tickets.service';
+const router = Router();
+// TODO: implement tickets endpoints per the spec (Section references in project1_updated.md).
+// Example pattern for an Admin-only write route:
+//   import { requireAuth, requireRole } from '../middlewares/auth.middleware';
+//   import { RoleType } from '../types/auth';
+//   router.post('/', requireAuth, requireRole(RoleType.ADMIN), controllerFn);
+// Protect all ticket routes with Auth
+router.use(requireAuth);
+const scanSchema = z.object({
+  qrToken: z.string().min(1),
+});
+// Scanning is allowed for both Admin and Gate Staff
+router.post('/scan', async (req: Request, res: Response) => {
+  const parsed = scanSchema.safeParse(req.body);
+  if (!parsed.success) {
+     res.status(400).json({ error: parsed.error.flatten() });
+     return;
+  }
+  try {
+    const user = req.user!;
+    const result = await TicketsService.scanTicket(parsed.data.qrToken, user.id);
+    res.json(result);
+  } catch (err: any) {
+    // Return 400 for bad scans or 403 for unauthorized events
+    const status = err.message.includes('not assigned') ? 403 : 400;
+    res.status(status).json({ error: err.message });
+  }
+});
+// PDF download is Admin only (or potentially the invitee, but we have no invitee auth yet)
+router.get('/:ticketId/pdf', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
+  try {
+    const pdfBuffer = await TicketsService.generatePdf(req.params.ticketId);
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=ticket-${req.params.ticketId}.pdf`);
+    res.send(pdfBuffer);
+  } catch (err: any) {
+    if (err.message === 'Ticket not found') {
+      res.status(404).json({ error: err.message });
+      return;
+    }
+    res.status(500).json({ error: 'Failed to generate PDF ticket' });
+  }
+});
+export default router;

@@ -1,0 +1,100 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Building, EventSummary, Room } from '../models/dashboard.model';
+
+export interface CreateBuildingPayload {
+  name: string;
+  address?: string;
+}
+
+export interface CreateRoomPayload {
+  buildingId: string;
+  roomNumber: string;
+  floorNumber: number;
+  capacity?: number;
+}
+
+export interface CreateEventPayload {
+  roomId: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  tables?: {
+    tableNumber: string;
+    position?: string;
+    numberOfChairs: number;
+  }[];
+}
+
+export interface CreateTablePayload {
+  tableNumber: string;
+  position?: string;
+}
+
+export interface CreateChairsPayload {
+  count: number;
+}
+
+@Injectable({ providedIn: 'root' })
+export class VenueService {
+  constructor(private http: HttpClient) {}
+
+  buildings(): Observable<Building[]> {
+    return this.http.get<Building[]>(`${environment.apiUrl}/buildings`);
+  }
+
+  rooms(): Observable<Room[]> {
+    return this.http.get<Room[]>(`${environment.apiUrl}/rooms`);
+  }
+
+  createBuilding(payload: CreateBuildingPayload): Observable<Building> {
+    return this.http.post<Building>(`${environment.apiUrl}/buildings`, payload);
+  }
+
+  createRoom(payload: CreateRoomPayload): Observable<Room> {
+    return this.http.post<Room>(`${environment.apiUrl}/rooms`, payload);
+  }
+
+  createEvent(payload: CreateEventPayload): Observable<EventSummary> {
+    return this.http.post<EventSummary>(`${environment.apiUrl}/events`, payload);
+  }
+
+  event(eventId: string): Observable<EventSummary> {
+    return this.http.get<EventSummary>(`${environment.apiUrl}/events/${eventId}`);
+  }
+
+  occupancy(eventId: string): Observable<EventOccupancy> {
+    return this.http.get<EventOccupancy>(`${environment.apiUrl}/reservations/event/${eventId}/occupancy`);
+  }
+
+  // Table management
+  addTable(eventId: string, payload: CreateTablePayload): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/events/${eventId}/tables`, payload);
+  }
+
+  addChairs(eventId: string, tableId: string, payload: CreateChairsPayload): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/events/${eventId}/tables/${tableId}/chairs`, payload);
+  }
+}
+
+export interface OccupancyChair {
+  id: string;
+  table_id: string;
+  chair_number: string;
+  reservation_id: string | null;
+  reservation_status: 'ACTIVE' | null;
+  invitee_name: string | null;
+}
+
+export interface OccupancyTable {
+  id: string;
+  table_number: string;
+  position: string | null;
+  chairs: OccupancyChair[];
+}
+
+export interface EventOccupancy {
+  tables: OccupancyTable[];
+}

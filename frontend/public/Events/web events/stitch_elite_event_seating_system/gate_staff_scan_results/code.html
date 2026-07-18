@@ -1,0 +1,218 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Gate Staff Scan Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#114d5b",
+                        "on-surface-variant": "#584141",
+                        "surface-container-high": "#fbe2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#b6ebfb",
+                        "on-tertiary-container": "#7cb0c0",
+                        "on-surface": "#251819",
+                        "primary-fixed": "#ffdada",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#d8c2bc",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#f5ddd7",
+                        "secondary": "#6c5b56",
+                        "surface-tint": "#af2b3e",
+                        "inverse-primary": "#ffb3b5",
+                        "background": "#fff8f7",
+                        "secondary-container": "#f5ddd7",
+                        "primary-container": "#800020",
+                        "surface-container-highest": "#f5dddd",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "primary": "#570013",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#72605c",
+                        "tertiary-container": "#004451",
+                        "surface": "#fff8f7",
+                        "surface-dim": "#edd4d4",
+                        "on-tertiary-fixed": "#001f26",
+                        "inverse-surface": "#3b2d2d",
+                        "tertiary": "#002c36",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#ffe9e8",
+                        "on-primary-fixed": "#40000b",
+                        "on-background": "#251819",
+                        "inverse-on-surface": "#ffedec",
+                        "outline-variant": "#e0bfbf",
+                        "surface-container-low": "#fff0f0",
+                        "surface-bright": "#fff8f7",
+                        "on-secondary-fixed-variant": "#53433f",
+                        "on-primary-fixed-variant": "#8e0f28",
+                        "on-secondary-fixed": "#251915",
+                        "surface-variant": "#f5dddd",
+                        "tertiary-fixed-dim": "#9acfde",
+                        "on-primary-container": "#ff828a",
+                        "on-primary": "#ffffff",
+                        "outline": "#8c7071"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-margin-desktop": "auto",
+                        "xl": "32px",
+                        "max-width-desktop": "1200px",
+                        "base": "4px",
+                        "container-margin-mobile": "16px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "button": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "button": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-sm min-h-screen flex flex-col md:flex-row antialiased">
+<!-- Mobile Nav (TopAppBar style for focus) -->
+<header class="md:hidden sticky top-0 z-50 flex justify-between items-center px-lg py-md w-full max-w-max-width-desktop mx-auto bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary-container">Burgundy &amp; Peach</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+</header>
+<!-- Desktop SideNav -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-dim shadow-sm p-md gap-sm z-40">
+<div class="mb-xl flex items-center gap-sm px-sm">
+<span class="material-symbols-outlined text-primary text-3xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Burgundy &amp; Peach</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Event Management</p>
+</div>
+</div>
+<ul class="flex flex-col gap-sm flex-grow">
+<li><a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined">dashboard</span> <span class="font-button text-button">Dashboard</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined">location_on</span> <span class="font-button text-button">Venues</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined">event</span> <span class="font-button text-button">Events</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined">group</span> <span class="font-button text-button">Guest List</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-bold hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span> <span class="font-button text-button">Scanner</span></a></li>
+<li><a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all" href="#"><span class="material-symbols-outlined">settings</span> <span class="font-button text-button">Settings</span></a></li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow md:ml-64 p-container-margin-mobile md:p-container-margin-desktop max-w-max-width-desktop w-full mx-auto flex flex-col items-center justify-center min-h-[calc(100vh-64px)] md:min-h-screen">
+<div class="w-full max-w-md flex flex-col gap-lg">
+<!-- Context Header -->
+<div class="text-center mb-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Scanning Mode</p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">The Grand Gala 2024</h2>
+</div>
+<!-- Scan Result: SUCCESS -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] p-xl flex flex-col items-center text-center relative overflow-hidden border border-outline-variant/30">
+<div class="absolute inset-0 bg-gradient-to-b from-[#e6f4ea] to-transparent opacity-20 pointer-events-none"></div>
+<div class="w-24 h-24 rounded-full bg-[#e6f4ea] flex items-center justify-center mb-lg relative">
+<span class="material-symbols-outlined text-6xl text-[#1e8e3e]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="absolute inset-0 rounded-full animate-ping bg-[#1e8e3e] opacity-20"></div>
+</div>
+<h3 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-[#1e8e3e] mb-xs">Access Granted</h3>
+<p class="font-headline-md text-headline-md text-on-surface mb-xl">Eleanor Vance</p>
+<div class="w-full bg-surface-container-low rounded-lg p-md grid grid-cols-2 gap-md border border-outline-variant/50">
+<div class="flex flex-col items-center border-r border-outline-variant/50">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Table</span>
+<span class="font-headline-sm text-headline-sm text-primary">12</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Seat</span>
+<span class="font-headline-sm text-headline-sm text-primary">4A</span>
+</div>
+</div>
+<div class="mt-lg w-full flex flex-col gap-sm">
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm px-sm py-xs border-b border-surface-container-highest">
+<span>Ticket Type</span>
+<span class="font-semibold text-on-surface">VIP Admission</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm px-sm py-xs">
+<span>Dietary</span>
+<span class="font-semibold text-on-surface">Vegetarian</span>
+</div>
+</div>
+<button class="mt-xl w-full bg-primary-container text-on-primary-container font-button text-button py-3 rounded-lg hover:bg-primary transition-colors shadow-sm">
+                    Scan Next Ticket
+                </button>
+</div>
+<!-- Divider for demo purposes -->
+<div class="flex items-center gap-md my-lg opacity-50">
+<div class="h-px bg-outline-variant flex-grow"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Error States Examples Below</span>
+<div class="h-px bg-outline-variant flex-grow"></div>
+</div>
+<!-- Scan Result: ERROR (Already Checked In) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] p-xl flex flex-col items-center text-center border border-error-container">
+<div class="w-20 h-20 rounded-full bg-error-container flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-5xl text-error" data-weight="fill" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-error mb-xs">Already Checked In</h3>
+<p class="font-body-lg text-body-lg text-on-surface mb-lg">Arthur Pendelton</p>
+<div class="w-full bg-surface-container p-md rounded-lg mb-lg text-left">
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-xs mb-xs"><span class="material-symbols-outlined text-[16px]">schedule</span> Checked in at 19:42</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">badge</span> Scanned by Gate 3</p>
+</div>
+<div class="w-full flex gap-md">
+<button class="flex-1 bg-surface-container-high text-on-surface font-button text-button py-3 rounded-lg hover:bg-surface-variant transition-colors border border-outline-variant/50">
+                        Override
+                    </button>
+<button class="flex-1 bg-primary-container text-on-primary-container font-button text-button py-3 rounded-lg hover:bg-primary transition-colors shadow-sm">
+                        Rescan
+                    </button>
+</div>
+</div>
+<!-- Scan Result: ERROR (Invalid Ticket) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] p-xl flex flex-col items-center text-center border border-error-container opacity-80">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-md border-2 border-error border-dashed">
+<span class="material-symbols-outlined text-4xl text-error">qr_code_2</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-error mb-xs">Invalid Ticket</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">This QR code does not match any records for this event.</p>
+<button class="w-full bg-surface-container text-error font-button text-button py-3 rounded-lg hover:bg-error-container transition-colors border border-error-container">
+                    Search Manually
+                </button>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden on this transactional screen as per rules) -->
+<!-- BottomNavBar (Hidden as this is a focused task screen) -->
+</body></html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Seating Map | Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#ffe9e8",
+            "error-container": "#ffdad6",
+            "surface-container-low": "#fff0f0",
+            "on-primary-fixed": "#40000b",
+            "on-background": "#251819",
+            "surface-container-high": "#fbe2e2",
+            "inverse-primary": "#ffb3b5",
+            "primary-fixed-dim": "#ffb3b5",
+            "on-surface-variant": "#584141",
+            "on-error-container": "#93000a",
+            "on-tertiary-fixed": "#001f26",
+            "surface-bright": "#fff8f7",
+            "outline": "#8c7071",
+            "on-secondary-fixed-variant": "#53433f",
+            "surface-container-lowest": "#ffffff",
+            "inverse-on-surface": "#ffedec",
+            "surface-variant": "#f5dddd",
+            "on-error": "#ffffff",
+            "primary": "#570013",
+            "on-primary": "#ffffff",
+            "tertiary": "#002c36",
+            "error": "#ba1a1a",
+            "surface": "#fff8f7",
+            "on-tertiary-container": "#7cb0c0",
+            "on-tertiary-fixed-variant": "#114d5b",
+            "surface-tint": "#af2b3e",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed-variant": "#8e0f28",
+            "on-primary-container": "#ff828a",
+            "inverse-surface": "#3b2d2d",
+            "tertiary-fixed": "#b6ebfb",
+            "surface-container-highest": "#f5dddd",
+            "tertiary-fixed-dim": "#9acfde",
+            "outline-variant": "#e0bfbf",
+            "on-secondary-container": "#72605c",
+            "on-secondary": "#ffffff",
+            "background": "#fff8f7",
+            "secondary-fixed": "#f5ddd7",
+            "tertiary-container": "#004451",
+            "on-surface": "#251819",
+            "surface-dim": "#edd4d4",
+            "secondary": "#6c5b56",
+            "primary-container": "#800020",
+            "primary-fixed": "#ffdada",
+            "on-secondary-fixed": "#251915",
+            "secondary-fixed-dim": "#d8c2bc",
+            "secondary-container": "#f5ddd7"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "container-margin-mobile": "16px",
+            "xs": "4px",
+            "md": "16px",
+            "lg": "24px",
+            "max-width-desktop": "1200px",
+            "container-margin-desktop": "auto",
+            "sm": "8px",
+            "xl": "32px",
+            "base": "4px"
+          },
+          "fontFamily": {
+            "headline-sm": ["Inter"],
+            "display-lg": ["Inter"],
+            "label-caps": ["Inter"],
+            "headline-md": ["Inter"],
+            "display-lg-mobile": ["Inter"],
+            "button": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"]
+          },
+          "fontSize": {
+            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+            "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+            "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .map-container::-webkit-scrollbar { display: none; }
+    .map-container { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .seat-active {
+      background-color: #800020;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .bottom-sheet-transition {
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .floor-plan-grid {
+      background-image: radial-gradient(#FCE4DE 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-lg min-h-screen pb-24">
+<!-- Top Navigation (Shell Implementation) -->
+<header class="sticky top-0 z-50 flex justify-between items-center px-lg py-md w-full bg-surface shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+<h1 class="font-headline-sm text-headline-sm text-primary">Seating Map</h1>
+</div>
+<div class="flex gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+</div>
+</header>
+<main class="max-w-md mx-auto">
+<!-- Map Canvas -->
+<div class="relative w-full h-[530px] bg-surface-container-low overflow-auto map-container border-b border-outline-variant floor-plan-grid" id="mapCanvas">
+<div class="min-w-[800px] min-h-[800px] relative p-xl flex items-center justify-center">
+<!-- Tables Layout (Bento-like asymmetrical arrangement) -->
+<div class="grid grid-cols-3 gap-16 relative">
+<!-- VIP Long Table -->
+<div class="col-span-3 flex flex-col items-center gap-sm mb-12">
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Grand Ballroom - Head Table</div>
+<div class="flex gap-xs bg-surface-container-high p-4 rounded-xl shadow-sm border border-outline-variant">
+<!-- Seats -->
+<button class="seat-btn w-10 h-10 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" onclick="openSheet('Seat 1A')">1</button>
+<button class="seat-btn w-10 h-10 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" onclick="openSheet('Seat 1B')">2</button>
+<button class="seat-btn w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center" onclick="openSheet('Seat 1C')">3</button>
+<button class="seat-btn w-10 h-10 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" onclick="openSheet('Seat 1D')">4</button>
+<button class="seat-btn w-10 h-10 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" onclick="openSheet('Seat 1E')">5</button>
+</div>
+</div>
+<!-- Round Table 1 -->
+<div class="flex flex-col items-center gap-sm">
+<div class="w-32 h-32 rounded-full bg-surface-container-high border border-outline-variant shadow-sm relative flex items-center justify-center">
+<span class="font-headline-sm text-primary">T2</span>
+<!-- Circular Seats -->
+<button class="absolute -top-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 2 - Seat A')">A</button>
+<button class="absolute -right-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 2 - Seat B')">B</button>
+<button class="absolute -bottom-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 2 - Seat C')">C</button>
+<button class="absolute -left-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 2 - Seat D')">D</button>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Table 02</span>
+</div>
+<!-- Round Table 2 -->
+<div class="flex flex-col items-center gap-sm">
+<div class="w-32 h-32 rounded-full bg-surface-container-high border border-outline-variant shadow-sm relative flex items-center justify-center">
+<span class="font-headline-sm text-primary">T3</span>
+<button class="absolute -top-4 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[10px]" onclick="openSheet('Table 3 - Seat A')">A</button>
+<button class="absolute -right-4 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[10px]" onclick="openSheet('Table 3 - Seat B')">B</button>
+<button class="absolute -bottom-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 3 - Seat C')">C</button>
+<button class="absolute -left-4 w-8 h-8 rounded-full border-2 border-primary bg-surface flex items-center justify-center text-[10px]" onclick="openSheet('Table 3 - Seat D')">D</button>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Table 03</span>
+</div>
+<!-- Stage / DJ Area -->
+<div class="flex flex-col items-center justify-center bg-secondary-container rounded-xl p-md border border-secondary border-dashed h-32">
+<span class="material-symbols-outlined text-secondary">music_note</span>
+<span class="font-label-caps text-label-caps text-on-secondary-container mt-xs">STAIRWAY &amp; DJ</span>
+</div>
+</div>
+</div>
+<!-- Zoom Controls Overlay -->
+<div class="fixed bottom-48 right-4 flex flex-col gap-2 z-20">
+<button class="w-12 h-12 bg-white rounded-full shadow-lg border border-outline-variant flex items-center justify-center text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-12 h-12 bg-white rounded-full shadow-lg border border-outline-variant flex items-center justify-center text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+<!-- Capacity Summary -->
+<section class="p-lg">
+<div class="flex items-center justify-between mb-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Room Capacity</h2>
+<div class="px-sm py-xs bg-primary-container text-white rounded-lg font-label-caps text-label-caps">
+          82% FULL
+        </div>
+</div>
+<div class="grid grid-cols-3 gap-md">
+<!-- Capacity Cards -->
+<div class="bg-surface border border-outline-variant p-md rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="text-on-surface-variant font-label-caps text-label-caps mb-1">TOTAL</div>
+<div class="font-headline-md text-headline-md text-primary">120</div>
+</div>
+<div class="bg-surface border border-outline-variant p-md rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="text-on-surface-variant font-label-caps text-label-caps mb-1">ASSIGNED</div>
+<div class="font-headline-md text-headline-md text-primary">98</div>
+</div>
+<div class="bg-surface border border-outline-variant p-md rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="text-on-surface-variant font-label-caps text-label-caps mb-1">VACANT</div>
+<div class="font-headline-md text-headline-md text-on-surface-variant">22</div>
+</div>
+</div>
+<!-- Quick Legend -->
+<div class="mt-lg flex gap-lg overflow-x-auto pb-2 no-scrollbar">
+<div class="flex items-center gap-sm flex-shrink-0">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Assigned</span>
+</div>
+<div class="flex items-center gap-sm flex-shrink-0">
+<div class="w-3 h-3 rounded-full border border-primary"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Available</span>
+</div>
+<div class="flex items-center gap-sm flex-shrink-0">
+<div class="w-3 h-3 rounded-full bg-secondary-container"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Service Area</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Sheet Overlay -->
+<div class="fixed inset-0 bg-black/40 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none" id="sheetOverlay" onclick="closeSheet()"></div>
+<!-- Bottom Sheet -->
+<div class="fixed bottom-0 left-0 right-0 bg-surface rounded-t-3xl z-[60] shadow-2xl p-lg bottom-sheet-transition translate-y-full max-w-md mx-auto" id="assignSheet">
+<div class="w-12 h-1.5 bg-outline-variant rounded-full mx-auto mb-xl"></div>
+<div class="flex justify-between items-start mb-lg">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary" id="seatLabel">Seat 1A</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Assign a guest to this position</p>
+</div>
+<button class="text-on-surface-variant p-1" onclick="closeSheet()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="space-y-lg">
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-primary uppercase ml-1">Guest Full Name</label>
+<input class="w-full bg-white border border-outline-variant rounded-xl px-md py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-lg" placeholder="e.g. Julianne Moore" type="text">
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-primary uppercase ml-1">Email Address</label>
+<input class="w-full bg-white border border-outline-variant rounded-xl px-md py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-lg" placeholder="julianne@example.com" type="email">
+</div>
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-primary uppercase ml-1">Dietary Restrictions</label>
+<select class="w-full bg-white border border-outline-variant rounded-xl px-md py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-lg appearance-none">
+<option>None / No preference</option>
+<option>Vegetarian</option>
+<option>Vegan</option>
+<option>Gluten-Free</option>
+<option>Nut Allergy</option>
+<option>Kosher</option>
+</select>
+</div>
+<div class="pt-lg flex gap-md">
+<button class="flex-1 py-4 font-button text-button text-primary bg-surface-container-low rounded-xl active:scale-95 transition-transform" onclick="closeSheet()" type="button">
+          Cancel
+        </button>
+<button class="flex-1 py-4 font-button text-button text-white bg-primary-container rounded-xl active:scale-95 transition-transform shadow-md" type="button">
+          Assign Seat
+        </button>
+</div>
+</form>
+</div>
+<!-- Bottom Navigation Bar (Shell Implementation) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">center_focus_weak</span>
+<span class="font-label-caps text-label-caps">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+    function openSheet(seatId) {
+      const sheet = document.getElementById('assignSheet');
+      const overlay = document.getElementById('sheetOverlay');
+      const label = document.getElementById('seatLabel');
+      
+      label.innerText = seatId;
+      
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('pointer-events-auto');
+        sheet.classList.remove('translate-y-full');
+      }, 10);
+    }
+
+    function closeSheet() {
+      const sheet = document.getElementById('assignSheet');
+      const overlay = document.getElementById('sheetOverlay');
+      
+      sheet.classList.add('translate-y-full');
+      overlay.classList.add('opacity-0');
+      overlay.classList.remove('pointer-events-auto');
+      
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 300);
+    }
+
+    // Basic map interaction - Drag to scroll already handled by overflow-auto
+    // We can add a simple double-tap to zoom effect
+    let zoomLevel = 1;
+    const map = document.getElementById('mapCanvas');
+    
+    map.addEventListener('dblclick', (e) => {
+      zoomLevel = zoomLevel === 1 ? 1.5 : 1;
+      const content = map.children[0];
+      content.style.transform = `scale(${zoomLevel})`;
+      content.style.transition = 'transform 0.3s ease-out';
+      content.style.transformOrigin = 'center center';
+    });
+  </script>
+</body></html>

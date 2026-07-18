@@ -1,0 +1,224 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Scanner - Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#114d5b",
+                        "on-surface-variant": "#584141",
+                        "surface-container-high": "#fbe2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#b6ebfb",
+                        "on-tertiary-container": "#7cb0c0",
+                        "on-surface": "#251819",
+                        "primary-fixed": "#ffdada",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#d8c2bc",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#f5ddd7",
+                        "secondary": "#6c5b56",
+                        "surface-tint": "#af2b3e",
+                        "inverse-primary": "#ffb3b5",
+                        "background": "#fff8f7",
+                        "secondary-container": "#f5ddd7",
+                        "primary-container": "#800020",
+                        "surface-container-highest": "#f5dddd",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "primary": "#570013",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#72605c",
+                        "tertiary-container": "#004451",
+                        "surface": "#fff8f7",
+                        "surface-dim": "#edd4d4",
+                        "on-tertiary-fixed": "#001f26",
+                        "inverse-surface": "#3b2d2d",
+                        "tertiary": "#002c36",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#ffe9e8",
+                        "on-primary-fixed": "#40000b",
+                        "on-background": "#251819",
+                        "inverse-on-surface": "#ffedec",
+                        "outline-variant": "#e0bfbf",
+                        "surface-container-low": "#fff0f0",
+                        "surface-bright": "#fff8f7",
+                        "on-secondary-fixed-variant": "#53433f",
+                        "on-primary-fixed-variant": "#8e0f28",
+                        "on-secondary-fixed": "#251915",
+                        "surface-variant": "#f5dddd",
+                        "tertiary-fixed-dim": "#9acfde",
+                        "on-primary-container": "#ff828a",
+                        "on-primary": "#ffffff",
+                        "outline": "#8c7071"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-margin-desktop": "auto",
+                        "xl": "32px",
+                        "max-width-desktop": "1200px",
+                        "base": "4px",
+                        "container-margin-mobile": "16px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "button": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "button": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+        }
+        .scanner-frame {
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            clip-path: polygon(0% 0%, 0% 100%, 20px 100%, 20px 20px, calc(100% - 20px) 20px, calc(100% - 20px) calc(100% - 20px), 20px calc(100% - 20px), 20px 100%, 100% 100%, 100% 0%);
+        }
+        .scanner-corner {
+            width: 32px;
+            height: 32px;
+            border-color: theme('colors.primary');
+            border-style: solid;
+            position: absolute;
+        }
+        .tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-radius: 8px 0 0 0; }
+        .tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-radius: 0 8px 0 0; }
+        .bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-radius: 0 0 0 8px; }
+        .br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-radius: 0 0 8px 0; }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        .scan-line {
+            animation: scanline 2s linear infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-on-surface font-body-lg antialiased">
+<!-- Top Navigation (Web) -->
+<header class="hidden md:flex sticky top-0 z-50 justify-between items-center px-lg py-md w-full max-w-max-width-desktop mx-auto bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary-container">Burgundy &amp; Peach</span>
+</div>
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Venues</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Events</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Guest List</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Scanner</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-headline-sm text-headline-sm" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-surface-variant transition-colors text-primary dark:text-primary-fixed-dim active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-variant transition-colors text-primary dark:text-primary-fixed-dim active:scale-95 duration-150">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden ml-sm border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A small, circular profile picture of an elegant professional person in modern lighting. The background is a soft, warm peach tone, blending seamlessly with a high-end corporate hospitality aesthetic. Sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbJbWaz0i49srooK2fuIIICEW8vhyUHIuR0Ku3w2NN7E64qLijGuNvyie1S_aZJYqqEkIkAzLdD_IpnVIA9ed2Fm07q4egVbPvv7DQe5_VfnxiZuFm_XMS2j5LWIcLMrce-5ZB6qCKUN31LRHzVQr0IFq6jAXP_7u5AMqCrwN7u_KedhyEco9mi7ql_54e1BNct8fnBxQzk3yEedZ1WE7YsJctn9_tQAUFn5TBHXPHtnKC8PktFwf1m6kF1fwArtM41r_5BJRmIeij">
+</div>
+</div>
+</header>
+<!-- Side Navigation (Web - Hidden on mobile) -->
+<!-- Assuming TopNavBar is preferred for web based on JSON, but keeping SideNav structure available if needed for specific layouts. For this 'mobile-first viewport on desktop' prompt, we'll focus the content in a centered container. -->
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center justify-center relative w-full h-full md:max-w-md mx-auto md:mt-xl md:mb-xl md:shadow-lg md:rounded-xl md:overflow-hidden bg-black">
+<!-- Camera Viewfinder Background -->
+<div class="absolute inset-0 z-0">
+<img alt="Camera feed" class="w-full h-full object-cover opacity-80" data-alt="A slightly blurred, real-time camera view of an elegant event entrance, perhaps a gala or wedding. The lighting is warm and ambient. We see hints of guests arriving and a subtle, high-end environment in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8xmbeuYgFv6rM0JP-2J1SInytvIRiK-ioaWvC_mh-wHn8IwBeU0CwYQU8VaC19Gt9w2w1wz3DbfzQA-0TmGjQ7A-uuSlyga3hrixnp2LAX5uxVM60fpaWNkP6Nw3-hPV6ItBUSRm3j6sIShyIs94PrC7-pg3sGi2NVtaw2nkwMpUGEKOEOhFJmz9Zd1AcAPKiWN1g85G5eBrBvrLSbTpD1MwjrsDaNDi9Lkr3WgnIbCXZq-Gm6fQQLGYOFkk5_Lh1u3ANwHkD0xwI">
+</div>
+<!-- Overlay Header -->
+<div class="absolute top-0 w-full z-10 p-container-margin-mobile bg-gradient-to-b from-black/70 to-transparent pt-xl md:pt-container-margin-mobile">
+<div class="flex justify-between items-start">
+<div>
+<h1 class="font-headline-sm text-headline-sm text-white drop-shadow-md">Scanner Active</h1>
+<p class="font-label-caps text-label-caps text-secondary-fixed-dim mt-xs drop-shadow-md">Gala Dinner 2024</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 transition-colors border border-white/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flashlight_on</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 transition-colors border border-white/20">
+<span class="material-symbols-outlined">cameraswitch</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Viewfinder Reticle -->
+<div class="relative z-10 w-64 h-64 md:w-80 md:h-80 flex-shrink-0">
+<!-- Semi-transparent overlay around the clear box -->
+<div class="absolute inset-[-100vh] scanner-frame pointer-events-none"></div>
+<!-- Clear box corners -->
+<div class="absolute inset-0 border-2 border-white/30 rounded-lg">
+<div class="scanner-corner tl"></div>
+<div class="scanner-corner tr"></div>
+<div class="scanner-corner bl"></div>
+<div class="scanner-corner br"></div>
+</div>
+<!-- Scan Line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-primary shadow-[0_0_8px_rgba(128,0,32,0.8)] scan-line pointer-events-none"></div>
+</div>
+<!-- Instructional Text -->
+<div class="absolute bottom-32 w-full z-10 text-center px-lg">
+<div class="bg-black/50 backdrop-blur-md rounded-lg py-sm px-md inline-block border border-white/10">
+<p class="font-body-sm text-body-sm text-white">Align QR code within the frame to scan.</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface dark:bg-surface-dim shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] docked full-width bottom-0 rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">home</span>
+<span>Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">calendar_today</span>
+<span>Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 hover:text-primary active:scale-90 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">center_focus_weak</span>
+<span>Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span>Profile</span>
+</a>
+</nav>
+</body></html>

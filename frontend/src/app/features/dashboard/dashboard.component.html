@@ -1,0 +1,130 @@
+<div class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <!--<p class="eyebrow">{{ 'common.appName' | translate }}</p>-->
+      <h1 class="text-display-lg">{{ 'dashboard.title' | translate }}</h1>
+      <p class="text-body-sm subtitle">{{ 'dashboard.subtitle' | translate }}</p>
+    </div>
+
+    <div class="dashboard-actions">
+      <a routerLink="/venues" class="btn btn-secondary">
+        <span class="material-symbols-outlined">add_home</span>
+        {{ 'dashboard.newRoom' | translate }}
+      </a>
+      <a routerLink="/events" class="btn btn-primary">
+        <span class="material-symbols-outlined">calendar_add_on</span>
+        {{ 'dashboard.newEvent' | translate }}
+      </a> 
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state card">{{ 'common.loading' | translate }}</div>
+  } @else {
+    <section class="dashboard-section" aria-labelledby="room-overview-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="room-overview-title" class="text-headline-md">{{ 'dashboard.roomOverview' | translate }}</h2>
+          <p class="text-body-sm subtitle">{{ 'dashboard.roomOverviewSubtitle' | translate }}</p>
+        </div>
+        <span class="room-count">{{ rooms().length }}</span>
+      </div>
+
+      @if (rooms().length === 0) {
+        <div class="empty-state card">
+          <span class="material-symbols-outlined">meeting_room</span>
+          <h3 class="text-headline-sm">{{ 'dashboard.noRoomsTitle' | translate }}</h3>
+          <p class="text-body-sm">{{ 'dashboard.noRoomsBody' | translate }}</p>
+          <a routerLink="/venues" class="btn btn-primary">{{ 'dashboard.newRoom' | translate }}</a>
+        </div>
+      } @else {
+        <div class="room-grid">
+          @for (room of displayedRooms(); track room.id) {
+            <a routerLink="/venues" class="room-card card">
+              <div class="room-card-topline">
+                <span class="text-label-caps">{{ 'dashboard.floor' | translate }} {{ room.floor_number }}</span>
+                <span class="status-chip" [class]="'status-chip ' + roomStatus(room)">
+                  <span class="material-symbols-outlined">{{ roomStatus(room) === 'available' ? 'check_circle' : roomStatus(room) === 'active' ? 'play_circle' : 'event_upcoming' }}</span>
+                  {{ ('dashboard.status.' + roomStatus(room)) | translate }}
+                </span>
+              </div>
+              <h3 class="text-headline-sm">{{ room.room_number }}</h3>
+              <p class="room-capacity text-body-sm">
+                <span class="material-symbols-outlined">group</span>
+                {{ room.capacity ?? '—' }} {{ 'dashboard.capacity' | translate }}
+              </p>
+
+              @if (roomEvent(room.id); as activeEvent) {
+                <div class="booking active-booking">
+                  <span class="material-symbols-outlined">celebration</span>
+                  <div>
+                    <span class="booking-label">{{ 'dashboard.liveNow' | translate }}</span>
+                    <strong>{{ activeEvent.name }}</strong>
+                    <span>{{ activeEvent.start_time | date: 'shortTime' }} – {{ activeEvent.end_time | date: 'shortTime' }}</span>
+                  </div>
+                </div>
+              } @else {
+                @if (nextRoomEvent(room.id); as nextEvent) {
+                  <div class="booking">
+                    <span class="material-symbols-outlined">event</span>
+                    <div>
+                      <span class="booking-label">{{ 'dashboard.nextBooking' | translate }}</span>
+                      <strong>{{ nextEvent.name }}</strong>
+                      <span>{{ nextEvent.start_time | date: 'MMM d, shortTime' }}</span>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="booking no-booking">
+                    <span class="material-symbols-outlined">event_available</span>
+                    <span>{{ 'dashboard.noBooking' | translate }}</span>
+                  </div>
+                }
+              }
+
+              <span class="material-symbols-outlined room-arrow">arrow_forward</span>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-section events-section" aria-labelledby="live-events-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="live-events-title" class="text-headline-md">{{ 'dashboard.eventsTitle' | translate }}</h2>
+          <p class="text-body-sm subtitle">{{ 'dashboard.eventsSubtitle' | translate }}</p>
+        </div>
+        <a routerLink="/events" class="view-all">{{ 'dashboard.viewAll' | translate }}</a>
+      </div>
+
+      @if (displayedEvents().length === 0) {
+        <div class="empty-state card compact-empty">
+          <span class="material-symbols-outlined">event_busy</span>
+          <p class="text-body-sm">{{ 'dashboard.noEvents' | translate }}</p>
+        </div>
+      } @else {
+        <div class="event-grid">
+          @for (event of displayedEvents(); track event.id) {
+            <a routerLink="/events" class="event-card card">
+              <div class="event-art" [class.live-art]="eventState(event) === 'live'">
+                <span class="material-symbols-outlined">{{ eventState(event) === 'live' ? 'celebration' : 'calendar_month' }}</span>
+                <span class="event-state">{{ ('dashboard.' + eventState(event)) | translate }}</span>
+              </div>
+              <div class="event-content">
+                <h3 class="text-headline-sm">{{ event.name }}</h3>
+                <p class="event-room text-body-sm">
+                  <span class="material-symbols-outlined">location_on</span>
+                  {{ roomFor(event)?.room_number ?? '—' }} · {{ 'dashboard.floor' | translate }} {{ roomFor(event)?.floor_number ?? '—' }}
+                </p>
+                <p class="event-time text-body-sm">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ event.start_time | date: 'MMM d, shortTime' }} – {{ event.end_time | date: 'shortTime' }}
+                </p>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

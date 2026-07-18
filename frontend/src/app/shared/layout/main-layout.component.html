@@ -1,0 +1,62 @@
+<div class="app-shell">
+  <!-- ---- Mobile top bar (modern-app style: brand left, logout right) ---- -->
+  <header class="mobile-topbar">
+    <div class="brand-compact">
+      <span class="material-symbols-outlined brand-icon">confirmation_number</span>
+      <span class="brand-name">{{ 'common.appName' | translate }}</span>
+    </div>
+    <button type="button" class="icon-btn" (click)="logout()" aria-label="Log out">
+      <span class="material-symbols-outlined">logout</span>
+    </button>
+  </header>
+
+  <!-- ---- Desktop sidebar ---- -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="material-symbols-outlined brand-icon">confirmation_number</span>
+      <div>
+        <div class="brand-name">{{ 'common.appName' | translate }}</div>
+      </div>
+    </div>
+
+    @if (isAdmin()) {
+      <a routerLink="/events/create" class="btn btn-primary new-event-btn">{{ 'nav.newEvent' | translate }}</a>
+    }
+
+    <nav class="nav-list">
+      @for (item of visibleNavItems(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          #desktopNavItem="routerLinkActive"
+          class="nav-item"
+        >
+          <span class="material-symbols-outlined nav-icon" [class.icon-filled]="desktopNavItem.isActive">{{ item.icon }}</span>
+          <span>{{ item.labelKey | translate }}</span>
+        </a>
+      }
+    </nav> 
+
+    <div class="sidebar-footer">
+      <button type="button" class="nav-item logout-btn" (click)="logout()">
+        <span class="material-symbols-outlined nav-icon">logout</span>
+        <span>{{ 'common.logout' | translate }}</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ---- Main content ---- -->
+  <main class="content-area">
+    <router-outlet />
+  </main>
+
+  <!-- ---- Mobile bottom nav ---- -->
+  <nav class="bottom-nav">
+    @for (item of visibleNavItems(); track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active" #mobileNavItem="routerLinkActive" class="bottom-nav-item">
+        <span class="material-symbols-outlined nav-icon" [class.icon-filled]="mobileNavItem.isActive">{{ item.icon }}</span>
+        <span class="text-label-caps">{{ item.labelKey | translate }}</span>
+      </a>
+    }
+  </nav>
+</div>

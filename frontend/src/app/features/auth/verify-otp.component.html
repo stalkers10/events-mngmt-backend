@@ -1,0 +1,32 @@
+<div class="otp-page">
+  <span class="material-symbols-outlined icon-circle">verified_user</span>
+  <p class="text-body-lg brand-label">{{ 'common.appName' | translate }}</p>
+
+  <div class="otp-card card">
+    <h2 class="text-headline-sm">{{ 'auth.otp.title' | translate }}</h2>
+    <p class="text-body-sm subtitle">{{ 'auth.otp.subtitle' | translate }}</p>
+
+    <div class="digit-row">
+      @for (i of [0,1,2,3,4,5,6,7]; track i) {
+        <input
+          #digitInput
+          class="digit-box"
+          type="text"
+          maxlength="1"
+          [value]="digits()[i]"
+          (input)="onInput(i, $event)"
+          (keydown)="onKeydown(i, $event)"
+        />
+      }
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary submit-btn"
+      [disabled]="isSubmitting()"
+      (click)="submit()"
+    >
+      {{ (isSubmitting() ? 'auth.otp.submitting' : 'auth.otp.submit') | translate }}
+    </button>
+  </div>
+</div>

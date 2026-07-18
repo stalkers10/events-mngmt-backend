@@ -1,0 +1,263 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Create Event - Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#114d5b",
+                        "on-surface-variant": "#584141",
+                        "surface-container-high": "#fbe2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#b6ebfb",
+                        "on-tertiary-container": "#7cb0c0",
+                        "on-surface": "#251819",
+                        "primary-fixed": "#ffdada",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#d8c2bc",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#f5ddd7",
+                        "secondary": "#6c5b56",
+                        "surface-tint": "#af2b3e",
+                        "inverse-primary": "#ffb3b5",
+                        "background": "#fff8f7",
+                        "secondary-container": "#f5ddd7",
+                        "primary-container": "#800020",
+                        "surface-container-highest": "#f5dddd",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "primary": "#570013",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#72605c",
+                        "tertiary-container": "#004451",
+                        "surface": "#fff8f7",
+                        "surface-dim": "#edd4d4",
+                        "on-tertiary-fixed": "#001f26",
+                        "inverse-surface": "#3b2d2d",
+                        "tertiary": "#002c36",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#ffe9e8",
+                        "on-primary-fixed": "#40000b",
+                        "on-background": "#251819",
+                        "inverse-on-surface": "#ffedec",
+                        "outline-variant": "#e0bfbf",
+                        "surface-container-low": "#fff0f0",
+                        "surface-bright": "#fff8f7",
+                        "on-secondary-fixed-variant": "#53433f",
+                        "on-primary-fixed-variant": "#8e0f28",
+                        "on-secondary-fixed": "#251915",
+                        "surface-variant": "#f5dddd",
+                        "tertiary-fixed-dim": "#9acfde",
+                        "on-primary-container": "#ff828a",
+                        "on-primary": "#ffffff",
+                        "outline": "#8c7071"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-margin-desktop": "auto",
+                        "xl": "32px",
+                        "max-width-desktop": "1200px",
+                        "base": "4px",
+                        "container-margin-mobile": "16px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "button": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "button": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(252, 228, 222, 0.6);
+        }
+    </style>
+</head>
+<body class="h-full bg-background text-on-surface flex font-body-lg">
+<!-- Desktop SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-dim shadow-md p-md gap-sm z-40">
+<div class="flex items-center gap-sm mb-lg px-2">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A sophisticated, minimalist abstract logo for an event management company featuring intertwined geometric shapes in deep burgundy and soft peach tones. High resolution, crisp lines, modern corporate aesthetic on a pure white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA38v6cd_XT04UEjNcCdrrZCA91HKuWqKn1dZkh37CZQXvoK8klV0Fj6RYYUSENSzwrv65NP3e2vt32hvXUmfnit9URi6cs4ifgoMYWDKfrLW8EjkNGEgqxdhtk9Axmnr4l9d9b8h11J6tQ8nHBeCkjru74NcYvs6z2kL6QMbwJ_m8Sc5v7H5VVzX6H6inlBDYtAceua0Jif8TvXulIDJnTKLPSbaPTDmnDd8BwGy4YgvKGIh0q78DYxuImArql5Sou9pNBS2Dn7Kr2">
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Burgundy &amp; Peach</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Event Management</p>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-button text-button py-3 rounded-lg mb-4 hover:opacity-90 transition-opacity">
+            New Event
+        </button>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+                Venues
+            </a>
+<a class="flex items-center gap-sm px-4 py-3 bg-primary-container text-on-primary-container rounded-lg font-bold font-label-caps text-label-caps active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+                Events
+            </a>
+<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Guest List
+            </a>
+<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+                Scanner
+            </a>
+<a class="flex items-center gap-sm px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-lg font-label-caps text-label-caps mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+</aside>
+<!-- Mobile TopNavBar -->
+<header class="md:hidden sticky top-0 z-50 flex justify-between items-center px-lg py-md w-full bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary-container">Burgundy &amp; Peach</h1>
+<div class="flex gap-sm">
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 duration-150 p-2">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 duration-150 p-2">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 p-container-margin-mobile md:p-xl overflow-y-auto w-full max-w-max-width-desktop mx-auto">
+<div class="mb-lg">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-2">Create New Event</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Fill out the details below to schedule a new event.</p>
+</div>
+<div class="glass-panel rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] p-6 md:p-8 max-w-3xl">
+<form class="space-y-6">
+<!-- Event Name -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="eventName">Event Name</label>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm" id="eventName" placeholder="e.g. Annual Gala Dinner" type="text">
+</div>
+<!-- Room Selector -->
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="roomSelector">Venue Room</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm appearance-none" id="roomSelector">
+<option disabled="" selected="" value="">Select a room...</option>
+<option value="grand-ballroom">Grand Ballroom</option>
+<option value="garden-terrace">Garden Terrace</option>
+<option value="executive-suite">Executive Suite A</option>
+<option value="rose-hall">Rose Hall</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Date/Time Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-surface-variant">
+<!-- Start Date/Time -->
+<div class="space-y-4">
+<h3 class="font-headline-sm text-headline-sm text-primary">Start</h3>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="startDate">Date</label>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm" id="startDate" type="date">
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="startTime">Time</label>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm" id="startTime" type="time">
+</div>
+</div>
+<!-- End Date/Time -->
+<div class="space-y-4">
+<h3 class="font-headline-sm text-headline-sm text-primary">End</h3>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="endDate">Date</label>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm" id="endDate" type="date">
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2" for="endTime">Time</label>
+<input class="w-full bg-surface-container-lowest border border-error-container rounded-lg px-4 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm bg-error-container/10" id="endTime" type="time">
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 italic flex items-start gap-1">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">info</span>
+                                include cleanup/teardown time in your end time
+                            </p>
+</div>
+</div>
+</div>
+<!-- Conflict Warning (Simulated State) -->
+<div class="bg-surface-container-low border border-surface-tint/30 rounded-lg p-4 flex gap-3 items-start">
+<span class="material-symbols-outlined text-surface-tint" data-icon="warning">warning</span>
+<div>
+<h4 class="font-headline-sm text-[16px] leading-[24px] font-semibold text-primary">Schedule Conflict Detected</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">The Grand Ballroom is currently booked from 2:00 PM to 6:00 PM for the "Corporate Retreat". Please adjust your times.</p>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col-reverse md:flex-row justify-end gap-4 pt-6 border-t border-surface-variant">
+<button class="px-6 py-3 rounded-lg font-button text-button text-primary bg-secondary-container hover:bg-surface-variant transition-colors" type="button">
+                        Cancel
+                    </button>
+<button class="px-6 py-3 rounded-lg font-button text-button text-on-primary-container bg-primary-container hover:opacity-90 shadow-md transition-all" type="submit">
+                        Create Event
+                    </button>
+</div>
+</form>
+</div>
+</main>
+<!-- Mobile BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface dark:bg-surface-dim shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl pb-6">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-label-caps mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_weak">center_focus_weak</span>
+<span class="font-label-caps text-label-caps mt-1">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

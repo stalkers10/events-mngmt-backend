@@ -1,0 +1,122 @@
+<div class="create-event-page">
+  <button class="back-btn" [routerLink]="['/events']">
+    <span class="material-symbols-outlined">arrow_back</span>
+    {{ 'seating.backToEvents' | translate }}
+  </button>
+
+  <div class="split-layout">
+    <!-- Left Panel: Configuration -->
+    <div class="left-panel">
+      <h2>{{ 'events.createEvent' | translate }}</h2>
+      
+      <div class="form-group">
+        <label>{{ 'events.name' | translate }}</label>
+        <input type="text" [(ngModel)]="eventName" [placeholder]="'events.namePlaceholder' | translate">
+      </div>
+
+      <div class="form-group">
+        <label>{{ 'events.room' | translate }}</label>
+        <select [(ngModel)]="selectedRoom">
+          <option value="">{{ 'events.selectRoom' | translate }}</option>
+          <option *ngFor="let room of rooms()" [value]="room.id">
+            {{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}{{ room.building ? ' · ' + room.building.name : '' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'events.startTime' | translate }}</label>
+          <input type="datetime-local" [(ngModel)]="startTime">
+        </div>
+        <div class="form-group">
+          <label>{{ 'events.endTime' | translate }}</label>
+          <input type="datetime-local" [(ngModel)]="endTime">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ 'events.tableCount' | translate }}</label>
+          <input type="number" [(ngModel)]="tableCount" min="1" max="50">
+        </div>
+        <div class="form-group">
+          <label>{{ 'events.chairsPerTable' | translate }}</label>
+          <input type="number" [(ngModel)]="chairsPerTable" min="1" max="20">
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="generateLayout()">
+        {{ 'events.generatePreview' | translate }}
+      </button>
+
+      <div class="table-editor" *ngIf="selectedTable()">
+        <h3>{{ 'events.editTable' | translate }} {{ selectedTable()!.id }}</h3>
+        <div class="form-group">
+          <label>{{ 'events.chairsForTable' | translate }} {{ selectedTable()!.id }}</label>
+          <input type="number" [(ngModel)]="selectedTable()!.chairs" (ngModelChange)="updateChairs($event)" min="1" max="20">
+        </div>
+        <div class="table-position">
+          <span>{{ 'events.position' | translate }}: {{ round(selectedTable()!.x) }}, {{ round(selectedTable()!.y) }}</span>
+          <button class="btn-danger" (click)="removeTable()">{{ 'events.removeTable' | translate }}</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" (click)="createEvent()">
+          {{ 'events.createEvent' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Interactive Preview -->
+    <div class="right-panel">
+      <div class="canvas-container">
+        <div class="canvas-header">
+          <h3>{{ 'events.seatingPreview' | translate }}</h3>
+          <div class="canvas-controls">
+            <button class="btn-icon" (click)="zoomIn()" title="{{ 'events.zoomIn' | translate }}">+</button>
+            <button class="btn-icon" (click)="zoomOut()" title="{{ 'events.zoomOut' | translate }}">−</button>
+            <button class="btn-icon" (click)="resetView()" title="{{ 'events.resetView' | translate }}">⌂</button>
+          </div>
+        </div>
+        <div #canvas class="canvas" 
+             (click)="onCanvasClick()"
+             (mousedown)="onCanvasMouseDown($event)"
+             (wheel)="onWheel($event)"
+             [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
+             [style.transform-origin]="'0 0'">
+          <div class="grid-background"></div>
+          <div class="stage-label">{{ 'events.stage' | translate }}</div>
+<div *ngFor="let table of tables(); trackBy: trackByTableId" 
+             class="table-group" 
+             [class.selected]="table.selected"
+             [style.left.px]="table.x"
+             [style.top.px]="table.y"
+             [style.width.px]="getTableSize(table.chairs)"
+             [style.height.px]="getTableSize(table.chairs)"
+             (click)="onTableClick(table, $event)"
+             (mousedown)="onTableMouseDown(table, $event)">
+             
+            <!-- Chairs around table -->
+            <div class="chairs-ring">
+              <div *ngFor="let chair of getChairPositions(table); let i = index"
+                   class="chair"
+                   [style.transform]="'rotate(' + chair.angle + 'deg) translate(-50%, -50%)'"
+                   [style.left.%]="chair.left"
+                   [style.top.%]="chair.top">
+                <span class="material-symbols-outlined">chair</span>
+              </div>
+            </div>
+            
+            <!-- Table surface -->
+            <div class="table-surface">
+              <span class="table-number">T{{ table.id }}</span>
+              <span class="chair-count">{{ table.chairs }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

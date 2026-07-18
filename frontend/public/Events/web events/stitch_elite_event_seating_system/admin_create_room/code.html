@@ -1,0 +1,342 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Burgundy &amp; Peach - Room / Venue Layout Form</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#114d5b",
+                      "on-surface-variant": "#584141",
+                      "surface-container-high": "#fbe2e2",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed": "#b6ebfb",
+                      "on-tertiary-container": "#7cb0c0",
+                      "on-surface": "#251819",
+                      "primary-fixed": "#ffdada",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#d8c2bc",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#f5ddd7",
+                      "secondary": "#6c5b56",
+                      "surface-tint": "#af2b3e",
+                      "inverse-primary": "#ffb3b5",
+                      "background": "#fff8f7",
+                      "secondary-container": "#f5ddd7",
+                      "primary-container": "#800020",
+                      "surface-container-highest": "#f5dddd",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#ffb3b5",
+                      "primary": "#570013",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-container": "#72605c",
+                      "tertiary-container": "#004451",
+                      "surface": "#fff8f7",
+                      "surface-dim": "#edd4d4",
+                      "on-tertiary-fixed": "#001f26",
+                      "inverse-surface": "#3b2d2d",
+                      "tertiary": "#002c36",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#ffe9e8",
+                      "on-primary-fixed": "#40000b",
+                      "on-background": "#251819",
+                      "inverse-on-surface": "#ffedec",
+                      "outline-variant": "#e0bfbf",
+                      "surface-container-low": "#fff0f0",
+                      "surface-bright": "#fff8f7",
+                      "on-secondary-fixed-variant": "#53433f",
+                      "on-primary-fixed-variant": "#8e0f28",
+                      "on-secondary-fixed": "#251915",
+                      "surface-variant": "#f5dddd",
+                      "tertiary-fixed-dim": "#9acfde",
+                      "on-primary-container": "#ff828a",
+                      "on-primary": "#ffffff",
+                      "outline": "#8c7071"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "container-margin-desktop": "auto",
+                      "xl": "32px",
+                      "max-width-desktop": "1200px",
+                      "base": "4px",
+                      "container-margin-mobile": "16px",
+                      "lg": "24px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-lg">
+<div class="flex h-screen">
+<!-- SideNav -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-dim shadow-sm p-md gap-sm z-50">
+<div class="flex items-center gap-sm mb-lg">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A sophisticated monogram logo for 'Burgundy &amp; Peach', set against a soft peach background. The design is elegant and modern, fitting for a high-end event management company." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADqnOIevMrH-IJKkL1EVj1x-yEaCfO1jGMdnbQlW9gxGoWhEOhxPkIUmRk_Pdg06Xg8NKNmpV0Ug7i0cAI--ZsRuMW5X6i5c8_Cim_hIAp0FkyZ2Q_AsnqU_ye36hu4-NWadIpeCxcoqw9d0Qp8PrYoU-FYxPrOLKGsJCxkzuneRBPsQvb7s1LDF5O-24BH8qJjC3Nwh9OU7T2ZEZjoyPhub51Cs675trTsHAdqxoqAy33TAwBKYb_3vPrEe5hU3GkY6fT1VydFebv">
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Burgundy &amp; Peach</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Event Management</p>
+</div>
+</div>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm p-sm bg-primary-container text-on-primary-container rounded-lg font-bold hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-label-caps text-label-caps">Venues</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps">Guest List</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps">Scanner</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-all active:translate-x-1 duration-200 mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<button class="mt-sm bg-primary-container text-on-primary-container font-button text-button py-2 px-4 rounded-lg hover:opacity-90 transition-opacity w-full">New Event</button>
+</nav>
+<!-- TopNavBar for Mobile -->
+<nav class="md:hidden flex justify-between items-center px-lg py-md w-full sticky top-0 z-50 bg-surface shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Burgundy &amp; Peach</h1>
+<div class="flex gap-sm text-primary">
+<span class="material-symbols-outlined active:scale-95 duration-150 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined active:scale-95 duration-150 cursor-pointer">help</span>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 p-container-margin-mobile md:p-lg">
+<div class="max-w-max-width-desktop mx-auto w-full">
+<header class="mb-lg">
+<h2 class="font-display-lg-mobile md:font-display-lg text-primary mb-xs">Create Room / Venue Layout</h2>
+<p class="font-body-lg text-on-surface-variant">Define the spatial arrangement for your upcoming event.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Form Section -->
+<div class="lg:col-span-1 space-y-md">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md">Room Details</h3>
+<form class="space-y-sm">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Room Name / Number</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-3 py-2 font-body-sm text-on-surface outline-none transition-colors" placeholder="e.g. Grand Ballroom" type="text">
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Floor</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-3 py-2 font-body-sm text-on-surface outline-none transition-colors" placeholder="e.g. 2nd" type="text">
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Capacity</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-3 py-2 font-body-sm text-on-surface outline-none transition-colors" placeholder="250" type="number">
+</div>
+</div>
+<hr class="border-outline-variant my-md">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md">Table Configuration</h3>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Number of Tables</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-3 py-2 font-body-sm text-on-surface outline-none transition-colors" type="number" value="12">
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Chairs per Table (Default)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-3 py-2 font-body-sm text-on-surface outline-none transition-colors" type="number" value="8">
+</div>
+<button class="w-full bg-primary text-on-primary font-button text-button py-2 rounded-lg hover:bg-opacity-90 transition-all shadow-md active:scale-95 mt-sm" type="button">Generate Layout</button>
+</form>
+</div>
+</div>
+<!-- Visual Layout Section (Bento Grid Style) -->
+<div class="lg:col-span-2">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] h-full flex flex-col">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm text-primary">Floor Plan Preview</h3>
+<div class="flex gap-xs">
+<button class="p-2 rounded-lg bg-secondary-container text-on-secondary-container hover:bg-opacity-80 transition-colors"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="p-2 rounded-lg bg-secondary-container text-on-secondary-container hover:bg-opacity-80 transition-colors"><span class="material-symbols-outlined">zoom_out</span></button>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-lg p-md border border-outline-variant overflow-y-auto">
+<!-- Dynamic Grid Representation -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-md">
+<!-- Table 1 -->
+<div class="aspect-square bg-surface-container-lowest rounded-full border-2 border-outline-variant flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group shadow-sm">
+<div class="absolute -top-2 bg-primary-container text-on-primary-container font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 shadow-sm">T-01</div>
+<span class="font-headline-md text-headline-md text-on-surface-variant group-hover:text-primary">8</span>
+<!-- Chairs indicators -->
+<div class="absolute inset-2 border border-dashed border-outline-variant rounded-full opacity-50"></div>
+</div>
+<!-- Table 2 -->
+<div class="aspect-square bg-surface-container-lowest rounded-full border-2 border-outline-variant flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group shadow-sm">
+<div class="absolute -top-2 bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 border border-outline-variant shadow-sm">T-02</div>
+<span class="font-headline-md text-headline-md text-on-surface-variant group-hover:text-primary">8</span>
+<div class="absolute inset-2 border border-dashed border-outline-variant rounded-full opacity-50"></div>
+</div>
+<!-- Table 3 -->
+<div class="aspect-square bg-surface-container-lowest rounded-full border-2 border-outline-variant flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group shadow-sm">
+<div class="absolute -top-2 bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 border border-outline-variant shadow-sm">T-03</div>
+<span class="font-headline-md text-headline-md text-on-surface-variant group-hover:text-primary">8</span>
+<div class="absolute inset-2 border border-dashed border-outline-variant rounded-full opacity-50"></div>
+</div>
+<!-- Table 4 -->
+<div class="aspect-square bg-surface-container-lowest rounded-full border-2 border-outline-variant flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group shadow-sm">
+<div class="absolute -top-2 bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 border border-outline-variant shadow-sm">T-04</div>
+<span class="font-headline-md text-headline-md text-on-surface-variant group-hover:text-primary">8</span>
+<div class="absolute inset-2 border border-dashed border-outline-variant rounded-full opacity-50"></div>
+</div>
+<!-- Table 5 (Selected State Example) -->
+<div class="aspect-square bg-primary-container bg-opacity-10 rounded-full border-2 border-primary flex items-center justify-center relative cursor-pointer shadow-md">
+<div class="absolute -top-2 bg-primary text-on-primary font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 shadow-sm">T-05</div>
+<span class="font-headline-md text-headline-md text-primary font-bold">10</span>
+<div class="absolute inset-1.5 border border-dashed border-primary rounded-full opacity-70"></div>
+<!-- Mini chair dots -->
+<div class="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></div>
+<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></div>
+</div>
+<!-- Table 6 -->
+<div class="aspect-square bg-surface-container-lowest rounded-full border-2 border-outline-variant flex items-center justify-center relative hover:border-primary transition-colors cursor-pointer group shadow-sm">
+<div class="absolute -top-2 bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full z-10 border border-outline-variant shadow-sm">T-06</div>
+<span class="font-headline-md text-headline-md text-on-surface-variant group-hover:text-primary">8</span>
+<div class="absolute inset-2 border border-dashed border-outline-variant rounded-full opacity-50"></div>
+</div>
+</div>
+</div>
+<div class="mt-md flex justify-end gap-sm">
+<button class="bg-secondary-container text-on-secondary-container font-button text-button py-2 px-4 rounded-lg hover:bg-opacity-80 transition-colors">Save Draft</button>
+<button class="bg-primary text-on-primary font-button text-button py-2 px-6 rounded-lg hover:bg-opacity-90 transition-all shadow-md active:scale-95">Finalize Layout</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar for Mobile -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-xs">home</span>
+<span class="font-label-caps text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-xs">calendar_today</span>
+<span class="font-label-caps text-[10px]">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-xs">location_on</span>
+<span class="font-label-caps text-[10px]">Venues</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-xs">person</span>
+<span class="font-label-caps text-[10px]">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

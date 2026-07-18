@@ -1,0 +1,254 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanner-frame {
+            position: relative;
+            box-shadow: 0 0 0 9999px rgba(255, 241, 238, 0.7);
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #800020, transparent);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+        .ripple {
+            animation: ripple-effect 1.5s ease-out infinite;
+        }
+        @keyframes ripple-effect {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#af2b3e",
+                        "secondary-container": "#f5ddd7",
+                        "on-primary-fixed": "#40000b",
+                        "tertiary-container": "#004451",
+                        "secondary-fixed-dim": "#d8c2bc",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#f5ddd7",
+                        "surface-variant": "#f5dddd",
+                        "outline-variant": "#e0bfbf",
+                        "on-surface": "#251819",
+                        "surface-container-highest": "#f5dddd",
+                        "on-tertiary-container": "#7cb0c0",
+                        "surface-container": "#ffe9e8",
+                        "on-primary-container": "#ff828a",
+                        "on-primary-fixed-variant": "#8e0f28",
+                        "secondary": "#6c5b56",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-container": "#72605c",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#ffb3b5",
+                        "tertiary-fixed": "#b6ebfb",
+                        "surface-dim": "#edd4d4",
+                        "on-surface-variant": "#584141",
+                        "surface-container-high": "#fbe2e2",
+                        "tertiary-fixed-dim": "#9acfde",
+                        "on-error": "#ffffff",
+                        "outline": "#8c7071",
+                        "on-tertiary-fixed-variant": "#114d5b",
+                        "on-secondary-fixed-variant": "#53433f",
+                        "inverse-surface": "#3b2d2d",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#ffedec",
+                        "primary-container": "#800020",
+                        "background": "#fff8f7",
+                        "on-secondary-fixed": "#251915",
+                        "surface-bright": "#fff8f7",
+                        "surface": "#fff8f7",
+                        "primary": "#570013",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#001f26",
+                        "surface-container-low": "#fff0f0",
+                        "primary-fixed": "#ffdada",
+                        "tertiary": "#002c36",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#251819"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "max-width-desktop": "1200px",
+                        "container-margin-mobile": "16px",
+                        "md": "16px",
+                        "container-margin-desktop": "auto",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "button": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body-lg text-on-background overflow-hidden h-screen flex flex-col">
+<!-- Top App Bar (Shared Component Logic) -->
+<header class="bg-surface shadow-sm docked full-width top-0 flex justify-between items-center w-full px-container-margin-mobile h-16 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 transition-transform" data-icon="menu">menu</span>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary tracking-tight">Royal Events</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a professional event staff member wearing a clean burgundy blazer, smiling warmly in a softly lit, high-end hotel lobby environment. The photo is polished and professional, with a shallow depth of field and warm, inviting tones consistent with a luxury brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD93NZe_byxfVMtflQO7NQv8WnCWaeAJ33egSpU3eYjCF-V9E-xmHI3P5HytUAyqiwC5pC5fBLiUzaGPtIXzssj62f9vz8J-PG6H6JkBOXnZzdJcZr3QphTuKZGlvHc8FqrgAkCO1Ayn01BXXd4Q4Bd1DBUE6a_88SJtbMzrV3GWQngPwLOaoOZ8imAdlCx09ltozhXSjlPj69JqQwV6nkvfQlViqN4xX7DzEjvjPROTEOLAqdvkvAa53HyVfCv37PwOzqPVV_IQk79">
+</div>
+</header>
+<!-- Main Content: Scanner Viewfinder Canvas -->
+<main class="flex-1 relative overflow-hidden bg-background">
+<!-- Viewfinder Camera Layer (Simulated with high-quality event photography) -->
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center" data-alt="A blurred, cinematic perspective of a luxury wedding reception entrance at night. Warm glowing chandeliers and strings of fairy lights are softly out of focus in the background. The foreground shows the subtle texture of an entry table with floral arrangements. The lighting is low-key, sophisticated, and moody, featuring deep burgundy and warm peach tones." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDpI_XiePNfmLzHLY1M8cDE8x2sSuxuxMvNar2tfO4eHfM3qefA21bhhAZdIuQ44coYLvFijBOgOCI0hILwed9MCObMTdGkfDi6kwKnCC_fjzkX8w8yks666CWyt_P9EQNG4mbj5UPe6QBglIhDfYIZzV041OmeX-vCIUc2AjMGHwTy4tI5kYUo6-xjx4z9dOUwRqiuzpT0Hj1Q7sv40seCtDemeXsQhE4BBISI8ReASZH0MK5p1LBa50VdzfXqRYI0BPYjbZiyW7up')">
+</div>
+</div>
+<!-- Scanner Overlay -->
+<div class="absolute inset-0 z-10 flex flex-col items-center justify-center">
+<!-- Header Text -->
+<div class="absolute top-8 flex flex-col items-center animate-pulse">
+<span class="font-label-caps text-label-caps text-primary bg-surface/80 px-3 py-1 rounded-full backdrop-blur-md mb-2">Scanner Active</span>
+<div class="w-2 h-2 rounded-full bg-primary ripple"></div>
+</div>
+<!-- Viewfinder Frame -->
+<div class="scanner-frame w-[280px] h-[280px] border-4 border-primary-container rounded-[32px] relative overflow-hidden">
+<!-- Corner Accents -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-xl m-[-4px]"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-xl m-[-4px]"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-xl m-[-4px]"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-xl m-[-4px]"></div>
+<!-- Animated Scan Line -->
+<div class="scan-line"></div>
+</div>
+<!-- Instructions -->
+<p class="mt-8 font-body-sm text-body-sm text-on-surface-variant bg-surface/60 px-4 py-2 rounded-full backdrop-blur-sm">Align QR code within the frame</p>
+<!-- One-Handed Quick Controls -->
+<div class="absolute bottom-12 w-full px-8 flex justify-between items-center">
+<!-- Flashlight Toggle -->
+<button class="w-14 h-14 rounded-full bg-surface-container-highest shadow-md flex items-center justify-center active:scale-90 transition-transform text-primary border border-outline-variant" id="torch-toggle">
+<span class="material-symbols-outlined text-2xl" data-icon="flashlight_on">flashlight_on</span>
+</button>
+<!-- Status Feedback (Invisible until success) -->
+<div class="flex-1 px-4 flex justify-center transition-opacity duration-300 opacity-100" id="scan-feedback">
+<div class="bg-primary text-white rounded-xl px-4 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span class="font-label-caps text-label-caps">Verified</span>
+</div>
+</div>
+<!-- History/Guest List -->
+<button class="w-14 h-14 rounded-full bg-surface-container-highest shadow-md flex items-center justify-center active:scale-90 transition-transform text-primary border border-outline-variant">
+<span class="material-symbols-outlined text-2xl" data-icon="group">group</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shared Component Logic) -->
+<!-- Active State: Scanner (Index 2) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-label-caps mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-primary rounded-full px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps mt-1">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-caps text-label-caps mt-1">Guests</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions
+        const torchBtn = document.getElementById('torch-toggle');
+        let torchOn = false;
+
+        torchBtn.addEventListener('click', () => {
+            torchOn = !torchOn;
+            const icon = torchBtn.querySelector('span');
+            if (torchOn) {
+                icon.textContent = 'flashlight_off';
+                torchBtn.classList.add('bg-primary-container', 'text-on-primary-container');
+                torchBtn.classList.remove('bg-surface-container-highest', 'text-primary');
+            } else {
+                icon.textContent = 'flashlight_on';
+                torchBtn.classList.remove('bg-primary-container', 'text-on-primary-container');
+                torchBtn.classList.add('bg-surface-container-highest', 'text-primary');
+            }
+        });
+
+        // Simulate a successful scan interaction every 10 seconds
+        function simulateScan() {
+            const feedback = document.getElementById('scan-feedback');
+            setTimeout(() => {
+                feedback.classList.remove('opacity-0');
+                feedback.classList.add('opacity-100');
+                
+                // Add success vibration/feedback feel via JS if needed
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(100);
+                }
+
+                setTimeout(() => {
+                    feedback.classList.add('opacity-0');
+                    feedback.classList.remove('opacity-100');
+                    simulateScan();
+                }, 1500);
+            }, 8000);
+        }
+        simulateScan();
+    </script>
+</body></html>

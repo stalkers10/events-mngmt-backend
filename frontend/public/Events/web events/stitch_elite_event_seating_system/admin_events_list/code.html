@@ -1,0 +1,391 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Admin - Events List | Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e0bfbf;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8c7071;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#7cb0c0",
+                        "primary": "#570013",
+                        "surface-container-highest": "#f5dddd",
+                        "outline": "#8c7071",
+                        "on-secondary-container": "#72605c",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#9acfde",
+                        "surface-bright": "#fff8f7",
+                        "background": "#fff8f7",
+                        "tertiary": "#002c36",
+                        "secondary-container": "#f5ddd7",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#edd4d4",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#40000b",
+                        "on-background": "#251819",
+                        "outline-variant": "#e0bfbf",
+                        "on-tertiary-fixed": "#001f26",
+                        "surface": "#fff8f7",
+                        "inverse-primary": "#ffb3b5",
+                        "on-surface-variant": "#584141",
+                        "secondary-fixed": "#f5ddd7",
+                        "secondary-fixed-dim": "#d8c2bc",
+                        "surface-variant": "#f5dddd",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#114d5b",
+                        "tertiary-fixed": "#b6ebfb",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#3b2d2d",
+                        "inverse-on-surface": "#ffedec",
+                        "primary-fixed": "#ffdada",
+                        "on-primary-fixed-variant": "#8e0f28",
+                        "on-primary-container": "#ff828a",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#251915",
+                        "primary-container": "#800020",
+                        "tertiary-container": "#004451",
+                        "secondary": "#6c5b56",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "surface-tint": "#af2b3e",
+                        "on-secondary-fixed-variant": "#53433f",
+                        "surface-container-low": "#fff0f0",
+                        "surface-container": "#ffe9e8",
+                        "surface-container-high": "#fbe2e2",
+                        "on-surface": "#251819"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "max-width-desktop": "1200px",
+                        "container-margin-desktop": "auto",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-margin-mobile": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-container-low text-on-surface font-body-lg min-h-screen flex">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-dim shadow-md flex flex-col p-md gap-sm z-40 hidden md:flex">
+<div class="flex flex-col gap-xs mb-lg">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Burgundy &amp; Peach</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Event Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span class="font-label-caps text-label-caps">Venues</span>
+</a>
+<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-200" href="#">
+<span class="material-symbols-outlined fill-icon" data-icon="event">event</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-caps text-label-caps">Guest List</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps">Scanner</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<button class="mt-auto bg-primary text-white py-md px-lg rounded-xl font-button flex items-center justify-center gap-sm hover:opacity-90 active:scale-95 duration-150 shadow-lg">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+            New Event
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 min-h-screen pb-xl md:pb-lg">
+<!-- TopAppBar (Contextual for Mobile/Desktop) -->
+<header class="sticky top-0 z-30 bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(128,0,32,0.04)] px-lg py-md w-full flex justify-between items-center max-w-max-width-desktop mx-auto">
+<div class="flex items-center gap-md">
+<button class="md:hidden text-primary p-xs active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Events Management</h2>
+</div>
+<div class="flex items-center gap-lg">
+<div class="hidden md:flex items-center bg-surface-container-low px-md py-sm rounded-full border border-outline-variant w-64">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full placeholder:text-on-surface-variant" placeholder="Search events..." type="text">
+</div>
+<div class="flex items-center gap-md">
+<button class="text-primary hover:text-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-primary hover:text-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-primary-container" data-alt="A professional headshot of an event administrator, a woman in a elegant charcoal blazer with a friendly smile, set against a blurred warm mahogany office background with soft peach lighting highlights." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCAuiBpIf_irbRZss4S5GSh7z-GV4ZNv0XKdZ4P2QgOOLalrWkTR9F1zyiIb5E9OqO6AT8Y60IpA3I8hrNLdjqPsn-k-pYJUT9tzsYQmBz4BiS4SbOWcTC-Ww8YEbe0_g7sf9MCWUxLgSA4kqICtSmvVIdUOBnzJQyXarejF7iaRSGIZO9WW-nNt0LkY94dfJ0d4mneMI9pmvUY6AZ6Pg-lpmRaks6m5GXMtaP3USDKznT-AKoztRRu1qP0uDLN5iNgu1IucOV3sZQ8')"></div>
+</div>
+</div>
+</header>
+<section class="max-w-max-width-desktop mx-auto px-md md:px-lg mt-lg">
+<!-- Filters Row -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
+<div class="flex gap-sm overflow-x-auto pb-sm md:pb-0 no-scrollbar">
+<button class="px-lg py-sm rounded-full bg-primary text-white font-label-caps text-label-caps shadow-sm whitespace-nowrap">All</button>
+<button class="px-lg py-sm rounded-full bg-surface-container-highest text-primary border border-outline-variant font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">Upcoming</button>
+<button class="px-lg py-sm rounded-full bg-surface-container-highest text-primary border border-outline-variant font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">Live</button>
+<button class="px-lg py-sm rounded-full bg-surface-container-highest text-primary border border-outline-variant font-label-caps text-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">Finished</button>
+</div>
+<div class="md:hidden w-full flex items-center bg-white px-md py-sm rounded-xl border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full placeholder:text-on-surface-variant" placeholder="Search events..." type="text">
+</div>
+<div class="flex items-center gap-sm ml-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Sort by:</span>
+<button class="flex items-center gap-xs font-label-caps text-label-caps text-primary bg-surface-container-low px-sm py-xs rounded-lg border border-outline-variant">
+                        Latest
+                        <span class="material-symbols-outlined text-[16px]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Event Cards Grid (Bento Style Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Card 1: Live -->
+<div class="bg-white rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] border border-outline-variant overflow-hidden group hover:shadow-[0px_8px_30px_rgba(128,0,32,0.08)] transition-all duration-300">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="An opulent wedding reception in a grand ballroom featuring towering floral centerpieces with white roses and burgundy peonies. The atmosphere is warm and sophisticated, with crystal chandeliers casting a soft golden glow over champagne-colored table linens and elegant burgundy glassware." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBi_vQot1oSmyBCW1USc8G-2iI36LikQ0hbMyRLON3Wn73byTrpj40xqDdwCFWNEH3eTfzQ5v2FNG9AekEjXmvPNoQ9P3icStgpEXTvJJDJLx4BTOGGQ2Y2OHnTtkM3UIEn8arTrOcOGh5OZZ7dQU7SW7AUttxEoTVAcQ-85M6BUrI97bhOb0w4eDGzmKeLOqch9yx-n_wwFdfHK3-784lveZxhDu950aBaQYYH58DQncl2UuONDzXfb5j44AsfGWEiphYWLmhmLOy4')"></div>
+<div class="absolute top-md right-md bg-primary text-white font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                            LIVE NOW
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Starlight Gala 2024</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+<span class="font-body-sm text-body-sm">Crystal Ballroom</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                Today
+                            </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                19:00 - 23:00
+                            </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-lg">
+<button class="flex-1 py-sm px-md border-2 border-primary-container text-primary-container rounded-lg font-button text-sm hover:bg-primary-container hover:text-white transition-all duration-200 active:scale-95">Edit Seating</button>
+<button class="p-sm text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2: Upcoming -->
+<div class="bg-white rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] border border-outline-variant overflow-hidden group hover:shadow-[0px_8px_30px_rgba(128,0,32,0.08)] transition-all duration-300">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="A modern corporate seminar setting with sleek minimalist white furniture and burgundy accent chairs. Large windows reveal a twilight cityscape in the background, while the interior is lit with soft peach ambient lighting, creating a professional and polished atmosphere for elite guests." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCykGEtGVayIy0h3gmArkTQ1t0ddeVA0c0qOz4A1V3k3oWZvSba1QvzdGwLBgFXLh-bCYerdsHeECBk0rmKr5HkBVn68kq8-VMepfsnYAdoiaTD7gST2rCfAWtqmO3oLRnU_iL-SvfI8OPX29570bTw9hUoWsOOCCvuelfXyunn8Vrrm5zMz8Z78n8BDXujHf3rFp7PCoBQTjYsu0Zg46EU3Wev7Se2FBEzxJiNSFoSFNjOwoyqRm4I0NLwLM4p5MBe1apWX4Y8VlTt')"></div>
+<div class="absolute top-md right-md bg-surface-container text-primary border border-primary-container font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+                            UPCOMING
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Executive Summit</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+<span class="font-body-sm text-body-sm">The Sky Lounge</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                Oct 15, 2024
+                            </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                09:00 - 17:00
+                            </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-lg">
+<button class="flex-1 py-sm px-md border-2 border-primary-container text-primary-container rounded-lg font-button text-sm hover:bg-primary-container hover:text-white transition-all duration-200 active:scale-95">Edit Seating</button>
+<button class="p-sm text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3: Finished -->
+<div class="bg-white rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] border border-outline-variant overflow-hidden group hover:shadow-[0px_8px_30px_rgba(128,0,32,0.08)] transition-all duration-300 opacity-90">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center grayscale transition-transform duration-500 group-hover:scale-110" data-alt="A vintage-themed engagement party in a rustic chic garden pavilion. Warm string lights crisscross the ceiling above wooden tables dressed in delicate lace runners and burgundy velvet napkins. The mood is nostalgic and romantic with a soft, faded film grain texture." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAefMkRKhSA3PX8ImWsAhuUm2vG6hEPEDok9yZw5VgWoITUUIlC8_r_hyHTDIokEe89o3rd650UFE9aLfWoJd6rg-qr8QfAqX9EGQZzuAPICddvymclTa4ZAqYbSE9HQSPkKKf8EdZK9joW_1dYJHAwPbidYF77E3NlpUlUU28RMJiWTT5z1YWVke-7v555OJlh34YzTakBbegT0iitDxBDN-EpUnuPtwhAYzf40FZM6xIj933sacnbVrzux_CoTGVG3n_Uq-uTLPVN')"></div>
+<div class="absolute top-md right-md bg-on-surface-variant/20 text-on-surface-variant font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+                            FINISHED
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Bennett Engagement</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+<span class="font-body-sm text-body-sm">Rose Garden Pavilion</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                Sep 28, 2024
+                            </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                18:30 - 22:30
+                            </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-lg">
+<button class="flex-1 py-sm px-md border-2 border-outline-variant text-outline rounded-lg font-button text-sm cursor-not-allowed opacity-60">Edit Seating</button>
+<button class="p-sm text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4: Upcoming -->
+<div class="bg-white rounded-xl shadow-[0px_4px_20px_rgba(128,0,32,0.04)] border border-outline-variant overflow-hidden group hover:shadow-[0px_8px_30px_rgba(128,0,32,0.08)] transition-all duration-300">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="A clean, minimalist art gallery opening setup with pristine white walls and track lighting focusing on abstract paintings with deep burgundy brushstrokes. A sleek black bar area features crystal glassware and peach-colored cocktails, exuding a high-end, sophisticated cultural vibe." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBDgTCx9ITwD0Ur0LNF5iVzu2sOpHWMK43CNlPnt5wHm9atvGzL6he61FYrxAtp9S928LraadqamXW9yYa1y6Jyw4Zg0-PH6REb9fjMcngTHtiWPX8l2OEimVwpwmBa0ZuGmODmUJJIiMrdXp--dIwHPWiy-oc9I-iFYDX7owkvtByoY1Rh4BkYxksiEuNcuqaRJzuHb6sNQEJX-LEPk_jcPVv1KbQruNYyNQScqGDKQAb-4ufwoD8SFi-qZPQ21mMy7nnHAIXa01Lt')"></div>
+<div class="absolute top-md right-md bg-surface-container text-primary border border-primary-container font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+                            UPCOMING
+                        </div>
+</div>
+<div class="p-lg">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Vernissage: Abstracta</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+<span class="font-body-sm text-body-sm">East Wing Gallery</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                Oct 30, 2024
+                            </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                17:00 - 21:00
+                            </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-lg">
+<button class="flex-1 py-sm px-md border-2 border-primary-container text-primary-container rounded-lg font-button text-sm hover:bg-primary-container hover:text-white transition-all duration-200 active:scale-95">Edit Seating</button>
+<button class="p-sm text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shell (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface dark:bg-surface-dim shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined fill-icon" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-[10px]">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1" href="#">
+<span class="material-symbols-outlined" data-icon="center_focus_weak">center_focus_weak</span>
+<span class="font-label-caps text-[10px]">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-[10px]">Profile</span>
+</a>
+</nav>
+<!-- Floating Action Button for Mobile -->
+<button class="md:hidden fixed right-lg bottom-20 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center active:scale-90 duration-200 z-40">
+<span class="material-symbols-outlined text-[28px]" data-icon="add">add</span>
+</button>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if(el.getAttribute('href') === '#') e.preventDefault();
+                console.log('Interacted with:', el.innerText || 'Icon Button');
+            });
+        });
+
+        // Filter chip selection logic
+        const chips = document.querySelectorAll('.filter-chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-white');
+                    c.classList.add('bg-surface-container-highest', 'text-primary');
+                });
+                chip.classList.remove('bg-surface-container-highest', 'text-primary');
+                chip.classList.add('bg-primary', 'text-white');
+            });
+        });
+    </script>
+</body></html>

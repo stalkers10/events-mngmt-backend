@@ -1,0 +1,29 @@
+.lang-switcher {
+  display: inline-flex;
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  gap: 2px;
+}
+
+.lang-option {
+  border: none;
+  background: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.lang-option:hover:not(.active) {
+  background-color: var(--color-surface-container);
+}
+
+.lang-option.active {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+}

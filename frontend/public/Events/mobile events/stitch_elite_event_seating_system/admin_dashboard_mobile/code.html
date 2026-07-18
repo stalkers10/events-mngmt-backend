@@ -1,0 +1,304 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Burgundy &amp; Peach Admin Dashboard</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#ffe9e8",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#fff0f0",
+                    "on-primary-fixed": "#40000b",
+                    "on-background": "#251819",
+                    "surface-container-high": "#fbe2e2",
+                    "inverse-primary": "#ffb3b5",
+                    "primary-fixed-dim": "#ffb3b5",
+                    "on-surface-variant": "#584141",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#001f26",
+                    "surface-bright": "#fff8f7",
+                    "outline": "#8c7071",
+                    "on-secondary-fixed-variant": "#53433f",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#ffedec",
+                    "surface-variant": "#f5dddd",
+                    "on-error": "#ffffff",
+                    "primary": "#570013",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#002c36",
+                    "error": "#ba1a1a",
+                    "surface": "#fff8f7",
+                    "on-tertiary-container": "#7cb0c0",
+                    "on-tertiary-fixed-variant": "#114d5b",
+                    "surface-tint": "#af2b3e",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#8e0f28",
+                    "on-primary-container": "#ff828a",
+                    "inverse-surface": "#3b2d2d",
+                    "tertiary-fixed": "#b6ebfb",
+                    "surface-container-highest": "#f5dddd",
+                    "tertiary-fixed-dim": "#9acfde",
+                    "outline-variant": "#e0bfbf",
+                    "on-secondary-container": "#72605c",
+                    "on-secondary": "#ffffff",
+                    "background": "#fff8f7",
+                    "secondary-fixed": "#f5ddd7",
+                    "tertiary-container": "#004451",
+                    "on-surface": "#251819",
+                    "surface-dim": "#edd4d4",
+                    "secondary": "#6c5b56",
+                    "primary-container": "#800020",
+                    "primary-fixed": "#ffdada",
+                    "on-secondary-fixed": "#251915",
+                    "secondary-fixed-dim": "#d8c2bc",
+                    "secondary-container": "#f5ddd7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-margin-mobile": "16px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "max-width-desktop": "1200px",
+                    "container-margin-desktop": "auto",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "button": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fff8f7; /* Matching surface/background from config */
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .safe-bottom-area {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .custom-shadow {
+            box-shadow: 0px 4px 20px rgba(128, 0, 32, 0.04);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 flex justify-between items-center px-lg py-md w-full bg-surface dark:bg-surface-dim shadow-[0px_4px_20px_rgba(128,0,32,0.04)]">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary-container">Burgundy &amp; Peach</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate event manager with a warm smile, set against a blurred background of a sophisticated hotel lobby. The lighting is soft and golden, reflecting the premium hospitality brand identity. The individual wears elegant attire in tones of deep charcoal and white, complementing the minimalist and refined UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbbUJI-pJxpcMQbio_Z75vhaPm1VnQk3MD6rhE3En6qvXQEDR4ePRKuB-AcAwS-IR3JOPahMlo7hwphZG9MMgm4_hwX_ZVpDW5lX0vUfw75T6eQprIaqP03Sc1D3XqwbyxqZXpwZIAQ8fMlB5XwobuXmlPMMLnt5tSXnv5s7jeGlqouULJPzJ6tK2ElOzGZVfGkuvNeNW8khZczwIrLNb4at5TbzUTehsbV_u382ndtFShlXz_vgrA6stXusCwHAZyAbsQAOuALJux">
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="px-container-margin-mobile py-lg pb-32">
+<!-- Dashboard Header Actions -->
+<section class="mb-xl">
+<div class="flex items-baseline justify-between mb-md">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary">Dashboard</h1>
+<span class="font-label-caps text-label-caps text-on-surface-variant">OCT 24, 2023</span>
+</div>
+<!-- Quick Actions Container -->
+<div class="flex gap-md overflow-x-auto pb-sm scrollbar-hide">
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg font-button text-button shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    Create New Room
+                </button>
+<button class="flex-shrink-0 flex items-center gap-xs px-md py-sm bg-secondary-container text-primary rounded-lg font-button text-button border border-outline-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">event</span>
+                    Create New Event
+                </button>
+</div>
+</section>
+<!-- Room Overview Section -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Room Overview</h2>
+<button class="text-primary font-label-caps text-label-caps">SEE ALL</button>
+</div>
+<!-- Vertical List of Cards -->
+<div class="flex flex-col gap-md">
+<!-- Room Card 1: Full -->
+<div class="bg-surface-container-lowest rounded-xl p-md custom-shadow border border-outline-variant/30 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">FLOOR 02</p>
+<h3 class="font-headline-sm text-headline-sm text-primary">The Grand Ballroom</h3>
+</div>
+<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-caps text-[10px]">Full</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-sm mt-xs">
+<div class="flex items-center gap-xs mb-1">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-caps text-label-caps text-on-surface">CURRENT BOOKING</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary font-semibold">Sterling-Knight Wedding Gala</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">18:00 - 02:00 • 250 Guests</p>
+</div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant/20">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CAPACITY: 300</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Room Card 2: Available -->
+<div class="bg-surface-container-lowest rounded-xl p-md custom-shadow border border-outline-variant/30 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">FLOOR 01</p>
+<h3 class="font-headline-sm text-headline-sm text-primary">The Rosewood Suite</h3>
+</div>
+<span class="border border-outline-variant text-primary px-3 py-1 rounded-full font-label-caps text-[10px]">Available</span>
+</div>
+<div class="border border-dashed border-outline-variant rounded-lg p-sm mt-xs flex flex-col items-center justify-center py-md">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">No current bookings</p>
+<button class="mt-xs text-primary font-button text-button">Book Now</button>
+</div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant/20">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CAPACITY: 45</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Room Card 3: Reserved -->
+<div class="bg-surface-container-lowest rounded-xl p-md custom-shadow border border-outline-variant/30 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">FLOOR 03</p>
+<h3 class="font-headline-sm text-headline-sm text-primary">Skyline Terrace</h3>
+</div>
+<span class="bg-secondary-container text-secondary px-3 py-1 rounded-full font-label-caps text-[10px]">Reserved</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-sm mt-xs">
+<div class="flex items-center gap-xs mb-1">
+<span class="material-symbols-outlined text-[16px] text-primary">upcoming</span>
+<span class="font-label-caps text-label-caps text-on-surface">NEXT BOOKING</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary font-semibold">TechCorp Annual Summit</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tomorrow, 09:00 • 120 Guests</p>
+</div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant/20">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CAPACITY: 150</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Room Card 4: Full -->
+<div class="bg-surface-container-lowest rounded-xl p-md custom-shadow border border-outline-variant/30 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">BASEMENT</p>
+<h3 class="font-headline-sm text-headline-sm text-primary">Vintage Cellar</h3>
+</div>
+<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-caps text-[10px]">Full</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-sm mt-xs">
+<div class="flex items-center gap-xs mb-1">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-caps text-label-caps text-on-surface">CURRENT BOOKING</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary font-semibold">Private Wine Tasting</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">20:00 - 23:00 • 12 Guests</p>
+</div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant/20">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CAPACITY: 20</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (Contextual) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all duration-200 z-40 md:hidden">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600;">add</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface dark:bg-surface-dim shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl safe-bottom-area">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-[10px]">Home</span>
+</a>
+<!-- Events -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-caps text-[10px]">Events</span>
+</a>
+<!-- Scanner -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">center_focus_weak</span>
+<span class="font-label-caps text-[10px]">Scanner</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-[10px]">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for active nav state visually (since it's a demo)
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                navLinks.forEach(l => {
+                    l.classList.remove('bg-primary-container', 'text-on-primary-container', 'rounded-full', 'px-4', 'py-1');
+                    l.classList.add('text-on-surface-variant');
+                    const icon = l.querySelector('.material-symbols-outlined');
+                    if(icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                link.classList.add('bg-primary-container', 'text-on-primary-container', 'rounded-full', 'px-4', 'py-1');
+                link.classList.remove('text-on-surface-variant');
+                const activeIcon = link.querySelector('.material-symbols-outlined');
+                if(activeIcon) activeIcon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Digital Ticket Preview - Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#114d5b",
+                      "on-surface-variant": "#584141",
+                      "surface-container-high": "#fbe2e2",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed": "#b6ebfb",
+                      "on-tertiary-container": "#7cb0c0",
+                      "on-surface": "#251819",
+                      "primary-fixed": "#ffdada",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#d8c2bc",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#f5ddd7",
+                      "secondary": "#6c5b56",
+                      "surface-tint": "#af2b3e",
+                      "inverse-primary": "#ffb3b5",
+                      "background": "#fff8f7",
+                      "secondary-container": "#f5ddd7",
+                      "primary-container": "#800020",
+                      "surface-container-highest": "#f5dddd",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#ffb3b5",
+                      "primary": "#570013",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-container": "#72605c",
+                      "tertiary-container": "#004451",
+                      "surface": "#fff8f7",
+                      "surface-dim": "#edd4d4",
+                      "on-tertiary-fixed": "#001f26",
+                      "inverse-surface": "#3b2d2d",
+                      "tertiary": "#002c36",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#ffe9e8",
+                      "on-primary-fixed": "#40000b",
+                      "on-background": "#251819",
+                      "inverse-on-surface": "#ffedec",
+                      "outline-variant": "#e0bfbf",
+                      "surface-container-low": "#fff0f0",
+                      "surface-bright": "#fff8f7",
+                      "on-secondary-fixed-variant": "#53433f",
+                      "on-primary-fixed-variant": "#8e0f28",
+                      "on-secondary-fixed": "#251915",
+                      "surface-variant": "#f5dddd",
+                      "tertiary-fixed-dim": "#9acfde",
+                      "on-primary-container": "#ff828a",
+                      "on-primary": "#ffffff",
+                      "outline": "#8c7071"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "8px",
+                      "container-margin-desktop": "auto",
+                      "xl": "32px",
+                      "max-width-desktop": "1200px",
+                      "base": "4px",
+                      "container-margin-mobile": "16px",
+                      "lg": "24px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      }
+              }
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background h-full font-sans antialiased overflow-x-hidden flex flex-col items-center justify-center min-h-screen p-container-margin-mobile md:p-lg">
+<!-- Ticket Preview Canvas -->
+<main class="w-full max-w-md mx-auto flex flex-col gap-lg">
+<!-- Header / Back Action -->
+<header class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-surface-variant transition-colors flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary">Ticket Preview</h1>
+</header>
+<!-- The Ticket Card -->
+<article class="bg-surface-container-lowest rounded-[24px] shadow-[0px_8px_32px_rgba(128,0,32,0.06)] overflow-hidden border border-outline-variant/30 flex flex-col">
+<!-- Ticket Header Image -->
+<div class="h-48 w-full relative">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A sophisticated, high-end gala event space setting. The scene features elegant table arrangements with soft, warm lighting emphasizing a luxurious atmosphere. The color palette incorporates deep burgundy reds (#800020) and soft peach tones (#FFF1EE) in the floral centerpieces and ambient uplighting, creating a modern corporate hospitality aesthetic with a refined, organized feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfCKz6DOd3aejdK17mkodR4NbyYChExNasUEp5s7nflNnMwCfpR215ryDGktX7dchDJp93CmNBC_pfRdB-OJiiYAc1UFmxA_B5v0NOcyZb-9HZ2metusr_jkEEKNUECINmOGvnQKhiE9_xnYff_KdZ3rVFb6FlDsQGoFUo_svXxH_aN8ZFOpC8vSXB2Odjp7GjvW88TyPCZyRblbm1g60LZjw8dKWD5V5M_oBpN4IB3usomsbu5VddzXN0CF5ILSRtu6BPx5HDZ0g7">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-90"></div>
+</div>
+<!-- Ticket Content -->
+<div class="px-xl pt-md pb-xl flex flex-col gap-lg -mt-6 relative z-10 bg-surface-container-lowest rounded-t-[24px]">
+<!-- Event Title & Invitee -->
+<div class="text-center flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-on-surface">Annual Tech Leadership Summit</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Eleanor Vance</p>
+<span class="inline-block mt-2 self-center px-3 py-1 bg-primary-container text-on-primary-container font-label-caps text-label-caps rounded-full w-fit">VIP Access</span>
+</div>
+<!-- Divider -->
+<div class="w-full h-[1px] bg-outline-variant/40"></div>
+<!-- Details Grid -->
+<div class="grid grid-cols-2 gap-y-md gap-x-sm">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Date</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Oct 24, 2024</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Time</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">18:00 - 23:00</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Venue</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Grand Atrium</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Location</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">Table 4, Seat A</span>
+</div>
+</div>
+<!-- QR Code Section -->
+<div class="flex flex-col items-center justify-center p-md bg-surface-container-low rounded-xl gap-sm mt-sm border border-outline-variant/30">
+<img class="w-40 h-40 object-contain rounded-md" data-alt="A clean, high-contrast, crisp QR code graphic centered on a soft peach (#FFF1EE) background. The QR code itself is a deep, rich burgundy color (#800020), aligning seamlessly with the premium, sophisticated brand identity of a modern corporate event management platform. The design is minimalist, sharp, and highly legible." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4rEMXgJQqRRAZrN4VfNnFLIXbQnEJDJiBsxD9YYdjhCdEj9NHUSm46I3JMP7BgnDrjMcVZYhUs9abTYgISWe0j7rBCANVHpSvAj0zArzkhzohTR1YIYRab_V2_cqw4WUIBD8xuIbsaCqjQlZS5qm-dj71ZsbK3Fvz6CntnU6GmrxnDF1j_7S_zf1aosCAQHptb38YjKiBj2wnpcprFq30BbdkL1cfAfpYyzNyFR-PAM-EtwsLytyQYFIkWFoTXi2L3lPkB52GVRri">
+<p class="font-label-caps text-label-caps text-on-surface-variant tracking-widest text-center mt-2">TKT-8924-ALX</p>
+</div>
+</div>
+</article>
+<!-- Actions -->
+<div class="flex flex-col gap-sm w-full mt-2">
+<button class="w-full bg-primary-container text-on-primary-container font-button text-button py-3 rounded-lg shadow-sm hover:shadow-md hover:bg-primary-container/90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">download</span>
+                Download PDF
+            </button>
+<div class="flex gap-sm w-full">
+<button class="flex-1 bg-surface-container-high text-on-surface font-button text-button py-3 rounded-lg border border-outline-variant/50 hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">refresh</span>
+                    Regenerate
+                </button>
+<button class="flex-1 bg-transparent text-error font-button text-button py-3 rounded-lg border border-error/30 hover:bg-error-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">cancel</span>
+                    Cancel
+                </button>
+</div>
+</div>
+</main>
+</body></html>

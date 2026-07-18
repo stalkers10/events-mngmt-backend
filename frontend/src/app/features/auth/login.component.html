@@ -1,0 +1,41 @@
+<div class="login-page">
+  <div class="lang-switcher-wrap">
+    <app-language-switcher />
+  </div>
+
+  <div class="login-card card">
+    <span class="material-symbols-outlined brand-icon">confirmation_number</span>
+    <h1 class="text-headline-md brand-title">{{ 'auth.login.title' | translate }}</h1>
+    <p class="text-body-sm subtitle">{{ 'auth.login.subtitle' | translate }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-field">
+        <label for="username">{{ 'auth.login.username' | translate }}</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          [placeholder]="'auth.login.usernamePlaceholder' | translate"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password">{{ 'auth.login.password' | translate }}</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [placeholder]="'auth.login.passwordPlaceholder' | translate"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary submit-btn"
+        [disabled]="form.invalid || isSubmitting()"
+      >
+        {{ (isSubmitting() ? 'auth.login.submitting' : 'auth.login.submit') | translate }}
+      </button>
+    </form>
+  </div>
+</div>

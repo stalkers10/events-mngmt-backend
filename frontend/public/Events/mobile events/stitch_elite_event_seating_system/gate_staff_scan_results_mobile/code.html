@@ -1,0 +1,273 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Gate Staff - Scan Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#af2b3e",
+                    "secondary-container": "#f5ddd7",
+                    "on-primary-fixed": "#40000b",
+                    "tertiary-container": "#004451",
+                    "secondary-fixed-dim": "#d8c2bc",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#f5ddd7",
+                    "surface-variant": "#f5dddd",
+                    "outline-variant": "#e0bfbf",
+                    "on-surface": "#251819",
+                    "surface-container-highest": "#f5dddd",
+                    "on-tertiary-container": "#7cb0c0",
+                    "surface-container": "#ffe9e8",
+                    "on-primary-container": "#ff828a",
+                    "on-primary-fixed-variant": "#8e0f28",
+                    "secondary": "#6c5b56",
+                    "primary-fixed-dim": "#ffb3b5",
+                    "on-secondary-container": "#72605c",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#ffb3b5",
+                    "tertiary-fixed": "#b6ebfb",
+                    "surface-dim": "#edd4d4",
+                    "on-surface-variant": "#584141",
+                    "surface-container-high": "#fbe2e2",
+                    "tertiary-fixed-dim": "#9acfde",
+                    "on-error": "#ffffff",
+                    "outline": "#8c7071",
+                    "on-tertiary-fixed-variant": "#114d5b",
+                    "on-secondary-fixed-variant": "#53433f",
+                    "inverse-surface": "#3b2d2d",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#ffedec",
+                    "primary-container": "#800020",
+                    "background": "#fff8f7",
+                    "on-secondary-fixed": "#251915",
+                    "surface-bright": "#fff8f7",
+                    "surface": "#fff8f7",
+                    "primary": "#570013",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed": "#001f26",
+                    "surface-container-low": "#fff0f0",
+                    "primary-fixed": "#ffdada",
+                    "tertiary": "#002c36",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#251819"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width-desktop": "1200px",
+                    "container-margin-mobile": "16px",
+                    "md": "16px",
+                    "container-margin-desktop": "auto",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "button": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "button": ["14px", {"lineHeight": "20px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF1EE; /* Soft peach background from Style Guidance */
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .success-glow {
+            box-shadow: 0px 4px 24px rgba(0, 128, 64, 0.08);
+        }
+        .error-glow {
+            box-shadow: 0px 4px 24px rgba(128, 0, 32, 0.08);
+        }
+        .bento-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(128, 0, 32, 0.04);
+            transition: all 0.3s ease;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col pb-24">
+<!-- Top App Bar -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm docked full-width top-0 z-40">
+<div class="flex justify-between items-center w-full px-container-margin-mobile h-16">
+<button class="active:scale-95 transition-transform duration-200 hover:bg-surface-container-high dark:hover:bg-surface-container-highest p-2 rounded-full">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-primary dark:text-primary-fixed-dim tracking-tight">Royal Events</h1>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a high-end event staff member wearing a clean, modern burgundy uniform. The lighting is soft and warm, highlighting a friendly yet professional expression. The background is a soft-focus gala environment with warm peach tones and blurred elegant decor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4dJXvAiD4YvWM9_OwNGgUgrdiIdypzrhY7R0fp8553S5w3JnDQiOij0jZvKwFs5yLq0RbtIMw_yw5cijNHg_0O4jslRbCoT3dteULHrx1OqS4K3syYBvLqczMgSu2p-V_APzM33nTlgMgHVLm-kyWO0i9PHRSzKfyuz7Lhxp6Jo4W4belQxJZGxdV2_c6vniPmEWcGkLkP67XEqipg8k8oQWmckuBb4raNsjbAX98PgVKmPzgrx1KcZSK85FnBxS11kPEtqkprPps">
+</div>
+</div>
+</header>
+<main class="flex-1 px-container-margin-mobile pt-lg space-y-lg">
+<!-- Section: Scan Results (Success State) -->
+<div class="space-y-sm">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Active Scan</h2>
+<!-- Large Success Card -->
+<div class="bento-card p-lg border-2 border-green-50/50 success-glow relative overflow-hidden">
+<!-- Background Decorative Element -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-green-50 rounded-full opacity-50"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<!-- Success Icon -->
+<div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-[48px] text-green-700" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-green-800 mb-xs">Access Granted</h3>
+<p class="font-body-lg text-body-lg text-green-700/80 mb-lg">Scan verified successfully</p>
+<!-- Guest Details Grid -->
+<div class="w-full grid grid-cols-2 gap-sm text-left">
+<div class="col-span-2 bg-surface-container-low p-md rounded-xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">GUEST NAME</p>
+<p class="font-headline-sm text-headline-sm text-primary">Eleanor Vance</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">TABLE</p>
+<p class="font-headline-sm text-headline-sm text-primary">Table 12</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">SEAT</p>
+<p class="font-headline-sm text-headline-sm text-primary">4A</p>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">TICKET TYPE</p>
+<span class="inline-flex items-center bg-primary-container text-white px-3 py-1 rounded-full font-label-caps text-[10px] tracking-wide">
+                                VIP ADMISSION
+                            </span>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">DIETARY</p>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">eco</span>
+<p class="font-body-sm text-body-sm font-semibold">Vegetarian</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Warnings (Secondary State) -->
+<div class="space-y-sm">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Previous Scanning Conflicts</h2>
+<!-- Error State Card -->
+<div class="bento-card p-lg border-2 border-error-container/30 error-glow bg-white">
+<div class="flex items-start gap-md mb-md">
+<div class="w-12 h-12 bg-error-container flex items-center justify-center rounded-xl shrink-0">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Already Checked In</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">This ticket was scanned 14 minutes ago.</p>
+</div>
+</div>
+<!-- Metadata -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl mb-lg flex justify-between items-center">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">ORIGINAL TIME</p>
+<p class="font-body-lg text-body-lg font-semibold text-primary">7:42 PM</p>
+</div>
+<div class="text-right">
+<p class="font-label-caps text-label-caps text-on-surface-variant">GATE</p>
+<p class="font-body-lg text-body-lg font-semibold text-primary">North Entrance</p>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-md">
+<button class="bg-primary-container text-white py-3 rounded-full font-button text-button shadow-md active:scale-95 transition-transform">
+                        Override
+                    </button>
+<button class="bg-secondary-container text-primary border border-outline-variant py-3 rounded-full font-button text-button active:scale-95 transition-transform">
+                        Rescan
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container dark:bg-surface-container-low border-t border-outline-variant dark:border-outline shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label-caps text-label-caps mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-primary-container text-primary dark:text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps mt-1">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps mt-1">Guests</span>
+</a>
+</nav>
+<!-- Floating Atmosphere Micro-Interaction Script -->
+<script>
+        // Subtle haptic-like scale effect on all buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.classList.add('scale-95');
+            });
+            btn.addEventListener('touchend', () => {
+                btn.classList.remove('scale-95');
+            });
+        });
+
+        // Simple entrance animation for cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.bento-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body></html>

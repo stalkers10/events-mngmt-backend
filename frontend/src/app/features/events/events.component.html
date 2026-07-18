@@ -1,0 +1,49 @@
+<div class="events-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">{{ 'events.eyebrow' | translate }}</p>
+      <h1 class="text-display-lg">{{ 'events.title' | translate }}</h1>
+      <p class="text-body-sm subtitle">{{ 'events.subtitle' | translate }}</p>
+    </div>
+    <a [routerLink]="['/events/create']" class="btn btn-primary header-link">
+      <span class="material-symbols-outlined">calendar_add_on</span>{{ 'events.create' | translate }}
+    </a>
+  </header>
+
+  @if (isLoading()) {
+    <div class="card loading-state">{{ 'common.loading' | translate }}</div>
+  } @else if (events().length === 0) {
+    <div class="card empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <h2 class="text-headline-sm">{{ 'dashboard.noEvents' | translate }}</h2>
+      <a [routerLink]="['/events/create']" class="btn btn-primary">{{ 'events.create' | translate }}</a>
+    </div>
+  } @else {
+    <div class="event-grid">
+      @for (event of events(); track event.id) {
+        <div class="event-card card">
+          <div class="event-art" [class.live-art]="eventState(event) === 'live'">
+            <span class="material-symbols-outlined">{{ eventState(event) === 'live' ? 'celebration' : 'calendar_month' }}</span>
+            <span class="event-state">{{ ('dashboard.' + eventState(event)) | translate }}</span>
+          </div>
+          <div class="event-content">
+            <h3 class="text-headline-sm">{{ event.name }}</h3>
+            <p class="event-room text-body-sm">
+              <span class="material-symbols-outlined">location_on</span>
+              {{ roomFor(event)?.room_number ?? '—' }} · {{ 'dashboard.floor' | translate }} {{ roomFor(event)?.floor_number ?? '—' }}
+            </p>
+            <p class="event-time text-body-sm">
+              <span class="material-symbols-outlined">schedule</span>
+              {{ event.start_time | date: 'MMM d, shortTime' }} – {{ event.end_time | date: 'shortTime' }}
+            </p>
+          </div>
+          <div class="event-actions">
+            <a [routerLink]="['/events', event.id, 'seating-map']" class="btn btn-secondary btn-sm">
+              <span class="material-symbols-outlined">chair</span> Edit Seating
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

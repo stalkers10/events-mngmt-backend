@@ -1,0 +1,24 @@
+<div class="seating-map-page">
+  <a routerLink="/events" class="back-link"><span class="material-symbols-outlined">arrow_back</span>{{ 'seating.backToEvents' | translate }}</a>
+  @if (isLoading()) {
+    <div class="card loading-state">{{ 'common.loading' | translate }}</div>
+  } @else {
+    @if (event(); as activeEvent) {
+      <header class="map-header">
+        <div><p class="eyebrow">{{ 'seating.eyebrow' | translate }}</p><h1 class="text-display-lg">{{ activeEvent.name }}</h1></div>
+        <div class="capacity-card"><span>{{ 'seating.capacity' | translate }}</span><strong>{{ reservedSeats() }}/{{ totalSeats() }}</strong><div><i [style.width.%]="totalSeats() ? reservedSeats() / totalSeats() * 100 : 0"></i></div></div>
+      </header>
+      <section class="map-surface card">
+        <div class="stage">{{ 'seating.stage' | translate }}</div>
+        <div class="tables-grid">
+          @for (table of occupancy()?.tables ?? []; track table.id) {
+            <article class="seat-table"><h2>T{{ table.table_number }}</h2><p>{{ tableReservedSeats(table) }}/{{ table.chairs.length }} {{ 'seating.filled' | translate }}</p><div class="chairs">
+              @for (chair of table.chairs; track chair.id) { <span class="chair" [class.reserved]="chair.reservation_id" [title]="chair.invitee_name || ('seating.available' | translate)">{{ chair.chair_number }}</span> }
+            </div></article>
+          }
+        </div>
+      </section>
+      <p class="legend"><span class="chair">1</span>{{ 'seating.available' | translate }} <span class="chair reserved">1</span>{{ 'seating.reserved' | translate }}</p>
+    }
+  }
+</div>

@@ -1,0 +1,89 @@
+.otp-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  padding: var(--space-md);
+}
+
+.icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: var(--space-sm);
+}
+
+.brand-label {
+  color: var(--color-primary-container);
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+}
+
+.otp-card {
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--color-on-surface-variant);
+  margin: 0 0 var(--space-lg);
+}
+
+.digit-row {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.digit-box {
+  width: 100%;
+  height: 48px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-default);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+}
+
+.digit-box:focus {
+  outline: none;
+  border-width: 2px;
+  border-color: var(--color-primary-container);
+}
+
+.submit-btn {
+  width: 100%;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .otp-page {
+    justify-content: flex-start;
+    padding-top: 72px;
+  }
+
+  .digit-row {
+    gap: 4px;
+  }
+
+  .digit-box {
+    height: 44px;
+    font-size: 18px;
+  }
+}

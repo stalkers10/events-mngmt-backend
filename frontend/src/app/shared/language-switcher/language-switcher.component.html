@@ -1,0 +1,18 @@
+<div class="lang-switcher" role="group" aria-label="Language selector">
+  <button
+    type="button"
+    class="lang-option"
+    [class.active]="translation.language() === 'en'"
+    (click)="select('en')"
+  >
+    EN
+  </button>
+  <button
+    type="button"
+    class="lang-option"
+    [class.active]="translation.language() === 'fr'"
+    (click)="select('fr')"
+  >
+    FR
+  </button>
+</div>

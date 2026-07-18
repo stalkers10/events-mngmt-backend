@@ -1,0 +1,442 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Room Overview - Burgundy &amp; Peach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#f5ddd7",
+                      "background": "#fff8f7",
+                      "secondary": "#6c5b56",
+                      "surface-tint": "#af2b3e",
+                      "inverse-primary": "#ffb3b5",
+                      "secondary-fixed-dim": "#d8c2bc",
+                      "secondary-fixed": "#f5ddd7",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#ffdada",
+                      "on-surface": "#251819",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#b6ebfb",
+                      "on-tertiary-container": "#7cb0c0",
+                      "on-tertiary-fixed-variant": "#114d5b",
+                      "on-surface-variant": "#584141",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-high": "#fbe2e2",
+                      "surface": "#fff8f7",
+                      "tertiary-container": "#004451",
+                      "on-secondary-container": "#72605c",
+                      "primary-fixed-dim": "#ffb3b5",
+                      "primary": "#570013",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#800020",
+                      "surface-container-highest": "#f5dddd",
+                      "tertiary": "#002c36",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#edd4d4",
+                      "on-tertiary-fixed": "#001f26",
+                      "inverse-surface": "#3b2d2d",
+                      "on-primary": "#ffffff",
+                      "outline": "#8c7071",
+                      "on-primary-container": "#ff828a",
+                      "surface-variant": "#f5dddd",
+                      "tertiary-fixed-dim": "#9acfde",
+                      "on-secondary-fixed": "#251915",
+                      "on-primary-fixed-variant": "#8e0f28",
+                      "outline-variant": "#e0bfbf",
+                      "surface-container-low": "#fff0f0",
+                      "surface-bright": "#fff8f7",
+                      "on-secondary-fixed-variant": "#53433f",
+                      "inverse-on-surface": "#ffedec",
+                      "surface-container": "#ffe9e8",
+                      "on-primary-fixed": "#40000b",
+                      "on-background": "#251819"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "max-width-desktop": "1200px",
+                      "xl": "32px",
+                      "container-margin-desktop": "auto",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "container-margin-mobile": "16px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-surface font-body-lg min-h-screen flex" data-mode="connect">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low shadow-md p-md gap-sm z-50 border-r border-surface-variant">
+<!-- Brand Header -->
+<div class="flex items-center gap-sm mb-lg px-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container flex items-center justify-center shrink-0">
+<img alt="Organization Logo" class="w-full h-full object-cover" data-alt="A highly detailed, professional logo for a premium event management company. The logo features a minimalist, elegant monogram intertwining the letters B and P in a sophisticated serif font. The color palette primarily uses a deep, rich burgundy with subtle soft peach accents. The background is a clean, bright white to ensure maximum contrast and legibility, reflecting a high-end corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR7euU1VRWOtKByeDIcWOLPGLJq54n12ZuNubqAB0Ghgo5fp68eQoCRW0CEeFjZobgmWJWIDOl2L3RAkcW81-mB4FOiPFiR-8yUmUq8cNGLHeDA-7hQ2jef3cJJ6CH09M9i8-mC-CN23k1IHaR3GKTP1IB2XR-O47HNQHMNHnk4wiXoLzsnN-Rg5VdxkmIN9QGCAK3_BURJA6fPjB2HE3o7SiyeCMJSHUWsQrtEG72f8qzJVbopmurFXYS9osRdsGRzksnsgOYtDwO">
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Burgundy &amp; Peach</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Event Management</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<a class="flex items-center gap-md px-sm py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-primary-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-primary-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-label-caps text-label-caps">Venues</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2 bg-surface-container-high text-primary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-primary-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps">Guest List</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-primary-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps">Scanner</span>
+</a>
+<a class="flex items-center gap-md px-sm py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-primary-container transition-all rounded-lg mt-auto mb-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<!-- CTA -->
+<button class="w-full py-2 bg-primary-container text-on-primary font-button text-button rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+            New Event
+        </button>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 w-full max-w-max-width-desktop mx-auto px-container-margin-mobile md:px-lg py-xl">
+<!-- Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Room Overview</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Manage current room availability and assignments.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-md py-2 bg-primary-container text-on-primary font-button text-button rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 18px;">meeting_room</span>
+                    Create New Room
+                </button>
+<button class="px-md py-2 bg-primary-container text-on-primary font-button text-button rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 18px;">event</span>
+                    Create New Event
+                </button>
+</div>
+</div>
+<!-- Room Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Room Card 1 (Full) -->
+<div class="bg-surface-container-lowest rounded-lg p-md shadow-sm hover:shadow-md transition-shadow border border-surface-variant">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Grand Ballroom</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Floor 1 • Room 101</p>
+</div>
+<span class="px-3 py-1 bg-primary-container text-on-primary font-label-caps text-label-caps rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                        Full
+                    </span>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-center mt-sm">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant border-2 border-surface-container-lowest -mr-3 relative z-20">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate event planner. The planner is a confident individual with a warm smile, wearing modern business casual attire in soft neutral tones. The background is slightly blurred, showing an elegant, well-lit hotel lobby setting with subtle warm lighting. The image conveys trust and high-end hospitality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFNMH47wHPgTpoJ-NfkV6EMVIUtjk-y3zGfzOMeUo3f_oFsK9hbbSZCnY3zIZPtiN7agqTsFzsRuG-JOSULLswKnhWl6Va2Ax6TJinMAVtCa9JWy7oUjhfYk5V-aDZp8MhHK6z3E70kCXTbngTd66ZN10izM9qVCMvGCey-46Z-EUZb-6E36ad_FEaXsWPOJ6ZUEcZ5bAPp_fR9HlJ7AbsExaqF-7JWgXCofiXG_9d1nLn-7CRe5E2WOrDt5wibYM2nBo68P60RPcx">
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant border-2 border-surface-container-lowest relative z-10">
+<span class="w-full h-full flex items-center justify-center font-label-caps text-[10px] text-on-surface-variant bg-surface-container-highest">+12</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface ml-2">Gala Dinner</span>
+</div>
+<button class="text-primary-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Room Card 2 (Available) -->
+<div class="bg-surface-container-lowest rounded-lg p-md shadow-sm hover:shadow-md transition-shadow border border-surface-variant">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Orchid Suite</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Floor 2 • Room 205</p>
+</div>
+<span class="px-3 py-1 bg-transparent border border-surface-dim text-primary-container font-label-caps text-label-caps rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 14px;">event_available</span>
+                        Available
+                    </span>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-center mt-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">No current bookings</p>
+<button class="text-primary-container font-button text-button hover:underline">
+                        Book Now
+                    </button>
+</div>
+</div>
+<!-- Room Card 3 (Reserved) -->
+<div class="bg-surface-container-lowest rounded-lg p-md shadow-sm hover:shadow-md transition-shadow border border-surface-variant">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Executive Boardroom</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Floor 3 • Room 310</p>
+</div>
+<span class="px-3 py-1 bg-surface-container-high text-primary-container font-label-caps text-label-caps rounded-full flex items-center gap-xs border border-surface-variant">
+<span class="material-symbols-outlined" style="font-size: 14px;">pending</span>
+                        Reserved
+                    </span>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-center mt-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Starts at 2:00 PM</span>
+<span class="font-body-sm text-body-sm text-on-surface">Tech Corp Strategy Sync</span>
+</div>
+<button class="text-primary-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Room Card 4 (Available) -->
+<div class="bg-surface-container-lowest rounded-lg p-md shadow-sm hover:shadow-md transition-shadow border border-surface-variant">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Terrace Lounge</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Floor 4 • Room 401</p>
+</div>
+<span class="px-3 py-1 bg-transparent border border-surface-dim text-primary-container font-label-caps text-label-caps rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-size: 14px;">event_available</span>
+                        Available
+                    </span>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-center mt-sm">
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">No current bookings</p>
+<button class="text-primary-container font-button text-button hover:underline">
+                        Book Now
+                    </button>
+</div>
+</div>
+<!-- Room Card 5 (Full) -->
+<div class="bg-surface-container-lowest rounded-lg p-md shadow-sm hover:shadow-md transition-shadow border border-surface-variant">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Magnolia Hall</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Floor 1 • Room 105</p>
+</div>
+<span class="px-3 py-1 bg-primary-container text-on-primary font-label-caps text-label-caps rounded-full flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                        Full
+                    </span>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-center mt-sm">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant">
+<span class="material-symbols-outlined text-on-surface-variant w-full h-full flex items-center justify-center">local_florist</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface ml-2">Wedding Reception</span>
+</div>
+<button class="text-primary-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<section class="mt-xl">
+<div class="mb-lg">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Live Events</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Currently active and events</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Card 1: Live -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden transition-all duration-300 hover:shadow-md">
+<div class="h-48 relative overflow-hidden">
+<img alt="Starlight Gala" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi_vQot1oSmyBCW1USc8G-2iI36LikQ0hbMyRLON3Wn73byTrpj40xqDdwCFWNEH3eTfzQ5v2FNG9AekEjXmvPNoQ9P3icStgpEXTvJJDJLx4BTOGGQ2Y2OHnTtkM3UIEn8arTrOcOGh5OZZ7dQU7SW7AUttxEoTVAcQ-85M6BUrI97bhOb0w4eDGzmKeLOqch9yx-n_wwFdfHK3-784lveZxhDu950aBaQYYH58DQncl2UuONDzXfb5j44AsfGWEiphYWLmhmLOy4">
+<div class="absolute top-md right-md bg-primary text-on-primary font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+          LIVE NOW
+        </div>
+</div>
+<div class="p-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Starlight Gala 2024</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-sm text-body-sm">Crystal Ballroom</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+            Today
+          </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+            19:00 - 23:00
+          </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-md">
+<button class="flex-1 py-2 px-md border-2 border-primary-container text-primary-container rounded-lg font-button text-sm hover:bg-primary-container hover:text-on-primary transition-all duration-200 active:scale-90">Edit Seating</button>
+<button class="p-2 text-outline hover:text-primary transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2: Upcoming -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden transition-all duration-300 hover:shadow-md">
+<div class="h-48 relative overflow-hidden">
+<img alt="Executive Summit" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCykGEtGVayIy0h3gmArkTQ1t0ddeVA0c0qOz4A1V3k3oWZvSba1QvzdGwLBgFXLh-bCYerdsHeECBk0rmKr5HkBVn68kq8-VMepfsnYAdoiaTD7gST2rCfAWtqmO3oLRnU_iL-SvfI8OPX29570bTw9hUoWsOOCCvuelfXyunn8Vrrm5zMz8Z78n8BDXujHf3rFp7PCoBQTjYsu0Zg46EU3Wev7Se2FBEzxJiNSFoSFNjOwoyqRm4I0NLwLM4p5MBe1apWX4Y8VlTt">
+<div class="absolute top-md right-md bg-surface-container-high text-primary-container border border-surface-variant font-label-caps text-[10px] px-sm py-xs rounded-full flex items-center gap-xs shadow-md">
+          UPCOMING
+        </div>
+</div>
+<div class="p-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Executive Summit</h3>
+<div class="flex items-center gap-xs text-on-surface-variant mb-md">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-sm text-body-sm">The Sky Lounge</span>
+</div>
+<div class="flex items-center gap-md font-label-caps text-label-caps text-primary mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+            Oct 15, 2024
+          </div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+            09:00 - 17:00
+          </div>
+</div>
+<div class="flex gap-sm border-t border-outline-variant pt-md">
+<button class="flex-1 py-2 px-md border-2 border-primary-container text-primary-container rounded-lg font-button text-sm hover:bg-primary-container hover:text-on-primary transition-all duration-200 active:scale-90">Edit Seating</button>
+<button class="p-2 text-outline hover:text-primary transition-all duration-200 active:scale-90">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section></main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface shadow-[0px_-4px_20px_rgba(128,0,32,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-surface-container-high text-primary-container rounded-lg px-4 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-caps text-label-caps mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-label-caps text-label-caps mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-label-caps text-label-caps mt-1">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
