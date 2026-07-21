@@ -71,4 +71,16 @@ export class EventsComponent implements OnInit {
     if (start <= now && end >= now) return 'live';
     return 'upcoming';
   }
+
+  deleteEvent(id: string): void {
+    if (confirm(this.i18n.t('events.confirmDelete') || 'Are you sure you want to delete this event?')) {
+      this.venues.deleteEvent(id).subscribe({
+        next: () => {
+          this.toast.success(this.i18n.t('events.deleteSuccess') || 'Event deleted successfully');
+          this.loadData();
+        },
+        error: () => this.toast.error(this.i18n.t('errors.deleteFailed') || 'Failed to delete event')
+      });
+    }
+  }
 }

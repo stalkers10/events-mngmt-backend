@@ -40,6 +40,9 @@ export class CreateEventComponent implements AfterViewInit {
   isPanning = signal(false);
   panStart = signal({ x: 0, y: 0 });
   
+  leftPanelWidth = signal(400);
+  isResizing = signal(false);
+
   rooms = signal<any[]>([]);
   selectedRoom = signal<string>('');
 
@@ -58,10 +61,17 @@ export class CreateEventComponent implements AfterViewInit {
   onWindowMouseUp(): void {
     this.isDragging.set(false);
     this.isPanning.set(false);
+    this.isResizing.set(false);
   }
 
   @HostListener('window:mousemove', ['$event'])
   onWindowMouseMove(event: MouseEvent): void {
+    if (this.isResizing()) {
+      const newWidth = Math.max(300, Math.min(600, event.clientX - 24));
+      this.leftPanelWidth.set(newWidth);
+      return;
+    }
+    
     if (this.isDragging() && this.selectedTable()) {
       const canvas = this.canvasRef?.nativeElement;
       if (!canvas) return;
@@ -79,6 +89,11 @@ export class CreateEventComponent implements AfterViewInit {
       this.pan.update(p => ({ x: p.x + dx, y: p.y + dy }));
       this.panStart.set({ x: event.clientX, y: event.clientY });
     }
+  }
+
+  onResizerMouseDown(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizing.set(true);
   }
 
   getTableSize(chairs: number): number {
@@ -140,10 +155,11 @@ export class CreateEventComponent implements AfterViewInit {
   onTableMouseDown(table: TableItem, event: MouseEvent): void {
     event.stopPropagation();
     if (event.button !== 0) return;
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.isDragging.set(true);
     this.dragStart.set({
-      x: (event.clientX - this.pan().x) / this.zoom() - table.x,
-      y: (event.clientY - this.pan().y) / this.zoom() - table.y
+      x: (event.clientX - rect.left - this.pan().x) / this.zoom() - table.x,
+      y: (event.clientY - rect.top - this.pan().y) / this.zoom() - table.y
     });
     this.tables.update(tabs => tabs.map(t => ({ ...t, selected: t.id === table.id })));
     this.selectedTable.set({ ...table, selected: true });
@@ -165,9 +181,8 @@ export class CreateEventComponent implements AfterViewInit {
 
 getChairPositions(table: TableItem): { left: number; top: number; angle: number }[] {
     const positions: { left: number; top: number; angle: number }[] = [];
-    // Use percentages: center at 50%, radius at 42% of container size
     const center = 50;
-    const radius = 42;
+    const radius = 65; // Increased to place chairs outside the table surface
     
     for (let i = 0; i < table.chairs; i++) {
       const angle = (i / table.chairs) * 2 * Math.PI - Math.PI / 2;

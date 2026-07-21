@@ -22,12 +22,11 @@
     <div class="event-grid">
       @for (event of events(); track event.id) {
         <div class="event-card card">
-          <div class="event-art" [class.live-art]="eventState(event) === 'live'">
-            <span class="material-symbols-outlined">{{ eventState(event) === 'live' ? 'celebration' : 'calendar_month' }}</span>
-            <span class="event-state">{{ ('dashboard.' + eventState(event)) | translate }}</span>
-          </div>
-          <div class="event-content">
-            <h3 class="text-headline-sm">{{ event.name }}</h3>
+          <div class="event-content" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px;">
+              <h3 class="text-headline-sm" style="margin: 0;">{{ event.name }}</h3>
+              <span class="event-state" [class.live-state]="eventState(event) === 'live'">{{ ('dashboard.' + eventState(event)) | translate }}</span>
+            </div>
             <p class="event-room text-body-sm">
               <span class="material-symbols-outlined">location_on</span>
               {{ roomFor(event)?.room_number ?? '—' }} · {{ 'dashboard.floor' | translate }} {{ roomFor(event)?.floor_number ?? '—' }}
@@ -37,7 +36,10 @@
               {{ event.start_time | date: 'MMM d, shortTime' }} – {{ event.end_time | date: 'shortTime' }}
             </p>
           </div>
-          <div class="event-actions">
+          <div class="event-actions" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px; border-top: none;">
+            <button class="btn btn-icon btn-sm" (click)="deleteEvent(event.id)" style="color: var(--color-error); border: none;" title="Delete Event">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
             <a [routerLink]="['/events', event.id, 'seating-map']" class="btn btn-secondary btn-sm">
               <span class="material-symbols-outlined">chair</span> Edit Seating
             </a>

@@ -61,6 +61,10 @@ export class VenueService {
     return this.http.post<EventSummary>(`${environment.apiUrl}/events`, payload);
   }
 
+  deleteEvent(eventId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/events/${eventId}`);
+  }
+
   event(eventId: string): Observable<EventSummary> {
     return this.http.get<EventSummary>(`${environment.apiUrl}/events/${eventId}`);
   }
