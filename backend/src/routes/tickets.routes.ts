@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import QRCode from 'qrcode';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware';
 import { RoleType } from '../types/auth';
 import { TicketsService } from '../services/tickets.service';
 const router = Router();
+
 // TODO: implement tickets endpoints per the spec (Section references in project1_updated.md).
 // Example pattern for an Admin-only write route:
 //   import { requireAuth, requireRole } from '../middlewares/auth.middleware';
@@ -31,7 +33,21 @@ router.post('/scan', async (req: Request, res: Response) => {
     res.status(status).json({ error: err.message });
   }
 });
-// PDF download is Admin only (or potentially the invitee, but we have no invitee auth yet)
+// PDF download is Admin only
+router.get('/:ticketId', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
+  try {
+    const details = await TicketsService.getDetailsById(req.params.ticketId);
+    if (!details) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return; 
+    }
+    const qrDataUrl = await QRCode.toDataURL(details.qr_token, { errorCorrectionLevel: 'H' });
+    res.json({ ...details, qrDataUrl });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch ticket details' });
+  }
+});
+
 router.get('/:ticketId/pdf', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
   try {
     const pdfBuffer = await TicketsService.generatePdf(req.params.ticketId);

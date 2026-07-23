@@ -65,8 +65,17 @@
         </thead>
         <tbody>
           @for (account of staff(); track account.id) {
-            <tr>
-              <td class="username-cell" [attr.data-label]="'gateStaff.colUsername' | translate">{{ account.username }}</td>
+             <tr>
+              <td class="username-cell" [attr.data-label]="'gateStaff.colUsername' | translate">
+                <div class="username-text">{{ account.username }}</div>
+                @if (account.assignments && account.assignments.length > 0) {
+                  <div class="assignments-list">
+                    @for (assignment of account.assignments; track assignment.id) {
+                      <span class="assignment-badge">{{ assignment.name }}</span>
+                    }
+                  </div>
+                }
+              </td>
               <td [attr.data-label]="'gateStaff.colStatus' | translate">
                 @if (account.is_active) {
                   <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
@@ -79,6 +88,15 @@
               </td>
               <td [attr.data-label]="'gateStaff.colActions' | translate">
                 @if (account.is_active) {
+                  <button
+                    type="button"
+                    class="btn btn-primary assign-btn"
+                    style="margin-right: 8px;"
+                    [disabled]="processingId() === account.id"
+                    (click)="openAssignModal(account)"
+                  >
+                    {{ 'gateStaff.assignButton' | translate }}
+                  </button>
                   <button
                     type="button"
                     class="btn btn-secondary deactivate-btn"
@@ -104,4 +122,52 @@
       </table>
     }
   </section>
+
+  <!-- ---- Assign Event Modal ---- -->
+  @if (activeAssignAccount(); as account) {
+    <div class="modal-backdrop">
+      <div class="creation-modal card">
+        <div class="modal-header">
+          <h2 class="text-headline-sm">{{ 'gateStaff.assignModalTitle' | translate }} ({{ account.username }})</h2>
+          <button type="button" class="close-btn" (click)="closeAssignModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        
+        <div class="event-form">
+          <div class="form-field">
+            <label for="eventSelect">{{ 'gateStaff.selectEvent' | translate }}</label>
+            @if (getAvailableEvents(account).length > 0) {
+              <select id="eventSelect" [(ngModel)]="selectedEventId">
+                <option value="" disabled>{{ 'gateStaff.selectEventPlaceholder' | translate }}</option>
+                @for (event of getAvailableEvents(account); track event.id) {
+                  <option [value]="event.id">{{ event.name }}</option>
+                }
+              </select>
+            } @else {
+              <p class="muted" style="margin-top: 8px;">{{ 'gateStaff.noEventsAvailable' | translate }}</p>
+            }
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="closeAssignModal()"
+            >
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!selectedEventId || processingId() === account.id"
+              (click)="assignEvent()"
+            >
+              {{ 'gateStaff.confirmAssign' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -1,0 +1,88 @@
+<div class="ticket-preview-page">
+  <!-- Header / Back Action -->
+  <header class="preview-header">
+    <button type="button" class="back-btn" (click)="goBack()" aria-label="Go back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="text-headline-md">Ticket Preview</h1>
+  </header>
+
+  @if (isLoading()) {
+    <div class="card loading-state">
+      <p>Loading ticket details...</p>
+    </div>
+  } @else {
+    @if (ticket(); as details) {
+      <!-- The Ticket Card -->
+      <article class="ticket-card" [class.cancelled]="details.status === 'CANCELLED'">
+        <!-- Ticket Header Image -->
+        <div class="ticket-image-wrapper">
+          <img class="ticket-hero-image" alt="Event gala header" src="Events/wallpaper.webp">
+          <div class="ticket-image-overlay"></div>
+        </div>
+
+        <!-- Ticket Content -->
+        <div class="ticket-content">
+          <!-- Event Title & Invitee -->
+          <div class="ticket-main-info">
+            <h2 class="text-headline-sm">{{ details.event_name }}</h2>
+            <p class="text-body-lg invitee-name">{{ details.invitee_name }}</p>
+            <span class="status-chip chip-solid" [class.cancelled-chip]="details.status === 'CANCELLED'">
+              {{ details.status }}
+            </span>
+          </div>
+
+          <!-- Divider -->
+          <div class="divider"></div>
+
+          <!-- Details Grid -->
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="text-label-caps label">Date</span>
+              <span class="text-body-sm value">{{ details.start_time | date:'mediumDate' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="text-label-caps label">Time</span>
+              <span class="text-body-sm value">{{ details.start_time | date:'shortTime' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="text-label-caps label">Venue</span>
+              <span class="text-body-sm value">Room {{ details.room_number }} (Floor {{ details.floor_number }})</span>
+            </div>
+            <div class="detail-item">
+              <span class="text-label-caps label">Seating</span>
+              <span class="text-body-sm value">Table {{ details.table_number }}, Chair {{ details.chair_number }}</span>
+            </div>
+          </div>
+          
+
+          <!-- QR Code Section -->
+          <div class="qr-section">
+            <img class="qr-image" [src]="details.qrDataUrl" alt="Ticket QR code">
+            <p class="text-label-caps qr-token">{{ details.qr_token }}</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Actions -->
+      <div class="action-buttons">
+        <button type="button" class="btn btn-primary download-btn" (click)="downloadPdf()" [disabled]="isDownloading()">
+          <span class="material-symbols-outlined">download</span>
+          {{ isDownloading() ? 'Downloading...' : 'Download PDF' }}
+        </button>
+
+        @if (details.status !== 'CANCELLED') {
+          <button type="button" class="btn btn-danger cancel-btn" (click)="cancelTicket()">
+            <span class="material-symbols-outlined">cancel</span>
+            Cancel Reservation
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="card error-state">
+        <p>No ticket details found.</p>
+        <button type="button" class="btn btn-secondary" (click)="goBack()">Go Back</button>
+      </div>
+    }
+  }
+</div>

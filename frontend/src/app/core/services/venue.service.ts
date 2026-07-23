@@ -8,7 +8,7 @@ export interface CreateBuildingPayload {
   name: string;
   address?: string;
 }
-
+ 
 export interface CreateRoomPayload {
   buildingId: string;
   roomNumber: string;
@@ -81,6 +81,27 @@ export class VenueService {
   addChairs(eventId: string, tableId: string, payload: CreateChairsPayload): Observable<any> {
     return this.http.post(`${environment.apiUrl}/events/${eventId}/tables/${tableId}/chairs`, payload);
   }
+
+  createReservation(payload: {
+    eventId: string;
+    tableId: string;
+    chairId: string;
+    invitee: { name: string; email?: string; phone?: string };
+  }): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/reservations`, payload);
+  }
+
+  cancelReservation(reservationId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/reservations/${reservationId}`);
+  }
+
+  getTicketDetails(ticketId: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/tickets/${ticketId}`);
+  }
+
+  downloadTicketPdf(ticketId: string): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/tickets/${ticketId}/pdf`, { responseType: 'blob' });
+  }
 }
 
 export interface OccupancyChair {
@@ -90,6 +111,9 @@ export interface OccupancyChair {
   reservation_id: string | null;
   reservation_status: 'ACTIVE' | null;
   invitee_name: string | null;
+  invitee_email: string | null;
+  ticket_id: string | null;
+  ticket_status: 'ISSUED' | 'CHECKED_IN' | 'CANCELLED' | null;
 }
 
 export interface OccupancyTable {

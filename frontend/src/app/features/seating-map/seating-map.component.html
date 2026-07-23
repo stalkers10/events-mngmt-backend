@@ -1,24 +1,209 @@
-<div class="seating-map-page">
-  <a routerLink="/events" class="back-link"><span class="material-symbols-outlined">arrow_back</span>{{ 'seating.backToEvents' | translate }}</a>
-  @if (isLoading()) {
-    <div class="card loading-state">{{ 'common.loading' | translate }}</div>
-  } @else {
-    @if (event(); as activeEvent) {
-      <header class="map-header">
-        <div><p class="eyebrow">{{ 'seating.eyebrow' | translate }}</p><h1 class="text-display-lg">{{ activeEvent.name }}</h1></div>
-        <div class="capacity-card"><span>{{ 'seating.capacity' | translate }}</span><strong>{{ reservedSeats() }}/{{ totalSeats() }}</strong><div><i [style.width.%]="totalSeats() ? reservedSeats() / totalSeats() * 100 : 0"></i></div></div>
-      </header>
-      <section class="map-surface card">
-        <div class="stage">{{ 'seating.stage' | translate }}</div>
-        <div class="tables-grid">
-          @for (table of occupancy()?.tables ?? []; track table.id) {
-            <article class="seat-table"><h2>T{{ table.table_number }}</h2><p>{{ tableReservedSeats(table) }}/{{ table.chairs.length }} {{ 'seating.filled' | translate }}</p><div class="chairs">
-              @for (chair of table.chairs; track chair.id) { <span class="chair" [class.reserved]="chair.reservation_id" [title]="chair.invitee_name || ('seating.available' | translate)">{{ chair.chair_number }}</span> }
-            </div></article>
-          }
-        </div>
-      </section>
-      <p class="legend"><span class="chair">1</span>{{ 'seating.available' | translate }} <span class="chair reserved">1</span>{{ 'seating.reserved' | translate }}</p>
+<div class="seating-map-container" [class.sidebar-open]="selectedChair()">
+  <div class="seating-map-main">
+    <a routerLink="/events" class="back-link">
+      <span class="material-symbols-outlined">arrow_back</span>{{ 'seating.backToEvents' | translate }}
+    </a>
+    @if (isLoading()) {
+      <div class="card loading-state">{{ 'common.loading' | translate }}</div>
+    } @else {
+      @if (event(); as activeEvent) {
+        <header class="map-header">
+          <div>
+            <p class="eyebrow">{{ 'seating.eyebrow' | translate }}</p>
+            <h1 class="text-display-lg">{{ activeEvent.name }}</h1>
+          </div>
+          <div class="capacity-card">
+            <span>{{ 'seating.capacity' | translate }}</span>
+            <strong>{{ reservedSeats() }}/{{ totalSeats() }}</strong>
+            <div>
+              <i [style.width.%]="totalSeats() ? (reservedSeats() / totalSeats()) * 100 : 0"></i>
+            </div>
+          </div>
+        </header>
+        <section class="map-surface card canvas-container">
+          <div class="canvas-header">
+            <span class="stage-banner">{{ 'events.seatingPreview' | translate }}</span>
+            <div class="canvas-controls">
+              <button type="button" class="btn-icon" (click)="zoomIn()" title="Zoom In">+</button>
+              <button type="button" class="btn-icon" (click)="zoomOut()" title="Zoom Out">−</button>
+              <button type="button" class="btn-icon" (click)="resetView()" title="Reset View">⌂</button>
+            </div>
+          </div>
+          
+          <div class="canvas-viewport"
+               (mousedown)="onCanvasMouseDown($event)"
+               (wheel)="onWheel($event)">
+            <div #canvas class="canvas"
+                 [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
+                 [style.transform-origin]="'0 0'">
+              <div class="grid-background"></div>
+              <div class="stage-label">{{ 'events.stage' | translate }}</div>
+              
+              @for (table of occupancy()?.tables ?? []; track table.id) {
+                <div 
+                  class="table-group"
+                  [class.selected]="selectedTable()?.id === table.id"
+                  [style.left.px]="getTableX(table)"
+                  [style.top.px]="getTableY(table)"
+                  [style.width.px]="getTableSize(table.chairs.length)"
+                  [style.height.px]="getTableSize(table.chairs.length)"
+                >
+                  <!-- Chairs around table -->
+                  <div class="chairs-ring">
+                    @for (pos of getChairPositions(table); track pos.chair.id) {
+                      <div
+                        class="chair-wrapper"
+                        [style.transform]="'translate(-50%, -50%) rotate(' + pos.angle + 'deg)'"
+                        [style.left.%]="pos.left"
+                        [style.top.%]="pos.top"
+                      >
+                        <button
+                          type="button"
+                          class="chair"
+                          [class.reserved]="pos.chair.reservation_id"
+                          [class.selected]="selectedChair()?.id === pos.chair.id"
+                          [title]="pos.chair.invitee_name || ('seating.available' | translate)"
+                          (click)="selectChair(table, pos.chair)"
+                        >
+                          @if (pos.chair.reservation_id) {
+                            <span class="material-symbols-outlined chair-icon">person</span>
+                          } @else {
+                            {{ pos.chair.chair_number }}
+                          }
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  
+                  <!-- Table surface -->
+                  <div class="table-surface" (click)="$event.stopPropagation()">
+                    <span class="table-number">T{{ table.table_number }}</span>
+                    <span class="chair-count">{{ tableReservedSeats(table) }}/{{ table.chairs.length }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+        <p class="legend">
+          <span class="legend-item"><span class="chair">1</span>{{ 'seating.available' | translate }}</span>
+          <span class="legend-item"><span class="chair reserved"><span class="material-symbols-outlined">person</span></span>{{ 'seating.reserved' | translate }}</span>
+          <span class="legend-item"><span class="chair selected">1</span>Selected</span>
+        </p>
+      }
     }
+  </div>
+
+  <!-- Sidebar for assigning seat or viewing occupancy details -->
+  @if (selectedChair(); as chair) {
+    <aside class="assignment-sidebar">
+      <div class="sidebar-header">
+        <h3 class="text-headline-sm">
+          {{ chair.reservation_id ? 'Seat Details' : 'Assign Seat' }}
+        </h3>
+        <button type="button" class="close-btn" (click)="closeSidebar()" aria-label="Close sidebar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Selected Seat Status -->
+        <div class="selected-seat-card">
+          <div class="chair-indicator" [class.reserved]="chair.reservation_id">
+            <span class="material-symbols-outlined">chair</span>
+          </div>
+          <div>
+            <div class="text-label-caps label">Selected Seat</div>
+            <div class="text-headline-sm seat-info">Table {{ selectedTable()?.table_number }}, Seat {{ chair.chair_number }}</div>
+            <div class="text-body-sm section-info">
+              {{ selectedTable()?.position || 'Standard Section' }}
+            </div>
+          </div>
+        </div>
+
+        @if (chair.reservation_id) {
+          <!-- Reserved Chair Information -->
+          <div class="guest-details-view card">
+            <h4 class="text-label-caps section-title">Guest Details</h4>
+            <div class="guest-field">
+              <span class="text-label-caps field-label">Full Name</span>
+              <span class="text-body-sm field-value">{{ chair.invitee_name }}</span>
+            </div>
+            @if (chair.invitee_email) {
+              <div class="guest-field">
+                <span class="text-label-caps field-label">Email</span>
+                <span class="text-body-sm field-value">{{ chair.invitee_email }}</span>
+              </div>
+            }
+            <div class="guest-field">
+              <span class="text-label-caps field-label">Ticket Status</span>
+              <span class="status-badge" [class.checked-in]="chair.ticket_status === 'CHECKED_IN'">
+                {{ chair.ticket_status || 'Reserved' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="sidebar-actions">
+            @if (chair.ticket_id) {
+              <button type="button" class="btn btn-primary action-btn" (click)="viewTicket(chair.ticket_id)">
+                <span class="material-symbols-outlined">confirmation_number</span>
+                View Ticket
+              </button>
+            }
+            <button type="button" class="btn danger-btn action-btn" (click)="cancelReservation(chair.reservation_id)">
+              <span class="material-symbols-outlined">cancel</span>
+              Cancel Reservation
+            </button>
+          </div>
+        } @else {
+          <!-- Form to Assign Seat -->
+          <form (submit)="assignSeat()" class="assignment-form">
+            <div class="form-field">
+              <label for="guest-name">Guest Name *</label>
+              <input
+                id="guest-name"
+                type="text"
+                name="inviteeName"
+                [(ngModel)]="inviteeName"
+                placeholder="Enter full name"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="guest-email">Email (Optional)</label>
+              <input
+                id="guest-email"
+                type="email"
+                name="inviteeEmail"
+                [(ngModel)]="inviteeEmail"
+                placeholder="guest@example.com"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="guest-phone">Phone (Optional)</label>
+              <input
+                id="guest-phone"
+                type="tel"
+                name="inviteePhone"
+                [(ngModel)]="inviteePhone"
+                placeholder="e.g. +15551234567"
+              />
+            </div>
+
+            <div class="sidebar-actions">
+              <button type="button" class="btn btn-secondary action-btn" (click)="closeSidebar()">
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary action-btn" [disabled]="isAssigning">
+                <span class="material-symbols-outlined">how_to_reg</span>
+                {{ isAssigning ? 'Assigning...' : 'Confirm Seat' }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </aside>
   }
 </div>

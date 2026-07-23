@@ -8,6 +8,7 @@ interface GateStaffRecord {
   username: string;
   is_active: boolean;
   created_at: Date;
+  assignments?: { id: string; name: string }[];
 }
 
 export const GateStaffService = {
@@ -64,10 +65,19 @@ export const GateStaffService = {
 
   async list(): Promise<GateStaffRecord[]> {
     const result = await query<GateStaffRecord>(
-      `SELECT id, username, is_active, created_at
-       FROM users
-       WHERE role = 'GATE_STAFF'
-       ORDER BY created_at DESC`
+      `SELECT u.id, u.username, u.is_active, u.created_at,
+              COALESCE(
+                (
+                  SELECT json_agg(json_build_object('id', e.id, 'name', e.name))
+                  FROM gate_staff_assignments gsa
+                  JOIN events e ON gsa.event_id = e.id
+                  WHERE gsa.user_id = u.id
+                ),
+                '[]'::json
+              ) as assignments
+       FROM users u
+       WHERE u.role = 'GATE_STAFF'
+       ORDER BY u.created_at DESC`
     );
     return result.rows;
   },

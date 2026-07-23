@@ -7,7 +7,6 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
-
 type RoomStatus = 'available' | 'active' | 'reserved';
 
 @Component({ 
@@ -26,7 +25,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboard: DashboardService,
     private toast: ToastService,
-    public translation: I18nextService
+    public translation: I18nextService,
   ) {}
 
   ngOnInit(): void {

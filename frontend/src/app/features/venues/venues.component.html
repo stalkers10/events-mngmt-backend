@@ -1,15 +1,38 @@
 <div class="venues-page">
   <header class="page-header">
-    <div><p class="eyebrow">{{ 'venues.eyebrow' | translate }}</p><h1 class="text-display-lg">{{ 'venues.titleList' | translate }}</h1><p class="text-body-sm subtitle">{{ 'venues.listSubtitle' | translate }}</p></div>
-    <button type="button" (click)="showCreateModal.set(true)" class="btn btn-primary header-link"><span class="material-symbols-outlined">add_home</span>{{ 'venues.createRoom' | translate }}</button>
+    <div><p class="eyebrow">{{ 'venues.eyebrow' | translate }}</p>
+      <h1 class="text-display-lg">{{ 'venues.titleList' | translate }}</h1>
+      <p class="text-body-sm subtitle">{{ 'venues.listSubtitle' | translate }}</p>
+    </div>
+    <button type="button" (click)="showCreateModal.set(true)" class="btn btn-primary header-link">
+      <span class="material-symbols-outlined">add_home</span>{{ 'venues.createRoom' | translate }}</button>
   </header>
-  @if (isLoading()) { <div class="card loading-state">{{ 'common.loading' | translate }}</div> } @else if (buildings().length === 0) {
-    <div class="card empty-state"><span class="material-symbols-outlined">domain_add</span><h2 class="text-headline-sm">{{ 'venues.noBuildingsTitle' | translate }}</h2><p class="text-body-sm">{{ 'venues.noBuildingsBody' | translate }}</p><button type="button" (click)="showCreateModal.set(true)" class="btn btn-primary">{{ 'venues.createRoom' | translate }}</button></div>
+  @if (isLoading()) { <div class="card loading-state">{{ 'common.loading' | translate }}</div> } 
+  @else if (buildings().length === 0) {
+    <div class="card empty-state"><span class="material-symbols-outlined">domain_add</span>
+      <h2 class="text-headline-sm">{{ 'venues.noBuildingsTitle' | translate }}</h2>
+      <p class="text-body-sm">{{ 'venues.noBuildingsBody' | translate }}</p>
+      <button type="button" (click)="showCreateModal.set(true)" class="btn btn-primary">
+        {{ 'venues.createRoom' | translate }}
+      </button>
+    </div>
   } @else {
     <section class="building-grid">
       @for (building of buildings(); track building.id) {
-        <article class="building-card card"><div class="building-heading"><span class="material-symbols-outlined">domain</span><div><h2 class="text-headline-sm">{{ building.name }}</h2><p class="text-body-sm subtitle">{{ building.address || ('venues.noAddress' | translate) }}</p></div></div>
-          <div class="room-list">@for (room of roomsForBuilding(building.id); track room.id) { <div class="room-row"><span class="material-symbols-outlined">meeting_room</span><div><strong>{{ room.room_number }}</strong><span>{{ 'venues.floor' | translate }} {{ room.floor_number }} · {{ room.capacity ?? '—' }} {{ 'venues.capacity' | translate }}</span></div></div> } @empty { <p class="no-rooms">{{ 'venues.noRooms' | translate }}</p> }</div>
+        <article class="building-card card"><div class="building-heading">
+          <span class="material-symbols-outlined">domain</span><div><h2 class="text-headline-sm">
+            {{ building.name }}
+          </h2><p class="text-body-sm subtitle">
+            {{ building.address || ('venues.noAddress' | translate) }}
+          </p></div></div>
+          <div class="room-list">@for (room of roomsForBuilding(building.id); track room.id) 
+            { <div class="room-row"><span class="material-symbols-outlined">meeting_room</span>
+              <div><strong>{{ room.room_number }}</strong>
+                <span>{{ 'venues.floor' | translate }} {{ room.floor_number }} · {{ room.capacity ?? '—' }}
+                  {{ 'venues.capacity' | translate }}</span>
+              </div>
+            </div> } @empty { <p class="no-rooms">{{ 'venues.noRooms' | translate }}</p> }
+          </div>
         </article>
       }
     </section>
@@ -17,14 +40,64 @@
 </div>
 
 @if (showCreateModal()) {
-  <div class="modal-backdrop" (click)="closeCreate()"><section class="creation-modal card" role="dialog" aria-modal="true" [attr.aria-label]="'venues.title' | translate" (click)="$event.stopPropagation()">
-    <header class="modal-header"><div><p class="eyebrow">{{ 'venues.eyebrow' | translate }}</p><h2 class="text-headline-md">{{ 'venues.title' | translate }}</h2></div><button type="button" class="close-btn" (click)="closeCreate()"><span class="material-symbols-outlined">close</span></button></header>
-    <form [formGroup]="roomForm" (ngSubmit)="createRoom()" class="venue-form">
-      <div class="form-field"><div class="field-label-row"><label for="buildingId">{{ 'venues.building' | translate }}</label><button type="button" class="text-action" (click)="showBuildingForm.set(!showBuildingForm())">{{ (showBuildingForm() ? 'venues.closeBuildingForm' : 'venues.addBuilding') | translate }}</button></div><select id="buildingId" formControlName="buildingId"><option value="" disabled>{{ 'venues.buildingPlaceholder' | translate }}</option>@for (building of buildings(); track building.id) { <option [value]="building.id">{{ building.name }}</option> }</select></div>
-      @if (showBuildingForm()) { <div class="building-form" [formGroup]="buildingForm"><div class="form-field"><label for="buildingName">{{ 'venues.buildingName' | translate }}</label><input id="buildingName" formControlName="name" type="text" /></div><div class="form-field"><label for="buildingAddress">{{ 'venues.address' | translate }}</label><input id="buildingAddress" formControlName="address" type="text" /></div><button type="button" class="btn btn-secondary" [disabled]="buildingForm.invalid || isCreatingBuilding()" (click)="createBuilding()">{{ (isCreatingBuilding() ? 'venues.creatingBuilding' : 'venues.saveBuilding') | translate }}</button></div> }
-      <div class="form-field"><label for="roomNumber">{{ 'venues.roomName' | translate }}</label><input id="roomNumber" formControlName="roomNumber" type="text" [placeholder]="'venues.roomNamePlaceholder' | translate" /></div>
-      <div class="two-columns"><div class="form-field"><label for="floorNumber">{{ 'venues.floor' | translate }}</label><input id="floorNumber" formControlName="floorNumber" type="number" /></div><div class="form-field"><label for="capacity">{{ 'venues.capacity' | translate }}</label><input id="capacity" formControlName="capacity" type="number" min="1" /></div></div>
-      <div class="modal-actions"><button type="button" class="btn btn-secondary" (click)="closeCreate()">{{ 'common.cancel' | translate }}</button><button type="submit" class="btn btn-primary" [disabled]="roomForm.invalid || isSubmitting()">{{ (isSubmitting() ? 'venues.creatingRoom' : 'venues.createRoom') | translate }}</button></div>
+  <div class="modal-backdrop" (click)="closeCreate()">
+    <section class="creation-modal card" role="dialog" aria-modal="true" 
+      [attr.aria-label]="'venues.title' | translate" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">{{ 'venues.eyebrow' | translate }}</p>
+          <h2 class="text-headline-md">{{ 'venues.title' | translate }}</h2>
+        </div>
+        <button type="button" class="close-btn" (click)="closeCreate()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+      <form [formGroup]="roomForm" (ngSubmit)="createRoom()" class="venue-form">
+      <div class="form-field">
+        <div class="field-label-row">
+          <label for="buildingId">{{ 'venues.building' | translate }}</label>
+          <button type="button" class="text-action" (click)="showBuildingForm.set(!showBuildingForm())">
+            {{ (showBuildingForm() ? 'venues.closeBuildingForm' : 'venues.addBuilding') | translate }}</button>
+        </div>
+        <select id="buildingId" formControlName="buildingId">
+          <option value="" disabled>{{ 'venues.buildingPlaceholder' | translate }}</option>
+          @for (building of buildings(); track building.id) 
+          { <option [value]="building.id">{{ building.name }}</option> }
+        </select></div>
+      @if (showBuildingForm()) { <div class="building-form" [formGroup]="buildingForm">
+        <div class="form-field">
+          <label for="buildingName">{{ 'venues.buildingName' | translate }}</label>
+          <input id="buildingName" formControlName="name" type="text" /></div>
+        <div class="form-field">
+          <label for="buildingAddress">{{ 'venues.address' | translate }}</label>
+          <input id="buildingAddress" formControlName="address" type="text" /></div>
+        <button type="button" class="btn btn-secondary" 
+          [disabled]="buildingForm.invalid || isCreatingBuilding()" 
+          (click)="createBuilding()">{{ (isCreatingBuilding() ? 'venues.creatingBuilding' : 'venues.saveBuilding') | translate }}
+        </button>
+      </div> }
+      <div class="form-field"><label for="roomNumber">
+        {{ 'venues.roomName' | translate }}</label>
+        <input id="roomNumber" formControlName="roomNumber" type="text"
+          [placeholder]="'venues.roomNamePlaceholder' | translate" />
+      </div>
+        <div class="two-columns"><div class="form-field">
+          <label for="floorNumber">{{ 'venues.floor' | translate }}</label>
+          <input id="floorNumber" formControlName="floorNumber" type="number" />
+        </div>
+        <div class="form-field">
+          <label for="capacity">{{ 'venues.capacity' | translate }}</label>
+          <input id="capacity" formControlName="capacity" type="number" min="1" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeCreate()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="roomForm.invalid || isSubmitting()">
+          {{ (isSubmitting() ? 'venues.creatingRoom' : 'venues.createRoom') | translate }}
+        </button>
+      </div>
     </form>
   </section></div>
 }

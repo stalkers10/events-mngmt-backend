@@ -3,6 +3,7 @@ export interface GateStaffAccount {
   username: string;
   is_active: boolean;
   created_at: string;
+  assignments?: { id: string; name: string }[];
 }
 
 export interface CreateGateStaffPayload {

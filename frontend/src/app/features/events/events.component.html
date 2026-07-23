@@ -33,7 +33,7 @@
             </p>
             <p class="event-time text-body-sm">
               <span class="material-symbols-outlined">schedule</span>
-              {{ event.start_time | date: 'MMM d, shortTime' }} – {{ event.end_time | date: 'shortTime' }}
+              {{ event.start_time | date: 'MMM d, yyyy' }} || {{ event.start_time | date: 'shortTime' }} – {{ event.end_time | date: 'shortTime' }}
             </p>
           </div>
           <div class="event-actions" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px; border-top: none;">

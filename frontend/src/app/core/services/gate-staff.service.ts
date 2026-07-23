@@ -25,4 +25,8 @@ export class GateStaffService {
   reactivate(id: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${id}/reactivate`, {});
   }
+
+  assignToEvent(staffId: string, eventId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${staffId}/assignments/${eventId}`, {});
+  }
 }

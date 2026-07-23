@@ -9,6 +9,7 @@ export interface TicketDetails {
   issued_at: Date;
   checked_in_at: Date | null;
   // joined info
+  event_id: string;
   event_name: string;
   start_time: Date;
   invitee_name: string;
@@ -17,13 +18,19 @@ export interface TicketDetails {
   table_number: string;
   chair_number: string;
 }
+
+export interface ScanResult {
+  success: boolean;
+  message: string;
+  details?: TicketDetails;
+}
 export const TicketsService = {
   async getDetailsByReservation(reservationId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.name as event_name, e.start_time, 
+              e.id as event_id, e.name as event_name, e.start_time, 
               i.name as invitee_name, 
-              rm.room_number, rm.floor_number,
+              rm.room_number, rm.floor_number, 
               tb.table_number,
               ch.chair_number
        FROM tickets t
@@ -41,7 +48,7 @@ export const TicketsService = {
   async getDetailsById(ticketId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.name as event_name, e.start_time, 
+              e.id as event_id, e.name as event_name, e.start_time, 
               i.name as invitee_name, 
               rm.room_number, rm.floor_number,
               tb.table_number,
@@ -64,7 +71,7 @@ export const TicketsService = {
     const qrBuffer = await QRCode.toBuffer(details.qr_token, { errorCorrectionLevel: 'H', width: 200 });
     return new Promise((resolve, reject) => {
       try {
-        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const doc = new PDFDocument({ size: 'A4', margin: 80 });
         const buffers: Buffer[] = [];
         
         doc.on('data', buffers.push.bind(buffers));

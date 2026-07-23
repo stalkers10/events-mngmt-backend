@@ -41,6 +41,12 @@ export const routes: Routes = [
           import('./features/seating-map/seating-map.component').then((m) => m.SeatingMapComponent),
       },
       {
+        path: 'tickets/:ticketId',
+        canActivate: [adminOnlyGuard],
+        loadComponent: () =>
+          import('./features/seating-map/ticket-preview.component').then((m) => m.TicketPreviewComponent),
+      },
+      {
         path: 'events/create',
         canActivate: [adminOnlyGuard],
         loadComponent: () =>

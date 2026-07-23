@@ -158,5 +158,120 @@
   .staff-table td:last-child {
     text-align: right;
   }
+}
 
+.assignments-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.assignment-badge {
+  display: inline-block;
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-input-border);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.assign-btn {
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+/* Modal styles copied from events page for visual consistency */
+.modal-backdrop {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-md);
+  overflow-y: auto;
+  background: rgba(37, 24, 25, 0.42);
+}
+
+.creation-modal {
+  width: min(100%, 480px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  
+  h2 {
+    margin: 0;
+  }
+}
+
+.close-btn {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container-low);
+  color: var(--color-primary-container);
+  cursor: pointer;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-default);
+    background-color: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-input-border);
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+}
+
+@media (max-width: 767px) {
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  .modal-actions .btn {
+    width: 100%;
+  }
+  .creation-modal {
+    max-height: calc(100dvh - 16px);
+  }
 }

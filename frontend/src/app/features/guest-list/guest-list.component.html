@@ -1,0 +1,260 @@
+<div class="guest-list-page">
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 1: Event Picker
+  ════════════════════════════════════════════════════════ -->
+  @if (!selectedEvent()) {
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">{{ 'guestList.eyebrow' | translate }}</p>
+        <h1 class="text-display-lg">{{ 'guestList.title' | translate }}</h1>
+        <p class="subtitle">{{ 'guestList.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    @if (isLoadingEvents()) {
+      <div class="state-card">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>{{ 'common.loading' | translate }}</p>
+      </div>
+    } @else if (events().length === 0) {
+      <div class="state-card empty">
+        <span class="material-symbols-outlined">event_busy</span>
+        <p>{{ 'guestList.noEvents' | translate }}</p>
+      </div>
+    } @else {
+      <div class="event-picker-grid">
+        @for (event of events(); track event.id;) {
+          <button class="event-picker-card" (click)="selectEvent(event)">
+            <!-- State badge -->
+            <span class="state-pill"
+                  [class.state-live]="eventState(event) === 'live'"
+                  [class.state-past]="eventState(event) === 'past'">
+              @if (eventState(event) === 'live') {
+                <span class="live-dot"></span>
+              }
+              {{ ('dashboard.' + eventState(event)) | translate }}
+            </span>
+
+            <h3 class="event-name">{{ event.name }}</h3>
+
+            <div class="event-meta">
+              <span class="meta-item">
+                <span class="material-symbols-outlined">location_on</span>
+                {{ roomFor(event)?.room_number ?? '—' }}
+              </span>
+              <span class="meta-item">
+                <span class="material-symbols-outlined">schedule</span>
+                {{ event.start_time | date: 'MMM d, y' }}
+              </span>
+            </div>
+
+            <div class="card-cta">
+              <span>{{ 'guestList.viewGuests' | translate }}</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </div>
+          </button>
+        }
+      </div>
+    }
+  }
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 2: Guest List for Selected Event
+  ════════════════════════════════════════════════════════ -->
+  @if (selectedEvent(); as activeEvent) {
+    <!-- Back header -->
+    <div class="guest-view-header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        {{ 'guestList.backToEvents' | translate }}
+      </button>
+
+      <div class="event-title-block">
+        <p class="eyebrow">{{ 'guestList.eyebrow' | translate }}</p>
+        <h1 class="text-display-lg">{{ activeEvent.name }}</h1>
+        <div class="event-meta-row">
+          <span class="meta-item">
+            <span class="material-symbols-outlined">location_on</span>
+            {{ roomFor(activeEvent)?.room_number ?? '—' }}
+          </span>
+          <span class="meta-item">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ activeEvent.start_time | date: 'MMM d, y · h:mm a' }}
+            &ndash;
+            {{ activeEvent.end_time | date: 'h:mm a' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats chips -->
+      @if (!isLoadingGuests()) {
+        <div class="stats-row">
+          <div class="stat-chip">
+            <span class="stat-value">{{ reservedSeats() }}</span>
+            <span class="stat-label">{{ 'guestList.guests' | translate }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-value">{{ totalSeats() - reservedSeats() }}</span>
+            <span class="stat-label">{{ 'guestList.available' | translate }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-value">{{ totalSeats() }}</span>
+            <span class="stat-label">{{ 'guestList.totalSeats' | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-bar-row">
+      <div class="search-field form-field">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          [placeholder]="'guestList.searchPlaceholder' | translate"
+          class="search-input"
+        />
+        @if (searchQuery) {
+          <button class="clear-btn" (click)="searchQuery = ''">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoadingGuests()) {
+      <div class="state-card">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>{{ 'common.loading' | translate }}</p>
+      </div>
+    } @else if (guests().length === 0) {
+      <div class="state-card empty">
+        <span class="material-symbols-outlined">person_off</span>
+        <h3>{{ 'guestList.noGuests' | translate }}</h3>
+        <p>{{ 'guestList.noGuestsHint' | translate }}</p>
+      </div>
+    } @else {
+      <!-- Desktop table -->
+      <div class="table-wrapper card">
+        <table class="guest-table">
+          <thead>
+            <tr>
+              <th>{{ 'guestList.colGuest' | translate }}</th>
+              <th>{{ 'guestList.colContact' | translate }}</th>
+              <th>{{ 'guestList.colSeat' | translate }}</th>
+              <th>{{ 'guestList.colTicket' | translate }}</th>
+              <th>{{ 'guestList.colActions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (filteredGuests().length === 0) {
+              <tr>
+                <td colspan="5" class="no-results">{{ 'guestList.noResults' | translate }}</td>
+              </tr>
+            } @else {
+              @for (row of filteredGuests(); track row.reservationId;) {
+                <tr>
+                  <!-- Guest name + avatar -->
+                  <td>
+                    <div class="guest-cell">
+                      <div class="avatar">{{ row.guestName.charAt(0).toUpperCase() }}</div>
+                      <span class="guest-name">{{ row.guestName }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Contact -->
+                  <td class="contact-cell">
+                    {{ row.guestEmail || '—' }}
+                  </td>
+
+                  <!-- Seat -->
+                  <td>
+                    <span class="seat-badge">
+                      T{{ row.tableNumber }} · C{{ row.chairNumber }}
+                    </span>
+                  </td>
+
+                  <!-- Ticket status -->
+                  <td>
+                    @if (row.ticketId) {
+                      <span class="ticket-status"
+                            [class.status-issued]="row.ticketStatus === 'ISSUED'"
+                            [class.status-checked]="row.ticketStatus === 'CHECKED_IN'"
+                            [class.status-cancelled]="row.ticketStatus === 'CANCELLED'">
+                        {{ row.ticketStatus === 'CHECKED_IN' ? ('guestList.checkedIn' | translate) :
+                           row.ticketStatus === 'ISSUED' ? ('guestList.ticketIssued' | translate) :
+                           ('guestList.ticketCancelled' | translate) }}
+                      </span>
+                    } @else {
+                      <span class="no-ticket">—</span>
+                    }
+                  </td>
+
+                  <!-- Actions -->
+                  <td>
+                    <div class="actions-cell">
+                      @if (row.ticketId) {
+                        <button class="btn btn-sm btn-secondary" (click)="viewTicket(row.ticketId!)">
+                          <span class="material-symbols-outlined">confirmation_number</span>
+                          {{ 'guestList.viewTicket' | translate }}
+                        </button>
+                      }
+                      <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
+                        <span class="material-symbols-outlined">person_remove</span>
+                        {{ 'guestList.cancel' | translate }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards (shown only on small screens) -->
+      <div class="mobile-guest-cards">
+        @for (row of filteredGuests(); track row.reservationId) {
+          <div class="mobile-guest-card card">
+            <div class="mgc-top">
+              <div class="guest-cell">
+                <div class="avatar">{{ row.guestName.charAt(0).toUpperCase() }}</div>
+                <div>
+                  <p class="guest-name">{{ row.guestName }}</p>
+                  <p class="contact-cell">{{ row.guestEmail || '—' }}</p>
+                </div>
+              </div>
+              @if (row.ticketId) {
+                <span class="ticket-status"
+                      [class.status-issued]="row.ticketStatus === 'ISSUED'"
+                      [class.status-checked]="row.ticketStatus === 'CHECKED_IN'"
+                      [class.status-cancelled]="row.ticketStatus === 'CANCELLED'">
+                  {{ row.ticketStatus === 'CHECKED_IN' ? ('guestList.checkedIn' | translate) :
+                     row.ticketStatus === 'ISSUED' ? ('guestList.ticketIssued' | translate) :
+                     ('guestList.ticketCancelled' | translate) }}
+                </span>
+              }
+            </div>
+            <div class="mgc-bottom">
+              <span class="seat-badge">T{{ row.tableNumber }} · C{{ row.chairNumber }}</span>
+              <div class="actions-cell">
+                @if (row.ticketId) {
+                  <button class="btn btn-sm btn-secondary" (click)="viewTicket(row.ticketId!)">
+                    <span class="material-symbols-outlined">confirmation_number</span>
+                  </button>
+                }
+                <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
+                  <span class="material-symbols-outlined">person_remove</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>
