@@ -30,12 +30,13 @@
             </div>
           </div>
           
-          <div class="canvas-viewport"
-               (mousedown)="onCanvasMouseDown($event)"
-               (wheel)="onWheel($event)">
-            <div #canvas class="canvas"
-                 [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
-                 [style.transform-origin]="'0 0'">
+          <div class="canvas-viewport" 
+          (mousedown)="onCanvasMouseDown($event)"
+          (wheel)="onWheel($event)"
+          >
+            <div #canvas class="canvas" 
+            [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'" 
+            [style.transform-origin]="'0 0'">
               <div class="grid-background"></div>
               <div class="stage-label">{{ 'events.stage' | translate }}</div>
               
@@ -88,7 +89,7 @@
         <p class="legend">
           <span class="legend-item"><span class="chair">1</span>{{ 'seating.available' | translate }}</span>
           <span class="legend-item"><span class="chair reserved"><span class="material-symbols-outlined">person</span></span>{{ 'seating.reserved' | translate }}</span>
-          <span class="legend-item"><span class="chair selected">1</span>Selected</span>
+          <span class="legend-item"><span class="chair selected">1</span>{{ 'seating.selected' | translate }}</span>
         </p>
       }
     }

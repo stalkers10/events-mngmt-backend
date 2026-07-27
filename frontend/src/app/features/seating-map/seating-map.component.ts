@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -63,11 +63,14 @@ export class SeatingMapComponent implements OnInit {
     this.loadData();
   }
 
-  loadData(): void {
+  loadData(): void {  
     const eventId = this.route.snapshot.paramMap.get('eventId');
     if (!eventId) return;
     this.isLoading.set(true);
-    forkJoin({ event: this.venues.event(eventId), occupancy: this.venues.occupancy(eventId) }).subscribe({
+    forkJoin({
+      event: this.venues.event(eventId),
+      occupancy: this.venues.occupancy(eventId)
+    }).subscribe({
       next: ({ event, occupancy }) => {
         this.event.set(event);
         this.occupancy.set(occupancy);
@@ -94,11 +97,15 @@ export class SeatingMapComponent implements OnInit {
   }
 
   reservedSeats(): number {
-    return this.occupancy()?.tables.reduce((count, table) => count + table.chairs.filter((chair) => !!chair.reservation_id).length, 0) ?? 0;
+    return this.occupancy()?.tables.reduce((count, table) =>
+      count + table.chairs.filter((chair) => !!chair.reservation_id).length,
+      0) ?? 0;
   }
 
   totalSeats(): number {
-    return this.occupancy()?.tables.reduce((count, table) => count + table.chairs.length, 0) ?? 0;
+    return this.occupancy()?.tables.reduce((count, table) =>
+      count + table.chairs.length,
+      0) ?? 0;
   }
 
   tableReservedSeats(table: OccupancyTable): number {

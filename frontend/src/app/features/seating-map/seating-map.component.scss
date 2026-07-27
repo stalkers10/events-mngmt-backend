@@ -167,7 +167,7 @@
 .grid-background {
   position: absolute;
   inset: -2000px;
-  background-image: 
+  background-image:
     linear-gradient(rgba(224, 191, 191, 0.15) 1px, transparent 1px),
     linear-gradient(90deg, rgba(224, 191, 191, 0.15) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -573,6 +573,7 @@
     bottom: 0;
     left: 0;
     right: 0;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
     box-shadow: 0 -8px 30px rgba(128, 0, 32, 0.08);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     animation: slideUp 0.3s ease-out;

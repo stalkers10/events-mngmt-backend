@@ -33,18 +33,19 @@ export const TicketsService = {
               rm.room_number, rm.floor_number, 
               tb.table_number,
               ch.chair_number
-       FROM tickets t
-       JOIN reservations r ON t.reservation_id = r.id
-       JOIN events e ON r.event_id = e.id
-       JOIN invitees i ON r.invitee_id = i.id
-       JOIN chairs ch ON r.chair_id = ch.id
-       JOIN tables tb ON r.table_id = tb.id
-       JOIN rooms rm ON e.room_id = rm.id
-       WHERE t.reservation_id = $1`,
+        FROM tickets t
+        JOIN reservations r ON t.reservation_id = r.id
+        JOIN events e ON r.event_id = e.id
+        JOIN invitees i ON r.invitee_id = i.id
+        JOIN chairs ch ON r.chair_id = ch.id
+        JOIN tables tb ON r.table_id = tb.id
+        JOIN rooms rm ON e.room_id = rm.id
+        WHERE t.reservation_id = $1`,
       [reservationId]
     );
     return res.rows.length ? res.rows[0] : null;
   },
+
   async getDetailsById(ticketId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
@@ -53,18 +54,19 @@ export const TicketsService = {
               rm.room_number, rm.floor_number,
               tb.table_number,
               ch.chair_number
-       FROM tickets t
-       JOIN reservations r ON t.reservation_id = r.id
-       JOIN events e ON r.event_id = e.id
-       JOIN invitees i ON r.invitee_id = i.id
-       JOIN chairs ch ON r.chair_id = ch.id
-       JOIN tables tb ON r.table_id = tb.id
-       JOIN rooms rm ON e.room_id = rm.id
-       WHERE t.id = $1`,
+        FROM tickets t
+        JOIN reservations r ON t.reservation_id = r.id
+        JOIN events e ON r.event_id = e.id
+        JOIN invitees i ON r.invitee_id = i.id
+        JOIN chairs ch ON r.chair_id = ch.id
+        JOIN tables tb ON r.table_id = tb.id
+        JOIN rooms rm ON e.room_id = rm.id
+        WHERE t.id = $1`,
       [ticketId]
     );
     return res.rows.length ? res.rows[0] : null;
   },
+
   async generatePdf(ticketId: string): Promise<Buffer> {
     const details = await this.getDetailsById(ticketId);
     if (!details) throw new Error('Ticket not found');
@@ -99,6 +101,7 @@ export const TicketsService = {
       }
     });
   },
+
   async scanTicket(qrToken: string, gateStaffUserId: string): Promise<{ success: boolean; message: string; details?: TicketDetails }> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
@@ -107,14 +110,14 @@ export const TicketsService = {
               rm.room_number, rm.floor_number,
               tb.table_number,
               ch.chair_number
-       FROM tickets t
-       JOIN reservations r ON t.reservation_id = r.id
-       JOIN events e ON r.event_id = e.id
-       JOIN invitees i ON r.invitee_id = i.id
-       JOIN chairs ch ON r.chair_id = ch.id
-       JOIN tables tb ON r.table_id = tb.id
-       JOIN rooms rm ON e.room_id = rm.id
-       WHERE t.qr_token = $1`,
+        FROM tickets t
+        JOIN reservations r ON t.reservation_id = r.id
+        JOIN events e ON r.event_id = e.id
+        JOIN invitees i ON r.invitee_id = i.id
+        JOIN chairs ch ON r.chair_id = ch.id
+        JOIN tables tb ON r.table_id = tb.id
+        JOIN rooms rm ON e.room_id = rm.id
+        WHERE t.qr_token = $1`,
       [qrToken]
     );
     if (res.rows.length === 0) {

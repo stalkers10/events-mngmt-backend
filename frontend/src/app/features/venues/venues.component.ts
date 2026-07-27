@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, of, switchMap } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { Building, Room } from '../../core/models/dashboard.model';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { VenueService } from '../../core/services/venue.service';
@@ -16,7 +17,7 @@ import { describeHttpError } from '../../core/utils/http-error.util';
   templateUrl: './venues.component.html',
   styleUrl: './venues.component.scss',
 })
-export class VenuesComponent implements OnInit {
+export class VenuesComponent implements OnInit, AfterViewInit {
   readonly buildings = signal<Building[]>([]);
   readonly rooms = signal<Room[]>([]);
   readonly isLoading = signal(true);
@@ -25,6 +26,9 @@ export class VenuesComponent implements OnInit {
   readonly showBuildingForm = signal(false);
   readonly showCreateModal = signal(false);
 
+  /** Room ID to highlight after data loads (from query param) */
+  private highlightRoomId: string | null = null;
+
   buildingForm;
   roomForm;
 
@@ -32,7 +36,8 @@ export class VenuesComponent implements OnInit {
     private fb: FormBuilder,
     private venues: VenueService,
     private toast: ToastService,
-    private i18n: I18nextService
+    private i18n: I18nextService,
+    private route: ActivatedRoute
   ) {
     this.buildingForm = this.fb.group({
       name: ['', Validators.required],
@@ -47,7 +52,24 @@ export class VenuesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.highlightRoomId = this.route.snapshot.queryParamMap.get('highlight');
     this.loadBuildings();
+  }
+
+  ngAfterViewInit(): void {
+    // Scroll + blink happens after data loads, triggered inside loadBuildings
+  }
+
+  private scrollAndHighlight(roomId: string): void {
+    // Give the DOM a tick to render after signal update
+    setTimeout(() => {
+      const el = document.getElementById(`room-${roomId}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('room-highlight');
+      // Remove the class after animation finishes so it can re-trigger if needed
+      setTimeout(() => el.classList.remove('room-highlight'), 2400);
+    }, 100);
   }
 
   loadBuildings(): void {
@@ -57,6 +79,9 @@ export class VenuesComponent implements OnInit {
         this.buildings.set(buildings);
         this.rooms.set(rooms);
         this.isLoading.set(false);
+        if (this.highlightRoomId) {
+          this.scrollAndHighlight(this.highlightRoomId);
+        }
       },
       error: () => {
         this.isLoading.set(false);

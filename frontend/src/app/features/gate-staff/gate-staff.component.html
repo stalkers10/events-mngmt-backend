@@ -54,6 +54,7 @@
     } @else if (staff().length === 0) {
       <p class="text-body-sm muted">{{ 'gateStaff.listEmpty' | translate }}</p>
     } @else {
+      <!-- Desktop table -->
       <table class="staff-table">
         <thead>
           <tr>
@@ -65,8 +66,8 @@
         </thead>
         <tbody>
           @for (account of staff(); track account.id) {
-             <tr>
-              <td class="username-cell" [attr.data-label]="'gateStaff.colUsername' | translate">
+            <tr>
+              <td class="username-cell">
                 <div class="username-text">{{ account.username }}</div>
                 @if (account.assignments && account.assignments.length > 0) {
                   <div class="assignments-list">
@@ -76,22 +77,21 @@
                   </div>
                 }
               </td>
-              <td [attr.data-label]="'gateStaff.colStatus' | translate">
+              <td>
                 @if (account.is_active) {
                   <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
                 } @else {
                   <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
                 }
               </td>
-              <td class="text-body-sm muted" [attr.data-label]="'gateStaff.colCreated' | translate">
+              <td class="text-body-sm muted">
                 {{ account.created_at | date: 'MMM d, y' : undefined : (translation.language() === 'fr' ? 'fr' : 'en') }}
               </td>
-              <td [attr.data-label]="'gateStaff.colActions' | translate">
+              <td class="actions-cell">
                 @if (account.is_active) {
                   <button
                     type="button"
                     class="btn btn-primary assign-btn"
-                    style="margin-right: 8px;"
                     [disabled]="processingId() === account.id"
                     (click)="openAssignModal(account)"
                   >
@@ -120,6 +120,65 @@
           }
         </tbody>
       </table>
+
+      <!-- Mobile cards -->
+      <div class="staff-cards">
+        @for (account of staff(); track account.id) {
+          <div class="staff-card">
+            <div class="staff-card-top">
+              <div class="staff-card-identity">
+                <span class="staff-card-username">{{ account.username }}</span>
+                @if (account.is_active) {
+                  <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
+                } @else {
+                  <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
+                }
+              </div>
+              <span class="staff-card-date text-body-sm muted">
+                {{ account.created_at | date: 'MMM d, y' : undefined : (translation.language() === 'fr' ? 'fr' : 'en') }}
+              </span>
+            </div>
+
+            @if (account.assignments && account.assignments.length > 0) {
+              <div class="assignments-list">
+                @for (assignment of account.assignments; track assignment.id) {
+                  <span class="assignment-badge">{{ assignment.name }}</span>
+                }
+              </div>
+            }
+
+            <div class="staff-card-actions">
+              @if (account.is_active) {
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="processingId() === account.id"
+                  (click)="openAssignModal(account)"
+                >
+                  {{ 'gateStaff.assignButton' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [disabled]="processingId() === account.id"
+                  (click)="deactivate(account)"
+                >
+                  {{ (processingId() === account.id ? 'common.deactivating' : 'common.deactivate') | translate }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="processingId() === account.id"
+                  (click)="reactivate(account)"
+                >
+                  {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
     }
   </section>
 
@@ -133,7 +192,7 @@
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
-        
+
         <div class="event-form">
           <div class="form-field">
             <label for="eventSelect">{{ 'gateStaff.selectEvent' | translate }}</label>

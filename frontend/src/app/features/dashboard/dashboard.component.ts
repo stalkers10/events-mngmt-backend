@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventSummary, Room, Building } from '../../core/models/dashboard.model';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -9,9 +9,9 @@ import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 type RoomStatus = 'available' | 'active' | 'reserved';
 
-@Component({ 
+@Component({
   selector: 'app-dashboard',
-  standalone: true, 
+  standalone: true,
   imports: [CommonModule, DatePipe, RouterLink, I18nextPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -25,6 +25,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboard: DashboardService,
     private toast: ToastService,
+    private router: Router,
     public translation: I18nextService,
   ) {}
 
@@ -37,7 +38,7 @@ export class DashboardComponent implements OnInit {
     forkJoin({ rooms: this.dashboard.rooms(), events: this.dashboard.events(), buildings: this.dashboard.buildings() }).subscribe({
       next: ({ rooms, events, buildings }) => {
         this.rooms.set(rooms);
-        this.events.set([...events].sort((a, b) => +new Date(a.start_time) - +new Date(b.start_time))); 
+        this.events.set([...events].sort((a, b) => +new Date(a.start_time) - +new Date(b.start_time)));
         this.buildings.set(buildings);
         this.isLoading.set(false);
       },
@@ -46,6 +47,10 @@ export class DashboardComponent implements OnInit {
         this.toast.error(this.translation.t('errors.loadFailed'));
       },
     });
+  }
+
+  goToRoom(roomId: string): void {
+    this.router.navigate(['/venues'], { queryParams: { highlight: roomId } });
   }
 
   roomEvent(roomId: string): EventSummary | undefined {

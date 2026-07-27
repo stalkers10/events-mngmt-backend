@@ -34,4 +34,5 @@ export const env = {
   smtpFrom: process.env.SMTP_FROM || 'Elite Events <no-reply@elite-events.example.com>',
 
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
+  localUrl: process.env.LOCAL_URL || 'http://localhost:4200',
 };

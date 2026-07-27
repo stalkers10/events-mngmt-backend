@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -8,6 +8,9 @@ import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
 import { VenueService } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
+
+export type FilterTab = 'all' | 'upcoming' | 'live' | 'past';
+export type SortOrder = 'latest' | 'oldest';
 
 @Component({
   selector: 'app-events',
@@ -21,6 +24,28 @@ export class EventsComponent implements OnInit {
   readonly buildings = signal<Building[]>([]);
   readonly events = signal<EventSummary[]>([]);
   readonly isLoading = signal(true);
+
+  readonly filterTabs: FilterTab[] = ['all', 'upcoming', 'live', 'past'];
+
+  readonly activeFilter = signal<FilterTab>('all');
+  readonly sortOrder = signal<SortOrder>('latest');
+
+  readonly filteredEvents = computed(() => {
+    const filter = this.activeFilter();
+    const sort = this.sortOrder();
+
+    let list = this.events().filter(event => {
+      if (filter === 'all') return true;
+      return this.eventState(event) === filter;
+    });
+
+    list = [...list].sort((a, b) => {
+      const diff = +new Date(a.start_time) - +new Date(b.start_time);
+      return sort === 'latest' ? -diff : diff;
+    });
+
+    return list;
+  });
 
   constructor(
     private venues: VenueService,
@@ -43,8 +68,7 @@ export class EventsComponent implements OnInit {
       next: ({ rooms, buildings, events }) => {
         this.rooms.set(rooms);
         this.buildings.set(buildings);
-        // Sort events chronologically
-        this.events.set([...events].sort((a, b) => +new Date(a.start_time) - +new Date(b.start_time)));
+        this.events.set(events);
         this.isLoading.set(false);
       },
       error: () => {
@@ -54,13 +78,17 @@ export class EventsComponent implements OnInit {
     });
   }
 
-  roomLabel(room: Room): string {
-    const building = this.buildings().find((item) => item.id === room.building_id);
-    return `${room.room_number} · ${this.i18n.t('events.floor')} ${room.floor_number}${building ? ` · ${building.name}` : ''}`;
-  }
-
   roomFor(event: EventSummary): Room | undefined {
     return this.rooms().find((room) => room.id === event.room_id);
+  }
+
+  roomLabel(event: EventSummary): string {
+    const room = this.roomFor(event);
+    if (!room) return '—';
+    const building = this.buildings().find(b => b.id === room.building_id);
+    return building
+      ? `${building.name} · ${room.room_number}`
+      : `${room.room_number} · Floor ${room.floor_number}`;
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
@@ -70,6 +98,19 @@ export class EventsComponent implements OnInit {
     if (end < now) return 'past';
     if (start <= now && end >= now) return 'live';
     return 'upcoming';
+  }
+
+  setFilter(filter: FilterTab): void {
+    this.activeFilter.set(filter);
+  }
+
+  setSortOrder(order: SortOrder): void {
+    this.sortOrder.set(order);
+  }
+
+  countByFilter(filter: FilterTab): number {
+    if (filter === 'all') return this.events().length;
+    return this.events().filter(e => this.eventState(e) === filter).length;
   }
 
   deleteEvent(id: string): void {

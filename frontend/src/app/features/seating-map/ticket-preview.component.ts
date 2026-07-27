@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VenueService } from '../../core/services/venue.service';
 import { ToastService } from '../../core/services/toast.service';
+import { I18nextService } from '../../core/services/i18next.service';
 
 @Component({
   selector: 'app-ticket-preview',
@@ -21,7 +22,8 @@ export class TicketPreviewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private venues: VenueService,
-    private toast: ToastService
+    private toast: ToastService,
+    private i18n: I18nextService
   ) {}
 
   ngOnInit(): void {

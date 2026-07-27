@@ -133,7 +133,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background-color: var(--color-surface-container-lowest);
+    background-color: var(--color-background);
     border-bottom: 1px solid var(--color-input-border);
     padding: 12px var(--space-md);
   }
@@ -186,7 +186,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: var(--color-surface-container-lowest);
+    background-color: var(--color-background);
     border-top: 1px solid var(--color-input-border);
     min-height: 60px;
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));

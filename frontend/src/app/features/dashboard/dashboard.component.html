@@ -26,7 +26,7 @@
         <span class="room-count">{{ rooms().length }}</span>
       </div>
 
-      @if (rooms().length === 0) { 
+      @if (rooms().length === 0) {
         <div class="empty-state card">
           <span class="material-symbols-outlined">meeting_room</span>
           <h3 class="text-headline-sm">{{ 'dashboard.noRoomsTitle' | translate }}</h3>
@@ -36,7 +36,7 @@
       } @else {
         <div class="room-grid">
           @for (room of displayedRooms(); track room.id) {
-            <a routerLink="/venues" class="room-card card">
+            <a (click)="goToRoom(room.id)" class="room-card card" style="cursor:pointer;">
               <div class="room-card-topline">
                 <span class="text-label-caps">{{ 'dashboard.floor' | translate }} {{ room.floor_number }}</span>
                 <span class="status-chip" [class]="'status-chip ' + roomStatus(room)">

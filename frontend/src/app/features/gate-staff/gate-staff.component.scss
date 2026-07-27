@@ -44,6 +44,7 @@
   color: var(--color-on-surface-variant);
 }
 
+/* ---- Desktop table ---- */
 .staff-table {
   width: 100%;
   border-collapse: collapse;
@@ -60,6 +61,7 @@
   padding: 12px;
   border-bottom: 1px solid var(--color-input-border);
   font-size: 14px;
+  vertical-align: middle;
 }
 
 .username-cell {
@@ -70,8 +72,13 @@
   text-align: right;
 }
 
-.staff-table td:last-child {
+.actions-cell {
   text-align: right;
+  white-space: nowrap;
+
+  .btn + .btn {
+    margin-left: 8px;
+  }
 }
 
 .chip-inactive {
@@ -95,69 +102,15 @@
   padding: 6px 14px;
 }
 
-.deactivate-btn:disabled {
+.deactivate-btn:disabled,
+.reactivate-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-@media (max-width: 767px) {
-  .gate-staff-page {
-    max-width: none;
-  }
-
-  .page-header {
-    margin-bottom: var(--space-md);
-  }
-
-  .submit-btn {
-    align-self: stretch;
-  }
-
-  .staff-table,
-  .staff-table tbody,
-  .staff-table tr,
-  .staff-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .staff-table thead {
-    display: none;
-  }
-
-  .staff-table tr {
-    padding: var(--space-sm) 0;
-    border-bottom: 1px solid var(--color-input-border);
-  }
-
-  .staff-table tr:last-child {
-    border-bottom: 0;
-  }
-
-  .staff-table td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-md);
-    padding: 6px 0;
-    border: 0;
-    text-align: right;
-  }
-
-  .staff-table td::before {
-    content: attr(data-label);
-    flex: 0 0 42%;
-    color: var(--color-on-surface-variant);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-align: left;
-    text-transform: uppercase;
-  }
-
-  .staff-table td:last-child {
-    text-align: right;
-  }
+.assign-btn {
+  font-size: 13px;
+  padding: 6px 14px;
 }
 
 .assignments-list {
@@ -178,12 +131,91 @@
   border-radius: var(--radius-sm, 4px);
 }
 
-.assign-btn {
-  font-size: 13px;
-  padding: 6px 14px;
+/* ---- Mobile cards (hidden on desktop) ---- */
+.staff-cards {
+  display: none;
 }
 
-/* Modal styles copied from events page for visual consistency */
+/* ---- Responsive ---- */
+@media (max-width: 767px) {
+  .gate-staff-page {
+    max-width: none;
+  }
+
+  .page-header {
+    margin-bottom: var(--space-md);
+  }
+
+  .submit-btn {
+    align-self: stretch;
+  }
+
+  /* Hide desktop table, show mobile cards */
+  .staff-table {
+    display: none;
+  }
+
+  .staff-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .staff-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--color-input-border);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .staff-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .staff-card-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .staff-card-username {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    word-break: break-all;
+  }
+
+  .staff-card-date {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--color-on-surface-variant);
+    padding-top: 2px;
+  }
+
+  .staff-card .assignments-list {
+    margin-top: 0;
+  }
+
+  .staff-card-actions {
+    display: flex;
+    gap: var(--space-sm);
+
+    .btn {
+      flex: 1;
+    }
+  }
+}
+
+/* ---- Modal ---- */
 .modal-backdrop {
   position: fixed;
   z-index: 200;
@@ -210,7 +242,7 @@
   justify-content: space-between;
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
-  
+
   h2 {
     margin: 0;
   }
@@ -232,7 +264,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  
+
   select {
     width: 100%;
     padding: 10px 12px;
@@ -241,7 +273,7 @@
     background-color: var(--color-surface-container-lowest);
     color: var(--color-on-surface);
     font-size: 14px;
-    
+
     &:focus {
       outline: none;
       border-color: var(--color-primary);
@@ -255,7 +287,7 @@
   gap: var(--space-sm);
   padding-top: var(--space-md);
   border-top: 1px solid var(--color-input-border);
-  
+
   .btn {
     display: inline-flex;
     align-items: center;
@@ -268,9 +300,11 @@
   .modal-actions {
     flex-direction: column-reverse;
   }
+
   .modal-actions .btn {
     width: 100%;
   }
+
   .creation-modal {
     max-height: calc(100dvh - 16px);
   }

@@ -7,7 +7,7 @@
     <button type="button" (click)="showCreateModal.set(true)" class="btn btn-primary header-link">
       <span class="material-symbols-outlined">add_home</span>{{ 'venues.createRoom' | translate }}</button>
   </header>
-  @if (isLoading()) { <div class="card loading-state">{{ 'common.loading' | translate }}</div> } 
+  @if (isLoading()) { <div class="card loading-state">{{ 'common.loading' | translate }}</div> }
   @else if (buildings().length === 0) {
     <div class="card empty-state"><span class="material-symbols-outlined">domain_add</span>
       <h2 class="text-headline-sm">{{ 'venues.noBuildingsTitle' | translate }}</h2>
@@ -25,8 +25,8 @@
           </h2><p class="text-body-sm subtitle">
             {{ building.address || ('venues.noAddress' | translate) }}
           </p></div></div>
-          <div class="room-list">@for (room of roomsForBuilding(building.id); track room.id) 
-            { <div class="room-row"><span class="material-symbols-outlined">meeting_room</span>
+          <div class="room-list">@for (room of roomsForBuilding(building.id); track room.id)
+            { <div class="room-row" [id]="'room-' + room.id"><span class="material-symbols-outlined">meeting_room</span>
               <div><strong>{{ room.room_number }}</strong>
                 <span>{{ 'venues.floor' | translate }} {{ room.floor_number }} · {{ room.capacity ?? '—' }}
                   {{ 'venues.capacity' | translate }}</span>
@@ -41,7 +41,7 @@
 
 @if (showCreateModal()) {
   <div class="modal-backdrop" (click)="closeCreate()">
-    <section class="creation-modal card" role="dialog" aria-modal="true" 
+    <section class="creation-modal card" role="dialog" aria-modal="true"
       [attr.aria-label]="'venues.title' | translate" (click)="$event.stopPropagation()">
       <header class="modal-header">
         <div>
@@ -61,7 +61,7 @@
         </div>
         <select id="buildingId" formControlName="buildingId">
           <option value="" disabled>{{ 'venues.buildingPlaceholder' | translate }}</option>
-          @for (building of buildings(); track building.id) 
+          @for (building of buildings(); track building.id)
           { <option [value]="building.id">{{ building.name }}</option> }
         </select></div>
       @if (showBuildingForm()) { <div class="building-form" [formGroup]="buildingForm">
@@ -71,8 +71,8 @@
         <div class="form-field">
           <label for="buildingAddress">{{ 'venues.address' | translate }}</label>
           <input id="buildingAddress" formControlName="address" type="text" /></div>
-        <button type="button" class="btn btn-secondary" 
-          [disabled]="buildingForm.invalid || isCreatingBuilding()" 
+        <button type="button" class="btn btn-secondary"
+          [disabled]="buildingForm.invalid || isCreatingBuilding()"
           (click)="createBuilding()">{{ (isCreatingBuilding() ? 'venues.creatingBuilding' : 'venues.saveBuilding') | translate }}
         </button>
       </div> }

@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="placeholder-page">
       <h1 class="text-headline-md">Scanner</h1>
-      <p class="text-body-sm">This screen will be built next, wired to its corresponding backend endpoints.</p>
+      <p class="text-body-sm">.</p>
     </div>
   `,
   styles: [`
