@@ -40,7 +40,7 @@ export class GuestListComponent implements OnInit {
 
   readonly guests = computed<GuestRow[]>(() => {
     const occ = this.occupancy();
-    if (!occ) return [];
+    if (!occ) return []; 
     const rows: GuestRow[] = [];
     for (const table of occ.tables) {
       for (const chair of table.chairs) {
@@ -123,7 +123,7 @@ export class GuestListComponent implements OnInit {
         this.isLoadingGuests.set(false);
         this.toast.error(this.i18n.t('errors.loadFailed'));
       },
-    }); 
+    });
   }
 
   goBack(): void {
@@ -138,8 +138,8 @@ export class GuestListComponent implements OnInit {
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
     const now = Date.now();
     const start = +new Date(event.start_time);
-    const end = +new Date(event.end_time);  
-    if (end < now) return 'past';  
+    const end = +new Date(event.end_time);
+    if (end < now) return 'past';
     if (start <= now && end >= now) return 'live';
     return 'upcoming';
   }

@@ -5,7 +5,7 @@ import { RoleType } from '../types/auth';
 import { RoomsService } from '../services/rooms.service';
 const router = Router();
 
-router.use(requireAuth, requireRole(RoleType.ADMIN));
+
 const createRoomSchema = z.object({
   buildingId: z.string().uuid(),
   roomNumber: z.string().min(1),
@@ -22,6 +22,8 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch rooms' });
   }
 });
+
+router.use(requireAuth, requireRole(RoleType.ADMIN));
 router.post('/', async (req: Request, res: Response) => {
   const parsed = createRoomSchema.safeParse(req.body);
   if (!parsed.success) {

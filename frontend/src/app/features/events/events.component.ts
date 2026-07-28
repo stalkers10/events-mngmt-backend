@@ -26,31 +26,39 @@ export class EventsComponent implements OnInit {
   readonly isLoading = signal(true);
 
   readonly filterTabs: FilterTab[] = ['all', 'upcoming', 'live', 'past'];
-
   readonly activeFilter = signal<FilterTab>('all');
   readonly sortOrder = signal<SortOrder>('latest');
 
   readonly filteredEvents = computed(() => {
     const filter = this.activeFilter();
     const sort = this.sortOrder();
-
-    let list = this.events().filter(event => {
-      if (filter === 'all') return true;
-      return this.eventState(event) === filter;
-    });
-
-    list = [...list].sort((a, b) => {
+    let list = this.events().filter(e =>
+      filter === 'all' ? true : this.eventState(e) === filter
+    );
+    return [...list].sort((a, b) => {
       const diff = +new Date(a.start_time) - +new Date(b.start_time);
       return sort === 'latest' ? -diff : diff;
     });
-
-    return list;
   });
 
+  readonly activeEventsCount = computed(() =>
+    this.events().filter(e => {
+      const s = this.eventState(e);
+      return s === 'live' || s === 'upcoming';
+    }).length
+  );
+
+  readonly totalCapacity = computed(() =>
+    this.events().reduce((sum, e) => {
+      const room = this.roomFor(e);
+      return sum + (room?.capacity ?? 0);
+    }, 0)
+  );
+
   constructor(
-    private venues: VenueService,
+    private venueService: VenueService,
     private dashboard: DashboardService,
-    private toast: ToastService,
+    private toast: ToastService, 
     private i18n: I18nextService
   ) {}
 
@@ -61,8 +69,8 @@ export class EventsComponent implements OnInit {
   loadData(): void {
     this.isLoading.set(true);
     forkJoin({
-      rooms: this.venues.rooms(),
-      buildings: this.venues.buildings(),
+      rooms: this.venueService.rooms(),
+      buildings: this.venueService.buildings(),
       events: this.dashboard.events()
     }).subscribe({
       next: ({ rooms, buildings, events }) => {
@@ -79,16 +87,13 @@ export class EventsComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    return this.rooms().find((room) => room.id === event.room_id);
+    return this.rooms().find(r => r.id === event.room_id);
   }
 
-  roomLabel(event: EventSummary): string {
+  roomFloorLabel(event: EventSummary): string {
     const room = this.roomFor(event);
     if (!room) return '—';
-    const building = this.buildings().find(b => b.id === room.building_id);
-    return building
-      ? `${building.name} · ${room.room_number}`
-      : `${room.room_number} · Floor ${room.floor_number}`;
+    return `${room.room_number} · Floor ${room.floor_number}`;
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
@@ -115,7 +120,7 @@ export class EventsComponent implements OnInit {
 
   deleteEvent(id: string): void {
     if (confirm(this.i18n.t('events.confirmDelete') || 'Are you sure you want to delete this event?')) {
-      this.venues.deleteEvent(id).subscribe({
+      this.venueService.deleteEvent(id).subscribe({
         next: () => {
           this.toast.success(this.i18n.t('events.deleteSuccess') || 'Event deleted successfully');
           this.loadData();

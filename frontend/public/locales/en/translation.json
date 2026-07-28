@@ -56,7 +56,9 @@
     "creatingRoom": "Creating room…", "roomCreated": "Room created.",
     "noBuildingsTitle": "No buildings yet",
     "noBuildingsBody": "Create a building and room to get started.",
-    "noRooms": "No rooms in this building yet."
+    "noRooms": "No rooms in this building yet.",
+    "addFirstRoom": "Add First Room",
+    "viewAllRooms": "View All Rooms"
   },
 
   "events": {
@@ -95,6 +97,11 @@
     "sortBy": "Sort by",
     "sortLatest": "Latest",
     "sortOldest": "Oldest",
+    "statsActive": "Active Events",
+    "statsTotalGuests": "Total Capacity",
+    "statsTotal": "All Events",
+    "spotlightTitle": "Venue Spotlight",
+    "spotlightBody": "Our premium suites are now available for late 2028 bookings. Secure the Grand Ballroom for your next gala.",
     "filter": {
       "all": "All",
       "upcoming": "Upcoming",

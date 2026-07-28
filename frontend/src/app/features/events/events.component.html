@@ -13,6 +13,33 @@
     </a>
   </header>
 
+  <!-- ── Stats bar ── -->
+  @if (!isLoading()) {
+    <div class="stats-bar">
+      <div class="stat-card card">
+        <span class="material-symbols-outlined stat-icon">calendar_month</span>
+        <div class="stat-body">
+          <span class="stat-label">{{ 'events.statsActive' | translate }}</span>
+          <span class="stat-value">{{ activeEventsCount() }}</span>
+        </div>
+      </div>
+      <div class="stat-card card">
+        <span class="material-symbols-outlined stat-icon">groups</span>
+        <div class="stat-body">
+          <span class="stat-label">{{ 'events.statsTotalGuests' | translate }}</span>
+          <span class="stat-value">{{ totalCapacity() }}</span>
+        </div>
+      </div>
+      <div class="stat-card card">
+        <span class="material-symbols-outlined stat-icon">event_available</span>
+        <div class="stat-body">
+          <span class="stat-label">{{ 'events.statsTotal' | translate }}</span>
+          <span class="stat-value">{{ events().length }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- ── Filter bar ── -->
   <div class="filter-bar">
     <div class="filter-tabs">
@@ -74,17 +101,12 @@
       <!-- ── Event grid ── -->
       <div class="event-grid">
         @for (event of filteredEvents(); track event.id) {
-          <div class="event-card" [class.is-past]="eventState(event) === 'past'">
+          <div class="event-card card" [class.is-past]="eventState(event) === 'past'">
 
-            <!-- Photo / banner area -->
-            <div class="event-photo">
-              <img
-                src="/Events/wallpaper.webp"
-                [alt]="event.name"
-                class="event-img"
-                loading="lazy"
-              />
-              <span class="event-badge" [class]="'badge-' + eventState(event)">
+            <!-- Card header row: name + badge -->
+            <div class="event-card-top">
+              <h3 class="event-name">{{ event.name }}</h3>
+              <span class="event-badge badge-{{ eventState(event) }}">
                 @if (eventState(event) === 'live') {
                   <span class="live-dot"></span>
                 }
@@ -92,50 +114,46 @@
               </span>
             </div>
 
-            <!-- Card body -->
-            <div class="event-body">
-              <h3 class="event-name text-headline-sm">{{ event.name }}</h3>
+            <!-- Meta rows -->
+            <div class="event-meta">
+              <span class="meta-row">
+                <span class="material-symbols-outlined">location_on</span>
+                {{ roomFloorLabel(event) }}
+              </span>
+              <span class="meta-row">
+                <span class="material-symbols-outlined">calendar_today</span>
+                {{ event.start_time | date: 'MMM d, yyyy' }}
+              </span>
+              <span class="meta-row">
+                <span class="material-symbols-outlined">schedule</span>
+                {{ event.start_time | date: 'h:mm a' }} – {{ event.end_time | date: 'h:mm a' }}
+              </span>
+            </div>
 
-              <div class="event-meta">
-                <span class="meta-row">
-                  <span class="material-symbols-outlined">location_on</span>
-                  {{ roomLabel(event) }}
-                </span>
-                <span class="meta-row">
-                  <span class="material-symbols-outlined">calendar_today</span>
-                  {{ event.start_time | date: 'MMM d, yyyy' }}
-                  &nbsp;·&nbsp;
-                  <span class="material-symbols-outlined">schedule</span>
-                  {{ event.start_time | date: 'HH:mm' }} – {{ event.end_time | date: 'HH:mm' }}
-                </span>
-              </div>
-
-              <div class="event-divider"></div>
-
-              <div class="event-actions">
-                <button
-                  type="button"
-                  class="btn-delete"
-                  (click)="deleteEvent(event.id)"
-                  title="{{ 'common.delete' | translate }}"
-                >
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-
-                <a
-                  [routerLink]="['/events', event.id, 'seating-map']"
-                  class="btn btn-outline-primary edit-seating-btn"
-                >
-                  <span class="material-symbols-outlined">chair</span>
-                  {{ 'events.editSeating' | translate }}
-                </a>
-              </div>
+            <!-- Card footer -->
+            <div class="event-footer">
+              <button
+                type="button"
+                class="btn-delete"
+                (click)="deleteEvent(event.id)"
+                [title]="'common.delete' | translate"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+              <a
+                [routerLink]="['/events', event.id, 'seating-map']"
+                class="btn btn-primary edit-seating-btn"
+              >
+                <span class="material-symbols-outlined">chair</span>
+                {{ 'events.editSeating' | translate }}
+              </a>
             </div>
 
           </div>
         }
       </div>
     }
+
   }
 
 </div>

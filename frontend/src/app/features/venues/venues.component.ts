@@ -25,6 +25,15 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   readonly isSubmitting = signal(false);
   readonly showBuildingForm = signal(false);
   readonly showCreateModal = signal(false);
+  readonly activeRoomsBuilding = signal<Building | null>(null);
+
+  openRoomsPopup(building: Building): void {
+    this.activeRoomsBuilding.set(building);
+  }
+
+  closeRoomsPopup(): void {
+    this.activeRoomsBuilding.set(null);
+  }
 
   /** Room ID to highlight after data loads (from query param) */
   private highlightRoomId: string | null = null;
@@ -144,5 +153,13 @@ export class VenuesComponent implements OnInit, AfterViewInit {
 
   closeCreate(): void {
     this.showCreateModal.set(false);
+    this.roomForm.patchValue({ buildingId: '' });
+  }
+
+  openCreateModal(buildingId?: string): void {
+    if (buildingId) {
+      this.roomForm.patchValue({ buildingId });
+    }
+    this.showCreateModal.set(true);
   }
 }

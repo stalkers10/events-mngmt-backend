@@ -78,9 +78,11 @@
 }
 
 .nav-item.active {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary);
+  background-color: rgba(128, 0, 32, 0.08);
+  color: var(--color-primary-container);
   font-weight: 600;
+  border-left: 3px solid var(--color-primary-container);
+  padding-left: calc(12px - 3px);
 }
 
 .nav-icon {

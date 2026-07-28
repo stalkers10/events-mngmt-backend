@@ -83,7 +83,9 @@
     "roomCreated": "Salle et disposition créées.",
     "noBuildingsTitle": "Aucun lieu",
     "noBuildingsBody": "Créez votre premier bâtiment pour commencer.",
-    "noRooms": "Aucune salle dans ce bâtiment."
+    "noRooms": "Aucune salle dans ce bâtiment.",
+    "addFirstRoom": "Ajouter une salle",
+    "viewAllRooms": "Voir toutes les salles"
   },
   "events": {
     "eyebrow": "Planification d'événements",
@@ -113,6 +115,11 @@
     "sortBy": "Trier par",
     "sortLatest": "Plus récent",
     "sortOldest": "Plus ancien",
+    "statsActive": "Événements actifs",
+    "statsTotalGuests": "Capacité totale",
+    "statsTotal": "Tous les événements",
+    "spotlightTitle": "À la une",
+    "spotlightBody": "Nos suites premium sont disponibles pour les réservations fin 2028. Réservez le Grand Salon pour votre prochain gala.",
     "filter": {
       "all": "Tous",
       "upcoming": "À venir",
