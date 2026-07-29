@@ -11,7 +11,7 @@
     <div class="card loading-state">
       <p>Loading ticket details...</p>
     </div>
-  } @else {
+  } @else {  
     @if (ticket(); as details) {
       <!-- The Ticket Card -->
       <article class="ticket-card" [class.cancelled]="details.status === 'CANCELLED'">
@@ -54,7 +54,7 @@
               <span class="text-body-sm value">Table {{ details.table_number }}, Chair {{ details.chair_number }}</span>
             </div>
           </div>
-          
+
 
           <!-- QR Code Section -->
           <div class="qr-section">

@@ -1,6 +1,8 @@
 import { query } from '../config/db';
 import QRCode from 'qrcode';
 import PDFDocument from 'pdfkit';
+import { RoleType } from '../types/auth';
+
 export interface TicketDetails {
   id: string;
   reservation_id: string;
@@ -102,7 +104,11 @@ export const TicketsService = {
     });
   },
 
-  async scanTicket(qrToken: string, gateStaffUserId: string): Promise<{ success: boolean; message: string; details?: TicketDetails }> {
+  async scanTicket(
+    qrToken: string,
+    gateStaffUserId: string,
+    gateStaffUserRole: RoleType
+  ): Promise<{ success: boolean; message: string; details?: TicketDetails }> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
               e.id as event_id, e.name as event_name, e.start_time, 
@@ -125,29 +131,38 @@ export const TicketsService = {
     }
     const details = res.rows[0];
     const eventId = (details as any).event_id;
-    // Check gate staff assignment
-    const assignmentRes = await query(
-      `SELECT 1 FROM gate_staff_assignments WHERE user_id = $1 AND event_id = $2`,
-      [gateStaffUserId, eventId]
-    );
-    if (assignmentRes.rows.length === 0) {
-      throw new Error('You are not assigned to the event for this ticket');
-    }
+
     if (details.status === 'CHECKED_IN') {
       throw new Error('Ticket already checked in');
     }
     if (details.status === 'CANCELLED') {
       throw new Error('Ticket has been cancelled');
     }
-    // Mark as checked in
+
+    if (gateStaffUserRole !== RoleType.ADMIN) {
+      const assignmentRes = await query(
+        `SELECT 1 FROM gate_staff_assignments WHERE user_id = $1 AND event_id = $2`,
+        [gateStaffUserId, eventId]
+      );
+      if (assignmentRes.rows.length === 0) {
+        throw new Error('You are not assigned to the event for this ticket');
+      }
+    }
+
+    const checkedInAt = new Date();
     await query(
       `UPDATE tickets SET status = 'CHECKED_IN', checked_in_at = NOW() WHERE id = $1`,
       [details.id]
     );
+
     return {
       success: true,
       message: 'Check-in successful',
-      details,
+      details: {
+        ...details,
+        status: 'CHECKED_IN',
+        checked_in_at: checkedInAt,
+      },
     };
   }
 };

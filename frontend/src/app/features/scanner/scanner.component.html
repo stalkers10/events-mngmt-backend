@@ -1,0 +1,65 @@
+<section class="scanner-shell">
+      <header class="scanner-header">
+        <h1>Gate Scanner</h1>
+        <p>Point the camera at the QR code or paste the token manually.</p>
+      </header>
+
+      <div class="scanner-frame">
+        <video
+          #video
+          class="scanner-preview"
+          muted
+          playsinline
+          autoplay
+          aria-label="Camera preview for QR scanner"
+        ></video>
+        <canvas #canvas hidden></canvas>
+
+        <div class="scanner-overlay" *ngIf="scanResult">
+          <div class="scan-card" [class.success]="scanResult.success" [class.error]="!scanResult.success">
+            <p class="scan-card__status">{{ scanResult.success ? '✅ Success' : '❌ Error' }}</p>
+            <p class="scan-card__message">{{ scanResult.message }}</p>
+
+            <ng-container *ngIf="scanResult.success && scanResult.details">
+              <dl class="scan-card__details">
+                <div>
+                  <dt>Guest</dt>
+                  <dd>{{ scanResult.details.invitee_name }}</dd>
+                </div>
+                <div>
+                  <dt>Event</dt>
+                  <dd>{{ scanResult.details.event_name }}</dd>
+                </div>
+                <div>
+                  <dt>Seat</dt>
+                  <dd>{{ scanResult.details.table_number }} • {{ scanResult.details.chair_number }}</dd>
+                </div>
+                <div>
+                  <dt>Checked in</dt>
+                  <dd>{{ scanResult.details.checked_in_at | date:'short' }}</dd>
+                </div>
+              </dl>
+            </ng-container>
+          </div>
+        </div>
+
+        <div *ngIf="!cameraSupported" class="scanner-warning">
+          Camera unavailable. Use the manual token input below.
+        </div>
+      </div>
+
+      <form class="manual-form" (ngSubmit)="submitManualToken()">
+        <label for="qrToken">Manual QR token</label>
+        <input
+          id="qrToken"
+          name="qrToken"
+          type="text"
+          placeholder="Paste QR token"
+          [(ngModel)]="manualToken"
+          [disabled]="isSubmitting"
+        />
+        <button type="submit" [disabled]="!manualToken || isSubmitting">
+          {{ isSubmitting ? 'Scanning…' : 'Scan token' }}
+        </button>
+      </form>
+    </section>

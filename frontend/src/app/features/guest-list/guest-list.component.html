@@ -202,10 +202,12 @@
                           {{ 'guestList.viewTicket' | translate }}
                         </button>
                       }
-                      <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
-                        <span class="material-symbols-outlined">person_remove</span>
-                        {{ 'guestList.cancel' | translate }}
-                      </button>
+                      @if (isAdmin()) {
+                        <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
+                          <span class="material-symbols-outlined">person_remove</span>
+                          {{ 'guestList.cancel' | translate }}
+                        </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -246,9 +248,11 @@
                     <span class="material-symbols-outlined">confirmation_number</span>
                   </button>
                 }
-                <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
-                  <span class="material-symbols-outlined">person_remove</span>
-                </button>
+                @if (isAdmin()) {
+                  <button class="btn btn-sm btn-danger" (click)="cancelReservation(row)">
+                    <span class="material-symbols-outlined">person_remove</span>
+                  </button>
+                }
               </div>
             </div>
           </div>

@@ -1,12 +1,12 @@
-
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware';
 import { RoleType } from '../types/auth';
 import { ReservationsService } from '../services/reservations.service';
+import { query } from '../config/db';
+
 const router = Router();
 
-router.use(requireAuth, requireRole(RoleType.ADMIN));
 const createReservationSchema = z.object({
   eventId: z.string().uuid(),
   tableId: z.string().uuid(),
@@ -17,23 +17,54 @@ const createReservationSchema = z.object({
     phone: z.string().optional(),
   }),
 });
-router.get('/event/:eventId/occupancy', async (req: Request<{ eventId: string }>, res: Response) => {
-  try {
-    const occupancy = await ReservationsService.getEventOccupancy(req.params.eventId);
-    res.json(occupancy);
-  } catch (err: any) {
-    if (err.message === 'Event not found') {
-       res.status(404).json({ error: err.message });
-       return;
+
+/**
+ * GET /reservations/event/:eventId/occupancy
+ *
+ * Accessible to both ADMIN and GATE_STAFF.
+ * Gate staff are additionally checked against gate_staff_assignments —
+ * they can only read occupancy for events they are assigned to.
+ */
+router.get(
+  '/event/:eventId/occupancy',
+  requireAuth,
+  async (req: Request<{ eventId: string }>, res: Response) => {
+    const user = req.user!;
+    const { eventId } = req.params;
+
+    // Gate staff: verify they are assigned to this event
+    if (user.role === RoleType.GATE_STAFF) {
+      const assignment = await query(
+        `SELECT 1 FROM gate_staff_assignments WHERE user_id = $1 AND event_id = $2`,
+        [user.id, eventId]
+      );
+      if (assignment.rows.length === 0) {
+        res.status(403).json({ error: 'You are not assigned to this event' });
+        return;
+      }
     }
-    res.status(500).json({ error: 'Failed to fetch occupancy' });
+
+    try {
+      const occupancy = await ReservationsService.getEventOccupancy(eventId);
+      res.json(occupancy);
+    } catch (err: any) {
+      if (err.message === 'Event not found') {
+        res.status(404).json({ error: err.message });
+        return;
+      }
+      res.status(500).json({ error: 'Failed to fetch occupancy' });
+    }
   }
-});
+);
+
+// All remaining reservation routes are Admin-only
+router.use(requireAuth, requireRole(RoleType.ADMIN));
+
 router.post('/', async (req: Request, res: Response) => {
   const parsed = createReservationSchema.safeParse(req.body);
   if (!parsed.success) {
-     res.status(400).json({ error: parsed.error.flatten() });
-     return; 
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
   }
   try {
     const result = await ReservationsService.createReservationAndTicket(
@@ -47,6 +78,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(409).json({ error: err.message });
   }
 });
+
 router.delete('/:reservationId', async (req: Request<{ reservationId: string }>, res: Response) => {
   try {
     await ReservationsService.cancelReservation(req.params.reservationId);
@@ -55,4 +87,5 @@ router.delete('/:reservationId', async (req: Request<{ reservationId: string }>,
     res.status(500).json({ error: 'Failed to cancel reservation' });
   }
 });
+
 export default router;

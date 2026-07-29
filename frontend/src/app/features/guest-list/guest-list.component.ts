@@ -5,6 +5,8 @@ import { forkJoin } from 'rxjs';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
+import { AuthService } from '../../core/services/auth.service';
+import { RoleType } from '../../core/models/auth.model';
 import { VenueService, EventOccupancy, OccupancyTable, OccupancyChair } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { EventSummary, Room } from '../../core/models/dashboard.model';
@@ -40,7 +42,7 @@ export class GuestListComponent implements OnInit {
 
   readonly guests = computed<GuestRow[]>(() => {
     const occ = this.occupancy();
-    if (!occ) return []; 
+    if (!occ) return [];
     const rows: GuestRow[] = [];
     for (const table of occ.tables) {
       for (const chair of table.chairs) {
@@ -77,11 +79,14 @@ export class GuestListComponent implements OnInit {
 
   readonly reservedSeats = computed(() => this.guests().length);
 
+  readonly isAdmin = computed(() => this.auth.hasRole(RoleType.ADMIN));
+
   constructor(
     private venues: VenueService,
     private dashboard: DashboardService,
     private toast: ToastService,
-    private i18n: I18nextService
+    private i18n: I18nextService,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {

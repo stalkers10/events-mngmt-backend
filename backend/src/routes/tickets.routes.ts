@@ -6,16 +6,12 @@ import { RoleType } from '../types/auth';
 import { TicketsService } from '../services/tickets.service';
 const router = Router();
 
-// TODO: implement tickets endpoints per the spec (Section references in project1_updated.md).
-// Example pattern for an Admin-only write route:
-//   import { requireAuth, requireRole } from '../middlewares/auth.middleware';
-//   import { RoleType } from '../types/auth';
-//   router.post('/', requireAuth, requireRole(RoleType.ADMIN), controllerFn);
 // Protect all ticket routes with Auth
 router.use(requireAuth);
 const scanSchema = z.object({
   qrToken: z.string().min(1),
 });
+
 // Scanning is allowed for both Admin and Gate Staff
 router.post('/scan', async (req: Request, res: Response) => {
   const parsed = scanSchema.safeParse(req.body);
@@ -25,7 +21,7 @@ router.post('/scan', async (req: Request, res: Response) => {
   }
   try {
     const user = req.user!;
-    const result = await TicketsService.scanTicket(parsed.data.qrToken, user.id);
+    const result = await TicketsService.scanTicket(parsed.data.qrToken, user.id, user.role);
     res.json(result);
   } catch (err: any) {
     // Return 400 for bad scans or 403 for unauthorized events
@@ -33,6 +29,7 @@ router.post('/scan', async (req: Request, res: Response) => {
     res.status(status).json({ error: err.message });
   }
 });
+
 // PDF download is Admin only
 router.get('/:ticketId', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
   try {
