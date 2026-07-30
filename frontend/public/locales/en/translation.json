@@ -58,7 +58,12 @@
     "noBuildingsBody": "Create a building and room to get started.",
     "noRooms": "No rooms in this building yet.",
     "addFirstRoom": "Add First Room",
-    "viewAllRooms": "View All Rooms"
+    "viewAllRooms": "View All Rooms",
+    "deleteRoom": "Delete Room",
+    "confirmDeleteRoom": "Are you sure you want to delete this room? This action cannot be undone.",
+    "deleteBuilding": "Delete Building", "confirmDeleteBuilding": "Are you sure you want to delete this building? This will also delete all rooms in this building and cannot be undone.",
+    "buildingDeleted": "Building deleted successfully.",
+    "roomDeleted": "Room deleted successfully."
   },
 
   "events": {

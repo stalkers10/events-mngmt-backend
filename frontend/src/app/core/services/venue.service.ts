@@ -8,7 +8,7 @@ export interface CreateBuildingPayload {
   name: string;
   address?: string;
 }
- 
+
 export interface CreateRoomPayload {
   buildingId: string;
   roomNumber: string;
@@ -44,9 +44,16 @@ export class VenueService {
   buildings(): Observable<Building[]> {
     return this.http.get<Building[]>(`${environment.apiUrl}/buildings`);
   }
+  deleteBuilding(buildingId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/buildings/${buildingId}`);
+  }
 
   rooms(): Observable<Room[]> {
     return this.http.get<Room[]>(`${environment.apiUrl}/rooms`);
+  }
+
+  deleteRoom(roomId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/rooms/${roomId}`);
   }
 
   createBuilding(payload: CreateBuildingPayload): Observable<Building> {

@@ -55,71 +55,73 @@
       <p class="text-body-sm muted">{{ 'gateStaff.listEmpty' | translate }}</p>
     } @else {
       <!-- Desktop table -->
-      <table class="staff-table">
-        <thead>
-          <tr>
-            <th class="text-label-caps">{{ 'gateStaff.colUsername' | translate }}</th>
-            <th class="text-label-caps">{{ 'gateStaff.colStatus' | translate }}</th>
-            <th class="text-label-caps">{{ 'gateStaff.colCreated' | translate }}</th>
-            <th class="text-label-caps actions-col">{{ 'gateStaff.colActions' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (account of staff(); track account.id) {
+      <div class="table-responsive">
+        <table class="staff-table">
+          <thead>
             <tr>
-              <td class="username-cell">
-                <div class="username-text">{{ account.username }}</div>
-                @if (account.assignments && account.assignments.length > 0) {
-                  <div class="assignments-list">
-                    @for (assignment of account.assignments; track assignment.id) {
-                      <span class="assignment-badge">{{ assignment.name }}</span>
-                    }
-                  </div>
-                }
-              </td>
-              <td>
-                @if (account.is_active) {
-                  <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
-                } @else {
-                  <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
-                }
-              </td>
-              <td class="text-body-sm muted">
-                {{ account.created_at | date: 'MMM d, y' : undefined : (translation.language() === 'fr' ? 'fr' : 'en') }}
-              </td>
-              <td class="actions-cell">
-                @if (account.is_active) {
-                  <button
-                    type="button"
-                    class="btn btn-primary assign-btn"
-                    [disabled]="processingId() === account.id"
-                    (click)="openAssignModal(account)"
-                  >
-                    {{ 'gateStaff.assignButton' | translate }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary deactivate-btn"
-                    [disabled]="processingId() === account.id"
-                    (click)="deactivate(account)"
-                  >
-                    {{ (processingId() === account.id ? 'common.deactivating' : 'common.deactivate') | translate }}
-                  </button>
-                } @else {
-                  <button
-                    type="button"
-                    class="btn btn-primary reactivate-btn"
-                    [disabled]="processingId() === account.id"
-                    (click)="reactivate(account)"
-                  >
-                    {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
-                  </button>
-                }
-              </td>
+              <th class="text-label-caps">{{ 'gateStaff.colUsername' | translate }}</th>
+              <th class="text-label-caps">{{ 'gateStaff.colStatus' | translate }}</th>
+              <th class="text-label-caps">{{ 'gateStaff.colCreated' | translate }}</th>
+              <th class="text-label-caps actions-col">{{ 'gateStaff.colActions' | translate }}</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (account of staff(); track account.id) {
+              <tr>
+                <td class="username-cell">
+                  <div class="username-text">{{ account.username }}</div>
+                  @if (account.assignments && account.assignments.length > 0) {
+                    <div class="assignments-list">
+                      @for (assignment of account.assignments; track assignment.id) {
+                        <span class="assignment-badge">{{ assignment.name }}</span>
+                      }
+                    </div>
+                  }
+                </td>
+                <td>
+                  @if (account.is_active) {
+                    <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
+                  } @else {
+                    <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
+                  }
+                </td>
+                <td class="text-body-sm muted">
+                  {{ account.created_at | date: 'MMM d, y' : undefined : (translation.language() === 'fr' ? 'fr' : 'en') }}
+                </td>
+                <td class="actions-cell">
+                  @if (account.is_active) {
+                    <button
+                      type="button"
+                      class="btn btn-primary assign-btn"
+                      [disabled]="processingId() === account.id"
+                      (click)="openAssignModal(account)"
+                    >
+                      {{ 'gateStaff.assignButton' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-secondary deactivate-btn"
+                      [disabled]="processingId() === account.id"
+                      (click)="deactivate(account)"
+                    >
+                      {{ (processingId() === account.id ? 'common.deactivating' : 'common.deactivate') | translate }}
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn btn-primary reactivate-btn"
+                      [disabled]="processingId() === account.id"
+                      (click)="reactivate(account)"
+                    >
+                      {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
       <!-- Mobile cards -->
       <div class="staff-cards">

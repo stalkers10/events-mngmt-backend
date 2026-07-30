@@ -37,5 +37,8 @@ export const RoomsService = {
     const roomResult = await query<RoomRecord>(`SELECT * FROM rooms WHERE id = $1`, [roomId]);
     if (roomResult.rows.length === 0) return null;
     return roomResult.rows[0];
+  },
+  async deleteRoom(roomId: string): Promise<void> {
+    await query(`DELETE FROM rooms WHERE id = $1`, [roomId]);
   }
 };

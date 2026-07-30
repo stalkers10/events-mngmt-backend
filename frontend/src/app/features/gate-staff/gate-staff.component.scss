@@ -45,6 +45,12 @@
 }
 
 /* ---- Desktop table ---- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .staff-table {
   width: 100%;
   border-collapse: collapse;
@@ -129,6 +135,8 @@
   font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-sm, 4px);
+  max-width: 100%;
+  word-break: break-word;
 }
 
 /* ---- Mobile cards (hidden on desktop) ---- */
@@ -151,6 +159,7 @@
   }
 
   /* Hide desktop table, show mobile cards */
+  .table-responsive,
   .staff-table {
     display: none;
   }
@@ -207,10 +216,17 @@
 
   .staff-card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-sm);
+    margin-top: 4px;
 
     .btn {
-      flex: 1;
+      flex: 1 1 calc(50% - var(--space-sm));
+      min-width: 110px;
+      font-size: 13px;
+      padding: 8px 12px;
+      text-align: center;
+      justify-content: center;
     }
   }
 }

@@ -12,6 +12,7 @@ const createRoomSchema = z.object({
   floorNumber: z.number().int(),
   capacity: z.number().int().positive().optional(),
 });
+
 // GET /rooms?buildingId=123
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -24,6 +25,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.use(requireAuth, requireRole(RoleType.ADMIN));
+
 router.post('/', async (req: Request, res: Response) => {
   const parsed = createRoomSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -42,6 +44,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(409).json({ error: err.message });
   }
 });
+
 router.get('/:roomId', async (req: Request<{ roomId: string }>, res: Response) => {
   try {
     const room = await RoomsService.getRoomDetails(req.params.roomId);
@@ -54,4 +57,18 @@ router.get('/:roomId', async (req: Request<{ roomId: string }>, res: Response) =
     res.status(500).json({ error: 'Failed to fetch room details' });
   }
 });
+
+router.delete('/:roomId', async (req: Request<{ roomId: string }>, res: Response) => {
+  try {
+    await RoomsService.deleteRoom(req.params.roomId);
+    res.status(204).send();
+  } catch (err: any) {
+    if (err.code === '23503') {
+      res.status(409).json({ error: 'Cannot delete room with associated events or reservations' });
+      return;
+    }
+    res.status(500).json({ error: 'Failed to delete room' });
+  }
+});
+
 export default router;

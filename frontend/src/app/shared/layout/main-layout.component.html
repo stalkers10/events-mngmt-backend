@@ -23,7 +23,7 @@
       <a routerLink="/events/create" class="btn btn-primary new-event-btn">{{ 'nav.newEvent' | translate }}</a>
     }
 
-    <nav class="nav-list">
+    <nav class="nav-list"> 
       @for (item of visibleNavItems(); track item.path) {
         <a
           [routerLink]="item.path"
@@ -35,7 +35,7 @@
           <span>{{ item.labelKey | translate }}</span>
         </a>
       }
-    </nav> 
+    </nav>
 
     <div class="sidebar-footer">
       <button type="button" class="nav-item logout-btn" (click)="logout()">

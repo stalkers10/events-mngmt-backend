@@ -85,7 +85,13 @@
     "noBuildingsBody": "Créez votre premier bâtiment pour commencer.",
     "noRooms": "Aucune salle dans ce bâtiment.",
     "addFirstRoom": "Ajouter une salle",
-    "viewAllRooms": "Voir toutes les salles"
+    "viewAllRooms": "Voir toutes les salles",
+    "deleteRoom": "Supprimer la salle",
+    "confirmDeleteRoom": "Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.",
+    "deleteBuilding": "Supprimer le bâtiment",
+    "confirmDeleteBuilding": "Êtes-vous sûr de vouloir supprimer ce bâtiment ? Cela supprimera également toutes les salles de ce bâtiment et cette action est irréversible.",
+    "buildingDeleted": "Bâtiment supprimé avec succès.",
+    "roomDeleted": "Salle supprimée avec succès."
   },
   "events": {
     "eyebrow": "Planification d'événements",

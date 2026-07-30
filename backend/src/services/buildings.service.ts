@@ -18,5 +18,11 @@ export const BuildingsService = {
       `SELECT * FROM buildings ORDER BY created_at DESC`
     );
     return result.rows;
+  },
+  async delete(id: string): Promise<void> {
+    await query(
+      `DELETE FROM buildings WHERE id = $1`,
+      [id]
+    );
   }
 };

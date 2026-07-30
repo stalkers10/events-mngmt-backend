@@ -189,4 +189,4 @@ export const EventsService = {
     }
     await query(`DELETE FROM events WHERE id = $1`, [eventId]);
   }
-};
+}; 

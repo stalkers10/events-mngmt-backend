@@ -17,6 +17,7 @@ const eventSchema = z.object({
     numberOfChairs: z.number().int().positive()
   })).optional(),
 });
+
 // GET /events (Admins see all, Gate Staff see assigned)
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -32,6 +33,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch events' });
   }
 });
+
 // The following routes are Admin-only
 router.use(requireRole(RoleType.ADMIN));
 router.get('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
@@ -46,6 +48,7 @@ router.get('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
     res.status(500).json({ error: 'Failed to fetch event details' });
   }
 });
+
 router.post('/', async (req: Request, res: Response) => {
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -65,6 +68,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(409).json({ error: err.message });
   }
 });
+
 router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   const parsed = eventSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -84,6 +88,7 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
     res.status(409).json({ error: err.message });
   }
 });
+
 router.delete('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
     await EventsService.delete(req.params.eventId);

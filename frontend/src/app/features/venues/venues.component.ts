@@ -162,4 +162,33 @@ export class VenuesComponent implements OnInit, AfterViewInit {
     }
     this.showCreateModal.set(true);
   }
+
+  deleteBuilding(buildingId: string): void {
+    if (!confirm(this.i18n.t('venues.confirmDeleteBuilding'))) return;
+    this.venues.deleteBuilding(buildingId).subscribe({
+      next: () => {
+        this.buildings.update((buildings) => buildings.filter((b) => b.id !== buildingId));
+        this.rooms.update((rooms) => rooms.filter((r) => r.building_id !== buildingId));
+        this.toast.success(this.i18n.t('venues.buildingDeleted'));
+      },
+      error: (error) => {
+        const description = describeHttpError(error, 'generic');
+        this.toast.error(this.i18n.t(description.key, description.params));
+      },
+    });
+  }
+
+  deleteRoom(roomId: string): void {
+    if (!confirm(this.i18n.t('venues.confirmDeleteRoom'))) return;
+    this.venues.deleteRoom(roomId).subscribe({
+      next: () => {
+        this.rooms.update((rooms) => rooms.filter((r) => r.id !== roomId));
+        this.toast.success(this.i18n.t('venues.roomDeleted'));
+      },
+      error: (error) => {
+        const description = describeHttpError(error, 'generic');
+        this.toast.error(this.i18n.t(description.key, description.params));
+      },
+    });
+  }
 }

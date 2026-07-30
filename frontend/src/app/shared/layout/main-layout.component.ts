@@ -35,7 +35,7 @@ const NAV_ITEMS: NavItem[] = [
 
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
+  standalone: true, 
   imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, I18nextPipe],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

@@ -37,14 +37,19 @@
 
           <!-- Building identity -->
           <div class="building-top">
-            <span class="material-symbols-outlined building-icon">corporate_fare</span>
-            <h2 class="building-name">{{ building.name }}</h2>
-            @if (building.address) {
-              <p class="building-address">
-                <span class="material-symbols-outlined">location_on</span>
-                {{ building.address }}
-              </p>
-            }
+            <div class="building-info">
+              <span class="material-symbols-outlined building-icon">corporate_fare</span>
+              <h2 class="building-name">{{ building.name }}</h2>
+              @if (building.address) {
+                <p class="building-address">
+                  <span class="material-symbols-outlined">location_on</span>
+                  {{ building.address }}
+                </p>
+              }
+            </div>
+            <button type="button" class="delete-building-btn" (click)="deleteBuilding(building.id)" [attr.title]="'venues.deleteBuilding' | translate" [attr.aria-label]="'venues.deleteBuilding' | translate">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
 
           <!-- Rooms area -->
@@ -121,19 +126,24 @@
       <div class="rooms-modal-list">
         @for (room of roomsForBuilding(b.id); track room.id) {
           <div class="rooms-modal-item">
-            <span class="rooms-modal-room-number">{{ room.room_number }}</span>
-            <div class="rooms-modal-meta">
-              <span>
-                <span class="material-symbols-outlined">meeting_room</span>
-                {{ 'venues.floor' | translate }} {{ room.floor_number }}
-              </span>
-              @if (room.capacity) {
+            <div class="rooms-modal-item-info">
+              <span class="rooms-modal-room-number">{{ room.room_number }}</span>
+              <div class="rooms-modal-meta">
                 <span>
-                  <span class="material-symbols-outlined">groups</span>
-                  {{ room.capacity }} {{ 'venues.capacity' | translate }}
+                  <span class="material-symbols-outlined">meeting_room</span>
+                  {{ 'venues.floor' | translate }} {{ room.floor_number }}
                 </span>
-              }
+                @if (room.capacity) {
+                  <span>
+                    <span class="material-symbols-outlined">groups</span>
+                    {{ room.capacity }} {{ 'venues.capacity' | translate }}
+                  </span>
+                }
+              </div>
             </div>
+            <button type="button" class="delete-room-btn" (click)="deleteRoom(room.id)" [attr.title]="'venues.deleteRoom' | translate" [attr.aria-label]="'venues.deleteRoom' | translate">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
         }
       </div>

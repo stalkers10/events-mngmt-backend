@@ -141,11 +141,13 @@ export class ScannerComponent implements OnInit, OnDestroy {
     this.scanResult = result;
     this.pauseScanner();
     this.clearResetTimer();
+    // 5s for success (time to read details), 3s for error
+    const delay = result.success ? 5000 : 3000;
     this.resetTimeoutId = window.setTimeout(() => {
       this.scanResult = null;
       this.manualToken = '';
       this.resumeScanner();
-    }, 3000);
+    }, delay);
   }
 
   private pauseScanner(): void {
