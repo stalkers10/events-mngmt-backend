@@ -112,12 +112,13 @@
         <span class="material-symbols-outlined search-icon">search</span>
         <input
           type="text"
-          [(ngModel)]="searchQuery"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
           [placeholder]="'guestList.searchPlaceholder' | translate"
           class="search-input"
         />
-        @if (searchQuery) {
-          <button class="clear-btn" (click)="searchQuery = ''">
+        @if (searchQuery()) {
+          <button class="clear-btn" (click)="searchQuery.set('')">
             <span class="material-symbols-outlined">close</span>
           </button>
         }

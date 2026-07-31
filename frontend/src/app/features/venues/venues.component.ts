@@ -1,6 +1,6 @@
-import { Component, OnInit, signal, AfterViewInit } from '@angular/core';
+import { Component, OnInit, signal, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Building, Room } from '../../core/models/dashboard.model';
@@ -13,7 +13,7 @@ import { describeHttpError } from '../../core/utils/http-error.util';
 @Component({
   selector: 'app-venues',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, I18nextPipe],
+  imports: [CommonModule, ReactiveFormsModule, I18nextPipe, FormsModule],
   templateUrl: './venues.component.html',
   styleUrl: './venues.component.scss',
 })
@@ -26,6 +26,26 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   readonly showBuildingForm = signal(false);
   readonly showCreateModal = signal(false);
   readonly activeRoomsBuilding = signal<Building | null>(null);
+  readonly searchQuery = signal('');
+
+  readonly filteredBuildings = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) return this.buildings();
+
+    return this.buildings().filter((building) => {
+      const matchesBuilding =
+        building.name.toLowerCase().includes(query) ||
+        (building.address?.toLowerCase().includes(query) ?? false);
+      if (matchesBuilding) return true;
+
+      return this.rooms().some((room) =>
+        room.building_id === building.id &&
+        (room.room_number.toLowerCase().includes(query) ||
+          String(room.floor_number).includes(query) ||
+          String(room.capacity ?? '').includes(query))
+      );
+    });
+  });
 
   openRoomsPopup(building: Building): void {
     this.activeRoomsBuilding.set(building);

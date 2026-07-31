@@ -7,10 +7,10 @@
     </div>
 
     <div class="dashboard-actions">
-      <a routerLink="/venues" class="btn btn-secondary">
-        <span class="material-symbols-outlined">add_home</span> 
-        {{ 'dashboard.newRoom' | translate }}
-      </a>
+      <button type="button" class="btn btn-secondary" (click)="openCreateBuildingModal()">
+        <span class="material-symbols-outlined">apartment</span>
+        {{ 'dashboard.newBuilding' | translate }}
+      </button>
     </div>
   </header>
 
@@ -102,12 +102,16 @@
         <div class="event-grid">
           @for (event of displayedEvents(); track event.id) {
             <a routerLink="/events" class="event-card card">
-              <div class="event-art" [class.live-art]="eventState(event) === 'live'">
-                <span class="material-symbols-outlined">{{ eventState(event) === 'live' ? 'celebration' : 'calendar_month' }}</span>
-                <span class="event-state">{{ ('dashboard.' + eventState(event)) | translate }}</span>
-              </div>
-              <div class="event-content">
-                <h3 class="text-headline-sm">{{ event.name }}</h3>
+               <div class="event-content">
+                <div class="event-content-topline">
+                  <h3 class="text-headline-sm">{{ event.name }}</h3>
+                  <span class="event-status-chip" [class.live]="eventState(event) === 'live'">
+                    <span class="material-symbols-outlined"></span>
+                    {{ ('dashboard.' + eventState(event)) | translate }}
+                  </span>
+                </div>
+                <!-- {{ eventState(event) === 'live' ? 'nest_cam_iq' : 'calendar_month' }}-->
+
                 <p class="event-room text-body-sm">
                   <span class="material-symbols-outlined">location_on</span>
                   {{ roomFor(event)?.room_number ?? '—' }} · {{ 'dashboard.floor' | translate }} {{ roomFor(event)?.floor_number ?? '—' }}
@@ -123,4 +127,42 @@
       }
     </section>
   }
+
+  @if (showCreateBuildingModal()) {
+    <div class="modal-backdrop" (click)="closeCreateBuildingModal()">
+      <section class="creation-modal card" role="dialog" aria-modal="true" [attr.aria-label]="'dashboard.newBuilding' | translate" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <p class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</p>
+            <h2 class="text-headline-md">{{ 'dashboard.newBuilding' | translate }}</h2>
+          </div>
+          <button type="button" class="close-btn" (click)="closeCreateBuildingModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        <div class="venue-form">
+          <div class="form-field">
+            <label for="buildingName">{{ 'dashboard.buildingName' | translate }}</label>
+            <input id="buildingName" type="text" [(ngModel)]="newBuildingName" name="buildingName" [placeholder]="'dashboard.buildingNamePlaceholder' | translate" />
+          </div>
+
+          <div class="form-field">
+            <label for="buildingAddress">{{ 'dashboard.address' | translate }}</label>
+            <input id="buildingAddress" type="text" [(ngModel)]="newBuildingAddress" name="buildingAddress" [placeholder]="'dashboard.addressPlaceholder' | translate" />
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeCreateBuildingModal()">
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createBuilding()" [disabled]="!newBuildingName.trim() || isCreatingBuilding()">
+              {{ isCreatingBuilding() ? ('dashboard.creatingBuilding' | translate) : ('dashboard.createBuilding' | translate) }}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+
 </div>

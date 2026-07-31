@@ -1,18 +1,21 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventSummary, Room, Building } from '../../core/models/dashboard.model';
 import { DashboardService } from '../../core/services/dashboard.service';
+import {VenueService} from "../../core/services/venue.service";
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
+
 type RoomStatus = 'available' | 'active' | 'reserved';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, I18nextPipe],
+  imports: [CommonModule, DatePipe, RouterLink, I18nextPipe, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -21,9 +24,14 @@ export class DashboardComponent implements OnInit {
   readonly events = signal<EventSummary[]>([]);
   readonly buildings = signal<Building[]>([]);
   readonly isLoading = signal(true);
+  readonly showCreateBuildingModal = signal(false);
+  readonly isCreatingBuilding = signal(false);
+  newBuildingName = '';
+  newBuildingAddress = '';
 
   constructor(
     private dashboard: DashboardService,
+    private venueService: VenueService,
     private toast: ToastService,
     private router: Router,
     public translation: I18nextService,
@@ -48,6 +56,44 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
+
+  openCreateBuildingModal(): void {
+    this.newBuildingName = '';
+    this.newBuildingAddress = '';
+    this.isCreatingBuilding.set(false);
+    this.showCreateBuildingModal.set(true);
+  }
+
+  closeCreateBuildingModal(): void {
+    this.showCreateBuildingModal.set(false);
+    this.newBuildingName = '';
+    this.newBuildingAddress = '';
+    this.isCreatingBuilding.set(false);
+  }
+
+  createBuilding(): void {
+    if (!this.newBuildingName.trim()) {
+      this.toast.error(this.translation.t('errors.fillAllFields'));
+      return;
+    }
+
+    this.isCreatingBuilding.set(true);
+    this.venueService.createBuilding({
+      name: this.newBuildingName.trim(),
+      address: this.newBuildingAddress.trim() || undefined,
+    }).subscribe({
+      next: (building) => {
+        this.buildings.update((current) => [building, ...current]);
+        this.toast.success(this.translation.t('dashboard.buildingCreated'));
+        this.closeCreateBuildingModal();
+      },
+      error: () => {
+        this.isCreatingBuilding.set(false);
+        this.toast.error(this.translation.t('errors.createFailed'));
+      },
+    });
+  }
+
 
   goToRoom(roomId: string): void {
     this.router.navigate(['/venues'], { queryParams: { highlight: roomId } });

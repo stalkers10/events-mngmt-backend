@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { Building, Room, EventSummary } from '../../core/models/dashboard.model';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
@@ -15,7 +16,7 @@ export type SortOrder = 'latest' | 'oldest';
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, RouterLink, I18nextPipe],
+  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule],
   templateUrl: './events.component.html',
   styleUrl: './events.component.scss',
 })
@@ -24,6 +25,7 @@ export class EventsComponent implements OnInit {
   readonly buildings = signal<Building[]>([]);
   readonly events = signal<EventSummary[]>([]);
   readonly isLoading = signal(true);
+   readonly searchQuery = signal('');
 
   readonly filterTabs: FilterTab[] = ['all', 'upcoming', 'live', 'past'];
   readonly activeFilter = signal<FilterTab>('all');
@@ -32,9 +34,26 @@ export class EventsComponent implements OnInit {
   readonly filteredEvents = computed(() => {
     const filter = this.activeFilter();
     const sort = this.sortOrder();
+    const query = this.searchQuery().trim().toLowerCase();
+
     let list = this.events().filter(e =>
       filter === 'all' ? true : this.eventState(e) === filter
     );
+
+    if (query) {
+      list = list.filter((event) => {
+        const room = this.roomFor(event);
+        const building = this.buildingFor(room);
+        return (
+          event.name.toLowerCase().includes(query) ||
+          room?.room_number.toLowerCase().includes(query) ||
+          String(room?.floor_number ?? '').includes(query) ||
+          building?.name.toLowerCase().includes(query) ||
+          (building?.address?.toLowerCase().includes(query) ?? false)
+        );
+      });
+    }
+
     return [...list].sort((a, b) => {
       const diff = +new Date(a.start_time) - +new Date(b.start_time);
       return sort === 'latest' ? -diff : diff;
@@ -58,7 +77,7 @@ export class EventsComponent implements OnInit {
   constructor(
     private venueService: VenueService,
     private dashboard: DashboardService,
-    private toast: ToastService, 
+    private toast: ToastService,
     private i18n: I18nextService
   ) {}
 
@@ -87,7 +106,11 @@ export class EventsComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    return this.rooms().find(r => r.id === event.room_id);
+    return this.rooms().find((r) => r.id === event.room_id);
+  }
+  
+  buildingFor(room: Room | undefined): Building | undefined {
+    return room ? this.buildings().find((b) => b.id === room.building_id) : undefined;
   }
 
   roomFloorLabel(event: EventSummary): string {

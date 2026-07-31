@@ -89,4 +89,18 @@ export const GateStaffService = {
       [userId, eventId]
     );
   },
+
+  async removeFromEvent(userId: string, eventId: string): Promise<void> {
+    await query(
+      `DELETE FROM gate_staff_assignments WHERE user_id = $1 AND event_id = $2`,
+      [userId, eventId]
+    );
+  },
+
+  async deletePermanently(userId: string): Promise<void> {
+    await query(
+      `DELETE FROM users WHERE id = $1 AND role = 'GATE_STAFF'`,
+      [userId]
+    );
+  }
 };

@@ -57,6 +57,24 @@
         </button>
       }
     </div>
+    
+    <div class="search-bar-row">
+      <div class="search-field form-field">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          [placeholder]="'events.searchPlaceholder' | translate"
+          class="search-input"
+        />
+        @if (searchQuery()) {
+          <button type="button" class="clear-btn" (click)="searchQuery.set('')">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        }
+      </div>
+    </div>
 
     <div class="sort-control">
       <span class="sort-label">{{ 'events.sortBy' | translate }}</span>

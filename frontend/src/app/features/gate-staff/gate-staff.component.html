@@ -73,7 +73,15 @@
                   @if (account.assignments && account.assignments.length > 0) {
                     <div class="assignments-list">
                       @for (assignment of account.assignments; track assignment.id) {
-                        <span class="assignment-badge">{{ assignment.name }}</span>
+                        <button
+                          type="button"
+                          class="assignment-badge"
+                          [disabled]="processingId() === account.id"
+                          (click)="confirmRemoveAssignment(account, assignment)"
+                        >
+                          <span class="assignment-label">{{ assignment.name }}</span>
+                          <span class="assignment-remove material-symbols-outlined">delete</span>
+                        </button>
                       }
                     </div>
                   }
@@ -116,6 +124,14 @@
                       {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
                     </button>
                   }
+                  <button
+                    type="button"
+                    class="btn btn-secondary delete-btn"
+                    [disabled]="processingId() === account.id"
+                    (click)="deletePermanently(account)"
+                  >
+                    {{ 'common.delete' | translate }}
+                  </button>
                 </td>
               </tr>
             }
@@ -144,7 +160,15 @@
             @if (account.assignments && account.assignments.length > 0) {
               <div class="assignments-list">
                 @for (assignment of account.assignments; track assignment.id) {
-                  <span class="assignment-badge">{{ assignment.name }}</span>
+                  <button
+                    type="button"
+                    class="assignment-badge"
+                    [disabled]="processingId() === account.id"
+                    (click)="confirmRemoveAssignment(account, assignment)"
+                  >
+                    <span class="assignment-label">{{ assignment.name }}</span>
+                    <span class="assignment-remove material-symbols-outlined">delete</span>
+                  </button>
                 }
               </div>
             }
@@ -177,6 +201,14 @@
                   {{ (processingId() === account.id ? 'common.reactivating' : 'common.reactivate') | translate }}
                 </button>
               }
+              <button
+                type="button"
+                class="btn btn-secondary"
+                [disabled]="processingId() === account.id"
+                (click)="deletePermanently(account)"
+              >
+                {{ 'common.delete' | translate }}
+              </button>
             </div>
           </div>
         }
@@ -231,4 +263,41 @@
       </div>
     </div>
   }
+
+  <!-- ---- Remove Assignment Modal ---- -->
+  @if (activeRemoveAssignment(); as payload) {
+    <div class="modal-backdrop">
+      <div class="creation-modal card">
+        <div class="modal-header">
+          <h2 class="text-headline-sm">{{ 'gateStaff.removeAssignmentTitle' | translate }}</h2>
+          <button type="button" class="close-btn" (click)="closeRemoveAssignmentModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="event-form">
+          <p class="text-body-sm">{{ 'gateStaff.confirmRemoveAssignment' | translate: { username: payload.account.username, assignment: payload.assignment.name } }}</p>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="closeRemoveAssignmentModal()"
+            >
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="processingId() === payload.account.id"
+              (click)="removeAssignment(payload.account, payload.assignment.id)"
+            >
+              {{ 'common.delete' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>
+

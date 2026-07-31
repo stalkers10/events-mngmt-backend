@@ -29,4 +29,12 @@ export class GateStaffService {
   assignToEvent(staffId: string, eventId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${staffId}/assignments/${eventId}`, {});
   }
+
+  removeFromEvent(staffId: string, eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${staffId}/assignments/${eventId}`);
+  }
+
+  deletePermanently(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}/permanent`);
+  }
 }

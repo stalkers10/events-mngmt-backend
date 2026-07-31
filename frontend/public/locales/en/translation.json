@@ -29,8 +29,17 @@
     "title": "Dashboard",
     "subtitle": "Manage room availability and upcoming events.",
     "newRoom": "Create Room",
+    "newBuilding": "Create Building",
+    "createBuilding": "Create Building",
+    "creatingBuilding": "Creating…",
+    "buildingCreated": "Building created.",
+    "eyebrow": "Venue management",
+    "buildingName": "Building name",
+    "buildingNamePlaceholder": "e.g. Elite Events Centre",
+    "address": "Address",
+    "addressPlaceholder": "Optional address",
     "newEvent": "Create Event",
-    "roomOverview": "Room Overview", "roomOverviewSubtitle": "Current availability and assignments", "floor": "Floor", "capacity": "capacity", "liveNow": "Live now", "nextBooking": "Next booking", "noBooking": "No current bookings", "eventsTitle": "Live Events", "eventsSubtitle": "Events happening now and coming up next", "viewAll": "View all", "noRoomsTitle": "No rooms yet", "noRoomsBody": "Create your first room to begin planning events.", "noEvents": "No current or upcoming events.", "live": "Live now", "upcoming": "Upcoming", "past": "Past",
+    "roomOverview": "Room Overview", "roomOverviewSubtitle": "Current availability and assignments", "floor": "Floor", "capacity": "capacity", "liveNow": "Live now", "nextBooking": "Next booking", "noBooking": "No current bookings", "eventsTitle": "Live Events", "eventsSubtitle": "Live Events happening now and coming up next", "viewAll": "View all", "noRoomsTitle": "No rooms yet", "noRoomsBody": "Create your first room to begin planning events.", "noEvents": "No current or upcoming events.", "live": "Live now", "upcoming": "Upcoming", "past": "Past",
     "status": { "available": "Available", "active": "In use", "reserved": "Reserved" }
   },
 
@@ -54,6 +63,8 @@
     "roomNamePlaceholder": "e.g. Grand Ballroom", "floor": "Floor", "capacity": "Capacity",
     "capacityPlaceholder": "Optional", "createRoom": "Create Room",
     "creatingRoom": "Creating room…", "roomCreated": "Room created.",
+    "noResults": "No events match your search.",
+    "searchPlaceholder": "Search buildings or rooms...",
     "noBuildingsTitle": "No buildings yet",
     "noBuildingsBody": "Create a building and room to get started.",
     "noRooms": "No rooms in this building yet.",
@@ -100,6 +111,8 @@
     "editSeating": "Edit Seating",
     "filterEmpty": "No events match this filter.",
     "sortBy": "Sort by",
+    "noResults": "No events match your search.",
+    "searchPlaceholder": "Search events...",
     "sortLatest": "Latest",
     "sortOldest": "Oldest",
     "statsActive": "Active Events",
@@ -137,8 +150,8 @@
   },
 
   "gateStaff": {
-    "pageTitle": "Gate Staff", "pageSubtitle": "Create and manage accounts for staff scanning tickets at the door.", "createSectionTitle": "Create Gate Staff Account", "username": "Username", "usernamePlaceholder": "e.g. gate_staff_01", "usernameError": "Username must be at least 3 characters.", "password": "Password", "passwordPlaceholder": "At least 8 characters", "passwordError": "Password must be at least 8 characters.", "createButton": "+ Create Account", "creating": "Creating…", "listSectionTitle": "Existing Accounts", "listEmpty": "No Gate Staff accounts yet. Create one above.", "colUsername": "Username", "colStatus": "Status", "colCreated": "Created", "colActions": "Actions", "confirmDeactivate": "Deactivate {{username}}? They will no longer be able to log in.", "createdToast": "Gate Staff account {{username}} created.", "deactivatedToast": "{{username}} has been deactivated.", "reactivatedToast": "{{username}} has been reactivated.",
-    "assignButton": "Assign", "assignModalTitle": "Assign to Event", "selectEvent": "Event", "selectEventPlaceholder": "Select an event to assign", "noEventsAvailable": "No events available (staff is already assigned to all events or no events exist).", "confirmAssign": "Assign", "assignedSuccess": "Gate Staff {{username}} successfully assigned to event."
+    "pageTitle": "Gate Staff", "pageSubtitle": "Create and manage accounts for staff scanning tickets at the door.", "createSectionTitle": "Create Gate Staff Account", "username": "Username", "usernamePlaceholder": "e.g. gate_staff_01", "usernameError": "Username must be at least 3 characters.", "password": "Password", "passwordPlaceholder": "At least 8 characters", "passwordError": "Password must be at least 8 characters.", "createButton": "+ Create Account", "creating": "Creating…", "listSectionTitle": "Existing Accounts", "listEmpty": "No Gate Staff accounts yet. Create one above.", "colUsername": "Username", "colStatus": "Status", "colCreated": "Created", "colActions": "Actions", "confirmDeactivate": "Deactivate {{username}}? They will no longer be able to log in.", "confirmDeletePermanently": "Delete {{username}} permanently? This cannot be undone.", "createdToast": "Gate Staff account {{username}} created.", "deactivatedToast": "{{username}} has been deactivated.", "reactivatedToast": "{{username}} has been reactivated.", "deletedPermanentlyToast": "{{username}} was deleted permanently.",
+    "assignButton": "Assign", "assignModalTitle": "Assign to Event", "selectEvent": "Event", "selectEventPlaceholder": "Select an event to assign", "noEventsAvailable": "No events available (staff is already assigned to all events or no events exist).", "confirmAssign": "Assign", "assignedSuccess": "Gate Staff {{username}} successfully assigned to event.", "confirmRemoveAssignment": "Remove {{assignment}} from {{username}}?", "removedAssignmentSuccess": "Assignment removed from {{username}}.", "removeAssignmentTitle": "Remove assigned event"
   },
 
   "guestList": {

@@ -108,8 +108,14 @@
   padding: 6px 14px;
 }
 
+.delete-btn {
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
 .deactivate-btn:disabled,
-.reactivate-btn:disabled {
+.reactivate-btn:disabled,
+.delete-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -127,16 +133,44 @@
 }
 
 .assignment-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
   border: 1px solid var(--color-input-border);
   font-size: 11px;
   font-weight: 500;
-  padding: 2px 8px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm, 4px);
   max-width: 100%;
   word-break: break-word;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.assignment-badge:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.assignment-badge:disabled,
+.assignment-badge[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.assignment-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assignment-remove {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--color-error);
 }
 
 /* ---- Mobile cards (hidden on desktop) ---- */
@@ -245,11 +279,18 @@
 
 .creation-modal {
   width: min(100%, 480px);
+  max-width: 480px;
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
+}
+
+.btn-danger {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  border-color: transparent;
 }
 
 .modal-header {
@@ -309,6 +350,12 @@
     align-items: center;
     justify-content: center;
     gap: 7px;
+  }
+
+  .btn-secondary {
+    background: var(--color-surface-container);
+    color: var(--color-on-surface);
+    border-color: transparent;
   }
 }
 

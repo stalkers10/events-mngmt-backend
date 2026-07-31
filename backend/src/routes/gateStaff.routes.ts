@@ -48,6 +48,7 @@ router.post('/:id/reactivate', async (req: Request<{ id: string }>, res: Respons
   res.status(204).send();
 });
  
+// assign gate staff to an event
 router.post(
   '/:id/assignments/:eventId',
   async (req: Request<{ id: string; eventId: string }>, res: Response) => {
@@ -56,4 +57,21 @@ router.post(
   }
 );
 
+// remove gate staff from an event assignment
+router.delete(
+  '/:id/assignments/:eventId',
+  async (req: Request<{ id: string; eventId: string }>, res: Response) => {
+    await GateStaffService.removeFromEvent(req.params.id, req.params.eventId);
+    res.status(204).send();
+  }
+);
+
+// delete gate staff  user completely from the database (not just deactivate)
+router.delete(
+  '/:id/permanent',
+  async (req: Request<{ id: string }>, res: Response) => {
+    await GateStaffService.deletePermanently(req.params.id);
+    res.status(204).send();
+  }
+);
 export default router;

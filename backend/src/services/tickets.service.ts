@@ -72,31 +72,107 @@ export const TicketsService = {
   async generatePdf(ticketId: string): Promise<Buffer> {
     const details = await this.getDetailsById(ticketId);
     if (!details) throw new Error('Ticket not found');
-    const qrBuffer = await QRCode.toBuffer(details.qr_token, { errorCorrectionLevel: 'H', width: 200 });
+    const qrBuffer = await QRCode.toBuffer(details.qr_token, { errorCorrectionLevel: 'H', width: 180 });
+
     return new Promise((resolve, reject) => {
       try {
-        const doc = new PDFDocument({ size: 'A4', margin: 80 });
+        const doc = new PDFDocument({ size: 'A4', margin: 60 });
         const buffers: Buffer[] = [];
-        
+
         doc.on('data', buffers.push.bind(buffers));
         doc.on('end', () => resolve(Buffer.concat(buffers)));
-        // Header
-        doc.fontSize(24).font('Helvetica-Bold').text('Elite Events Ticket', { align: 'center' });
-        doc.moveDown();
-        // Event info
-        doc.fontSize(18).text(details.event_name, { align: 'center' });
-        doc.fontSize(14).font('Helvetica').text(new Date(details.start_time).toLocaleString(), { align: 'center' });
-        doc.moveDown(2);
+
+        const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+        const cardWidth = Math.min(400, pageWidth);
+        const startX = doc.page.margins.left + (pageWidth - cardWidth) / 2;
+        let y = doc.page.margins.top;
+
+        const brandColor = '#7b1d48';
+        const accentColor = '#f8eef1';
+        const textColor = '#2d2d2d';
+        const mutedColor = '#7a7a7a';
+        const borderColor = '#e7d7d8';
+
+        const bannerWidth = cardWidth - 48;
+        const qrSize = 94;
+        const qrPadding = 12;
+        const textWidth = bannerWidth - qrSize - qrPadding - 20;
+
+        // White centered card
+        doc.roundedRect(startX, y, cardWidth, 640, 20).fill('#ffffff').stroke(borderColor);
+        y += 24;
+
+        // Label + title
+        doc.fillColor(brandColor).font('Helvetica-Bold').fontSize(20).text('Ticket Preview', startX, y, { width: cardWidth, align: 'center' });
+        y += 28;
+
+        // Banner section
+        const bannerX = startX + 24;
+        doc.roundedRect(bannerX, y, bannerWidth, 160, 18).fill(accentColor);
+
+        doc.fillColor(brandColor).font('Helvetica-Bold').fontSize(22).text(details.event_name, bannerX + 18, y + 18, {
+          width: textWidth,
+          align: 'left',
+        });
+        doc.font('Helvetica').fontSize(11).fillColor(mutedColor).text(new Date(details.start_time).toLocaleString(), bannerX + 18, y + 52, {
+          width: textWidth,
+          align: 'left',
+        });
+        doc.font('Helvetica').fontSize(11).text(`Room ${details.room_number} · Floor ${details.floor_number} · Table ${details.table_number} · Chair ${details.chair_number}`, bannerX + 18, y + 70, {
+          width: textWidth,
+          align: 'left',
+          lineGap: 4,
+        });
+
+        const qrX = bannerX + bannerWidth - qrSize - 18;
+        const qrY = y + 24;
+        doc.roundedRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 34, 16).fill('#ffffff');
+        doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
+        doc.fillColor(textColor).font('Helvetica-Bold').fontSize(10).text('Scan at entry', qrX - 10, qrY + qrSize + 14, {
+          width: qrSize + 20,
+          align: 'center',
+        });
+
+        y += 180;
+
+        // Divider
+        doc.strokeColor(borderColor).lineWidth(1).moveTo(startX + 24, y).lineTo(startX + cardWidth - 24, y).stroke();
+        y += 28;
+
         // Guest info
-        doc.fontSize(16).text(`Guest: ${details.invitee_name}`);
-        doc.text(`Room: ${details.room_number} (Floor ${details.floor_number})`);
-        doc.text(`Table: ${details.table_number}`);
-        doc.text(`Chair: ${details.chair_number}`);
-        doc.moveDown(2);
-        // QR Code
-        doc.image(qrBuffer, (doc.page.width - 200) / 2, doc.y, { width: 200 });
-        doc.moveDown(1);
-        doc.fontSize(10).fillColor('grey').text(`Ticket ID: ${details.id}`, { align: 'center' });
+        const labelStyle = { width: cardWidth - 96, align: 'center' as const };
+        doc.fillColor(mutedColor).font('Helvetica').fontSize(9).text('Guest', startX + 48, y, labelStyle);
+        y += 14;
+        doc.fillColor(textColor).font('Helvetica-Bold').fontSize(16).text(details.invitee_name, startX + 48, y, labelStyle);
+        y += 24;
+
+        doc.fillColor(mutedColor).font('Helvetica').fontSize(9).text('Ticket ID', startX + 48, y, labelStyle);
+        y += 14;
+        doc.fillColor(textColor).font('Helvetica-Bold').fontSize(12).text(details.id, startX + 48, y, labelStyle);
+        y += 24;
+
+        doc.fillColor(mutedColor).font('Helvetica').fontSize(9).text('Status', startX + 48, y, labelStyle);
+        y += 14;
+        doc.fillColor(textColor).font('Helvetica-Bold').fontSize(12).text(details.status.replace('_', ' '), startX + 48, y, labelStyle);
+        y += 24;
+
+        doc.fillColor(mutedColor).font('Helvetica').fontSize(9).text('Issued', startX + 48, y, labelStyle);
+        y += 14;
+        doc.fillColor(textColor).font('Helvetica-Bold').fontSize(12).text(new Date(details.issued_at).toLocaleDateString(), startX + 48, y, labelStyle);
+        y += 32;
+
+        // Footer note
+        doc.fillColor(mutedColor).font('Helvetica').fontSize(9).text(
+          'This ticket is personal and non-transferable. Present it at the event entrance with a valid photo ID.',
+          startX + 40,
+          y,
+          {
+            width: cardWidth - 80,
+            align: 'center',
+            lineGap: 4,
+          }
+        );
+
         doc.end();
       } catch (err) {
         reject(err);

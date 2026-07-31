@@ -27,6 +27,7 @@ export class GateStaffComponent implements OnInit {
   processingId = signal<string | null>(null);
 
   activeAssignAccount = signal<GateStaffAccount | null>(null);
+  activeRemoveAssignment = signal<{ account: GateStaffAccount; assignment: { id: string; name: string } } | null>(null);
   selectedEventId = '';
 
   constructor(
@@ -166,6 +167,59 @@ export class GateStaffComponent implements OnInit {
           this.translation.t('gateStaff.assignedSuccess', { username: account.username }) || 'Staff assigned successfully'
         );
         this.closeAssignModal();
+        this.loadStaff();
+      },
+      error: (err) => {
+        this.processingId.set(null);
+        const description = describeHttpError(err, 'gateStaffAction');
+        this.toast.error(this.translation.t(description.key, description.params));
+      },
+    });
+  }
+
+  confirmRemoveAssignment(account: GateStaffAccount, assignment: { id: string; name: string }): void {
+    this.activeRemoveAssignment.set({ account, assignment });
+  }
+
+  closeRemoveAssignmentModal(): void {
+    this.activeRemoveAssignment.set(null);
+  }
+
+  removeAssignment(account: GateStaffAccount, eventId: string): void {
+    this.processingId.set(account.id);
+    this.gateStaffService.removeFromEvent(account.id, eventId).subscribe({
+      next: () => {
+        this.processingId.set(null);
+        this.closeRemoveAssignmentModal();
+        this.toast.success(
+          this.translation.t('gateStaff.removedAssignmentSuccess', { username: account.username }) || 'Assignment removed successfully'
+        );
+        this.loadStaff();
+      },
+      error: (err) => {
+        this.processingId.set(null);
+        this.closeRemoveAssignmentModal();
+        const description = describeHttpError(err, 'gateStaffAction');
+        this.toast.error(this.translation.t(description.key, description.params));
+      },
+    });
+  }
+
+  deletePermanently(account: GateStaffAccount): void {
+    const confirmMessage = this.translation.t('gateStaff.confirmDeletePermanently', {
+      username: account.username,
+    });
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.processingId.set(account.id);
+    this.gateStaffService.deletePermanently(account.id).subscribe({
+      next: () => {
+        this.processingId.set(null);
+        this.toast.success(
+          this.translation.t('gateStaff.deletedPermanentlyToast', { username: account.username }) || 'Staff deleted permanently'
+        );
         this.loadStaff();
       },
       error: (err) => {

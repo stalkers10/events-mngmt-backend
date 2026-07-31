@@ -38,7 +38,7 @@ export class GuestListComponent implements OnInit {
   readonly isLoadingGuests = signal(false);
 
   // Search / filter
-  searchQuery = '';
+  readonly searchQuery = signal('');
 
   readonly guests = computed<GuestRow[]>(() => {
     const occ = this.occupancy();
@@ -63,7 +63,7 @@ export class GuestListComponent implements OnInit {
   });
 
   readonly filteredGuests = computed<GuestRow[]>(() => {
-    const q = this.searchQuery.toLowerCase().trim();
+    const q = this.searchQuery().toLowerCase().trim();
     if (!q) return this.guests();
     return this.guests().filter(
       (g) =>
@@ -113,7 +113,7 @@ export class GuestListComponent implements OnInit {
 
   selectEvent(event: EventSummary): void {
     this.selectedEvent.set(event);
-    this.searchQuery = '';
+    this.searchQuery.set('');
     this.loadGuests(event.id);
   }
 

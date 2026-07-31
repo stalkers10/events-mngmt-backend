@@ -13,6 +13,26 @@
     </button>
   </header>
 
+  @if (!isLoading()) {
+    <div class="search-bar-row">
+      <div class="search-field form-field">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          [placeholder]="'venues.searchPlaceholder' | translate"
+          class="search-input"
+        />
+        @if (searchQuery()) {
+          <button type="button" class="clear-btn" (click)="searchQuery.set('')">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
   <!-- ── Loading ── -->
   @if (isLoading()) {
     <div class="loading-state">{{ 'common.loading' | translate }}</div>
@@ -28,11 +48,18 @@
       </button>
     </div>
 
+    } @else if (filteredBuildings().length === 0) {
+      <div class="status-state">
+        <span class="material-symbols-outlined">search_off</span>
+        {{ 'venues.noResults' | translate }}
+      </div>
+
+
   } @else {
 
     <!-- ── Building grid ── -->
     <div class="building-grid">
-      @for (building of buildings(); track building.id) {
+      @for (building of filteredBuildings(); track building.id) {
         <div class="building-card">
 
           <!-- Building identity -->
