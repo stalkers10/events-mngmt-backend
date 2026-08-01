@@ -29,19 +29,19 @@
               <button type="button" class="btn-icon" (click)="resetView()" title="Reset View">⌂</button>
             </div>
           </div>
-          
-          <div class="canvas-viewport" 
-          (mousedown)="onCanvasMouseDown($event)"
+
+          <div class="canvas-viewport"
+          (pointerdown)="onCanvasPointerDown($event)"
           (wheel)="onWheel($event)"
           >
-            <div #canvas class="canvas" 
-            [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'" 
+            <div #canvas class="canvas"
+            [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
             [style.transform-origin]="'0 0'">
               <div class="grid-background"></div>
               <div class="stage-label">{{ 'events.stage' | translate }}</div>
-              
+
               @for (table of occupancy()?.tables ?? []; track table.id) {
-                <div 
+                <div
                   class="table-group"
                   [class.selected]="selectedTable()?.id === table.id"
                   [style.left.px]="getTableX(table)"
@@ -75,7 +75,7 @@
                       </div>
                     }
                   </div>
-                  
+
                   <!-- Table surface -->
                   <div class="table-surface" (click)="$event.stopPropagation()">
                     <span class="table-number">T{{ table.table_number }}</span>
@@ -122,7 +122,12 @@
           </div>
         </div>
 
-        @if (chair.reservation_id) {
+        @if (isEventExpired()) {
+          <div class="expired-state card">
+            <h4 class="text-label-caps section-title">Seating closed</h4>
+            <p class="text-body-sm">This event has already finished, so seating can no longer be edited.</p>
+          </div>
+        } @else if (chair.reservation_id) {
           <!-- Reserved Chair Information -->
           <div class="guest-details-view card">
             <h4 class="text-label-caps section-title">Guest Details</h4>
@@ -151,7 +156,7 @@
                 View Ticket
               </button>
             }
-            <button type="button" class="btn danger-btn action-btn" (click)="cancelReservation(chair.reservation_id)">
+            <button type="button" class="btn danger-btn action-btn" (click)="requestCancelReservation(chair.reservation_id, chair.invitee_name || 'guest')">
               <span class="material-symbols-outlined">cancel</span>
               Cancel Reservation
             </button>
@@ -207,4 +212,15 @@
       </div>
     </aside>
   }
+
+  <app-confirmation-dialog
+    [open]="showCancelReservationConfirmation()"
+    [title]="translation.t('guestList.confirmCancelTitle') || 'Confirm cancellation'"
+    [message]="translation.t('guestList.confirmCancel', { name: pendingCancelReservation()?.guestName }) || ('Cancel reservation for ' + pendingCancelReservation()?.guestName + '?')"
+    [confirmLabel]="translation.t('guestList.cancel') || 'Cancel'"
+    [cancelLabel]="translation.t('common.cancel') || 'Close'"
+    confirmButtonClass="btn-danger"
+    (confirm)="confirmCancelReservation()"
+    (cancel)="closeCancelReservationConfirmation()"
+  ></app-confirmation-dialog>
 </div>

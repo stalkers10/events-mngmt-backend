@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { VenueService } from '../../core/services/venue.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-ticket-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmationDialogComponent],
   templateUrl: './ticket-preview.component.html',
   styleUrl: './ticket-preview.component.scss'
 })
@@ -17,13 +18,14 @@ export class TicketPreviewComponent implements OnInit {
   readonly ticket = signal<any | null>(null);
   readonly isLoading = signal(true);
   readonly isDownloading = signal(false);
+  readonly showCancelConfirmation = signal(false);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private venues: VenueService,
     private toast: ToastService,
-    private i18n: I18nextService
+    public i18n: I18nextService
   ) {}
 
   ngOnInit(): void {
@@ -75,17 +77,27 @@ export class TicketPreviewComponent implements OnInit {
     const t = this.ticket();
     if (!t) return;
 
-    if (confirm(`Are you sure you want to cancel the reservation for ${t.invitee_name}?`)) {
-      this.venues.cancelReservation(t.reservation_id).subscribe({
-        next: () => {
-          this.toast.success('Reservation cancelled successfully.');
-          this.router.navigate(['/events', t.event_id, 'seating-map']);
-        },
-        error: () => {
-          this.toast.error('Failed to cancel reservation.');
-        }
-      });
-    }
+    this.showCancelConfirmation.set(true);
+  }
+
+  confirmCancelTicket(): void {
+    const t = this.ticket();
+    if (!t) return;
+
+    this.showCancelConfirmation.set(false);
+    this.venues.cancelReservation(t.reservation_id).subscribe({
+      next: () => {
+        this.toast.success('Reservation cancelled successfully.');
+        this.router.navigate(['/events', t.event_id, 'seating-map']);
+      },
+      error: () => {
+        this.toast.error('Failed to cancel reservation.');
+      }
+    });
+  }
+
+  closeCancelTicketConfirmation(): void {
+    this.showCancelConfirmation.set(false);
   }
 
   goBack(): void {

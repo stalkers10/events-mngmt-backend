@@ -9,6 +9,7 @@ import {VenueService} from "../../core/services/venue.service";
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
+import { getEventState, isEventVisible } from '../../core/utils/event-status';
 
 type RoomStatus = 'available' | 'active' | 'reserved';
 
@@ -100,15 +101,15 @@ export class DashboardComponent implements OnInit {
   }
 
   roomEvent(roomId: string): EventSummary | undefined {
-    const now = Date.now();
     return this.events().find((event) =>
-      event.room_id === roomId && +new Date(event.start_time) <= now && +new Date(event.end_time) >= now
+      event.room_id === roomId && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live'
     );
   }
 
   nextRoomEvent(roomId: string): EventSummary | undefined {
-    const now = Date.now();
-    return this.events().find((event) => event.room_id === roomId && +new Date(event.start_time) > now);
+    return this.events().find((event) =>
+      event.room_id === roomId && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'upcoming'
+    );
   }
 
   roomStatus(room: Room): RoomStatus {
@@ -122,17 +123,17 @@ export class DashboardComponent implements OnInit {
   }
 
   displayedEvents(): EventSummary[] {
-    const now = Date.now();
-    return this.events().filter((event) => +new Date(event.start_time) <= now && +new Date(event.end_time) >= now).slice(0, 4);
+    return this.events()
+      .filter((event) => isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live')
+      .slice(0, 4);
   }
 
   roomFor(event: EventSummary): Room | undefined {
     return this.rooms().find((room) => room.id === event.room_id);
   }
 
-  eventState(event: EventSummary): 'live' | 'upcoming' {
-    const now = Date.now();
-    return +new Date(event.start_time) <= now && +new Date(event.end_time) >= now ? 'live' : 'upcoming';
+  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
+    return getEventState(event.start_time, event.end_time);
   }
 
   buildingFor(event: EventSummary): Building | undefined {

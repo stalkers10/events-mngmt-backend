@@ -299,5 +299,29 @@
       </div>
     </div>
   }
+
+  <app-confirmation-dialog
+    [open]="showDeactivateConfirmation()"
+    [title]="translation.t('gateStaff.confirmDeactivateTitle') || 'Deactivate account'"
+    [message]="translation.t('gateStaff.confirmDeactivate', { username: pendingDeactivateAccount()?.username }) || 'Deactivate this account?'
+    "
+    [confirmLabel]="translation.t('gateStaff.deactivate') || 'Deactivate'"
+    [cancelLabel]="translation.t('common.cancel') || 'Cancel'"
+    confirmButtonClass="btn-danger"
+    (confirm)="confirmDeactivate()"
+    (cancel)="closeDeactivateConfirmation()"
+  ></app-confirmation-dialog>
+
+  <app-confirmation-dialog
+    [open]="showDeleteConfirmation()"
+    [title]="translation.t('gateStaff.confirmDeletePermanentlyTitle') || 'Delete account'"
+    [message]="translation.t('gateStaff.confirmDeletePermanently', { username: pendingDeleteAccount()?.username }) || 'Delete this account permanently?'
+    "
+    [confirmLabel]="translation.t('common.delete') || 'Delete'"
+    [cancelLabel]="translation.t('common.cancel') || 'Cancel'"
+    confirmButtonClass="btn-danger"
+    (confirm)="confirmDeletePermanently()"
+    (cancel)="closeDeleteConfirmation()"
+  ></app-confirmation-dialog>
 </div>
 

@@ -260,6 +260,17 @@
         }
       </div>
     }
+
+    <app-confirmation-dialog
+      [open]="showCancelConfirmation()"
+      [title]="i18n.t('guestList.confirmCancelTitle') || 'Confirm cancellation'"
+      [message]="i18n.t('guestList.confirmCancel', { name: pendingCancelReservation()?.guestName }) || ('Cancel reservation for ' + pendingCancelReservation()?.guestName + '?')"
+      [confirmLabel]="i18n.t('guestList.cancel') || 'Cancel'"
+      [cancelLabel]="i18n.t('common.cancel') || 'Close'"
+      confirmButtonClass="btn-danger"
+      (confirm)="confirmCancelReservation()"
+      (cancel)="closeCancelReservationConfirmation()"
+    ></app-confirmation-dialog>
   }
 
 </div>

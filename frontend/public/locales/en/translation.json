@@ -39,7 +39,7 @@
     "address": "Address",
     "addressPlaceholder": "Optional address",
     "newEvent": "Create Event",
-    "roomOverview": "Room Overview", "roomOverviewSubtitle": "Current availability and assignments", "floor": "Floor", "capacity": "capacity", "liveNow": "Live now", "nextBooking": "Next booking", "noBooking": "No current bookings", "eventsTitle": "Live Events", "eventsSubtitle": "Live Events happening now and coming up next", "viewAll": "View all", "noRoomsTitle": "No rooms yet", "noRoomsBody": "Create your first room to begin planning events.", "noEvents": "No current or upcoming events.", "live": "Live now", "upcoming": "Upcoming", "past": "Past",
+    "roomOverview": "Room Overview", "roomOverviewSubtitle": "Current availability and assignments", "floor": "Floor", "capacity": "capacity", "liveNow": "Live now", "nextBooking": "Next booking", "noBooking": "No current bookings", "eventsTitle": "Live Events", "eventsSubtitle": "Live Events happening now", "viewAll": "View all", "noRoomsTitle": "No rooms yet", "noRoomsBody": "Create your first room to begin planning events.", "noEvents": "No current events.", "live": "Live now", "upcoming": "Upcoming", "past": "Past",
     "status": { "available": "Available", "active": "In use", "reserved": "Reserved" }
   },
 
@@ -64,14 +64,16 @@
     "capacityPlaceholder": "Optional", "createRoom": "Create Room",
     "creatingRoom": "Creating room…", "roomCreated": "Room created.",
     "noResults": "No events match your search.",
-    "searchPlaceholder": "Search buildings or rooms...",
+    "searchPlaceholder": "Buildings or rooms...",
     "noBuildingsTitle": "No buildings yet",
     "noBuildingsBody": "Create a building and room to get started.",
     "noRooms": "No rooms in this building yet.",
     "addFirstRoom": "Add First Room",
     "viewAllRooms": "View All Rooms",
     "deleteRoom": "Delete Room",
+    "confirmDeleteRoomTitle": "Confirm Room Deletion",
     "confirmDeleteRoom": "Are you sure you want to delete this room? This action cannot be undone.",
+    "confirmDeleteBuildingTitle": "Confirm Building Deletion",
     "deleteBuilding": "Delete Building", "confirmDeleteBuilding": "Are you sure you want to delete this building? This will also delete all rooms in this building and cannot be undone.",
     "buildingDeleted": "Building deleted successfully.",
     "roomDeleted": "Room deleted successfully."
@@ -119,6 +121,7 @@
     "statsTotalGuests": "Total Capacity",
     "statsTotal": "All Events",
     "spotlightTitle": "Venue Spotlight",
+    "confirmDelete": "Are you sure you want to delete this event? This action cannot be undone.",
     "spotlightBody": "Our premium suites are now available for late 2028 bookings. Secure the Grand Ballroom for your next gala.",
     "filter": {
       "all": "All",
@@ -150,8 +153,29 @@
   },
 
   "gateStaff": {
-    "pageTitle": "Gate Staff", "pageSubtitle": "Create and manage accounts for staff scanning tickets at the door.", "createSectionTitle": "Create Gate Staff Account", "username": "Username", "usernamePlaceholder": "e.g. gate_staff_01", "usernameError": "Username must be at least 3 characters.", "password": "Password", "passwordPlaceholder": "At least 8 characters", "passwordError": "Password must be at least 8 characters.", "createButton": "+ Create Account", "creating": "Creating…", "listSectionTitle": "Existing Accounts", "listEmpty": "No Gate Staff accounts yet. Create one above.", "colUsername": "Username", "colStatus": "Status", "colCreated": "Created", "colActions": "Actions", "confirmDeactivate": "Deactivate {{username}}? They will no longer be able to log in.", "confirmDeletePermanently": "Delete {{username}} permanently? This cannot be undone.", "createdToast": "Gate Staff account {{username}} created.", "deactivatedToast": "{{username}} has been deactivated.", "reactivatedToast": "{{username}} has been reactivated.", "deletedPermanentlyToast": "{{username}} was deleted permanently.",
-    "assignButton": "Assign", "assignModalTitle": "Assign to Event", "selectEvent": "Event", "selectEventPlaceholder": "Select an event to assign", "noEventsAvailable": "No events available (staff is already assigned to all events or no events exist).", "confirmAssign": "Assign", "assignedSuccess": "Gate Staff {{username}} successfully assigned to event.", "confirmRemoveAssignment": "Remove {{assignment}} from {{username}}?", "removedAssignmentSuccess": "Assignment removed from {{username}}.", "removeAssignmentTitle": "Remove assigned event"
+    "pageTitle": "Gate Staff",
+    "pageSubtitle": "Create and manage accounts for staff scanning tickets at the door.",
+    "createSectionTitle": "Create Gate Staff Account",
+    "username": "Username",
+    "usernamePlaceholder": "e.g. gate_staff_01", "usernameError": "Username must be at least 3 characters.",
+    "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "passwordError": "Password must be at least 8 characters.",
+    "createButton": "+ Create Account", "creating": "Creating…", "listSectionTitle": "Existing Accounts",
+    "listEmpty": "No Gate Staff accounts yet. Create one above.", "colUsername": "Username",
+    "colStatus": "Status", "colCreated": "Created",
+    "colActions": "Actions",
+    "confirmDeactivate": "Deactivate {{username}}? They will no longer be able to log in.",
+    "confirmDeletePermanently": "Delete {{username}} permanently? This cannot be undone.",
+    "createdToast": "Gate Staff account {{username}} created.", "deactivatedToast": "{{username}} has been deactivated.", "reactivatedToast": "{{username}} has been reactivated.", "deletedPermanentlyToast": "{{username}} was deleted permanently.",
+    "assignButton": "Assign", "assignModalTitle": "Assign to Event", "selectEvent": "Event",
+    "selectEventPlaceholder": "Select an event to assign", "noEventsAvailable": "No events available (staff is already assigned to all events or no events exist).",
+    "confirmAssign": "Assign",
+    "assignedSuccess": "Gate Staff {{username}} successfully assigned to event.",
+    "confirmRemoveAssignment": "Remove {{assignment}} from {{username}}?",
+    "removedAssignmentSuccess": "Assignment removed from {{username}}.", "removeAssignmentTitle": "Remove assigned event",
+    "confirmDeactivateTitle": "Deactivate Account", "confirmDeletePermanentlyTitle": "Delete Account",
+    "deactivate":""
   },
 
   "guestList": {

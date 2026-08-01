@@ -57,7 +57,7 @@
         </button>
       }
     </div>
-    
+
     <div class="search-bar-row">
       <div class="search-field form-field">
         <span class="material-symbols-outlined search-icon">search</span>
@@ -158,13 +158,16 @@
               >
                 <span class="material-symbols-outlined">delete</span>
               </button>
-              <a
-                [routerLink]="['/events', event.id, 'seating-map']"
+              <button
+                type="button"
                 class="btn btn-primary edit-seating-btn"
+                [disabled]="!canEditSeating(event)"
+                [attr.aria-disabled]="!canEditSeating(event)"
+                (click)="openSeatingMap(event.id)"
               >
                 <span class="material-symbols-outlined">chair</span>
                 {{ 'events.editSeating' | translate }}
-              </a>
+              </button>
             </div>
 
           </div>
@@ -172,6 +175,16 @@
       </div>
     }
 
+    <app-confirmation-dialog
+      [open]="showDeleteConfirmation()"
+      [title]="i18n.t('events.confirmDeleteTitle') || 'Confirm delete'"
+      [message]="i18n.t('events.confirmDelete') || 'Are you sure you want to delete this event? This action cannot be undone.'"
+      [confirmLabel]="i18n.t('common.delete') || 'Delete'"
+      [cancelLabel]="i18n.t('common.cancel') || 'Cancel'"
+      confirmButtonClass="btn-danger"
+      (confirm)="confirmDeleteEvent()"
+      (cancel)="closeDeleteEventConfirmation()"
+    ></app-confirmation-dialog>
   }
 
 </div>

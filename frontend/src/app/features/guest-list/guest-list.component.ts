@@ -10,6 +10,8 @@ import { RoleType } from '../../core/models/auth.model';
 import { VenueService, EventOccupancy, OccupancyTable, OccupancyChair } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { EventSummary, Room } from '../../core/models/dashboard.model';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { getEventState, isEventVisible } from '../../core/utils/event-status';
 
 export interface GuestRow {
   guestName: string;
@@ -24,7 +26,7 @@ export interface GuestRow {
 @Component({
   selector: 'app-guest-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, I18nextPipe],
+  imports: [CommonModule, FormsModule, I18nextPipe, ConfirmationDialogComponent],
   templateUrl: './guest-list.component.html',
   styleUrl: './guest-list.component.scss',
 })
@@ -39,6 +41,9 @@ export class GuestListComponent implements OnInit {
 
   // Search / filter
   readonly searchQuery = signal('');
+
+  readonly showCancelConfirmation = signal(false);
+  readonly pendingCancelReservation = signal<GuestRow | null>(null);
 
   readonly guests = computed<GuestRow[]>(() => {
     const occ = this.occupancy();
@@ -85,7 +90,7 @@ export class GuestListComponent implements OnInit {
     private venues: VenueService,
     private dashboard: DashboardService,
     private toast: ToastService,
-    private i18n: I18nextService,
+    public i18n: I18nextService,
     private auth: AuthService
   ) {}
 
@@ -100,7 +105,7 @@ export class GuestListComponent implements OnInit {
       rooms: this.venues.rooms(),
     }).subscribe({
       next: ({ events, rooms }) => {
-        this.events.set([...events].sort((a, b) => +new Date(b.start_time) - +new Date(a.start_time)));
+        this.events.set([...events].filter((event) => isEventVisible(event.start_time, event.end_time)).sort((a, b) => +new Date(b.start_time) - +new Date(a.start_time)));
         this.rooms.set(rooms);
         this.isLoadingEvents.set(false);
       },
@@ -141,18 +146,27 @@ export class GuestListComponent implements OnInit {
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
-    const now = Date.now();
-    const start = +new Date(event.start_time);
-    const end = +new Date(event.end_time);
-    if (end < now) return 'past';
-    if (start <= now && end >= now) return 'live';
-    return 'upcoming';
+    return getEventState(event.start_time, event.end_time);
   }
 
   cancelReservation(row: GuestRow): void {
-    const msg = this.i18n.t('guestList.confirmCancel', { name: row.guestName }) || `Cancel reservation for ${row.guestName}?`;
-    if (!confirm(msg)) return;
-    this.venues.cancelReservation(row.reservationId).subscribe({
+    this.pendingCancelReservation.set(row);
+    this.showCancelConfirmation.set(true);
+  }
+
+  closeCancelReservationConfirmation(): void {
+    this.showCancelConfirmation.set(false);
+    this.pendingCancelReservation.set(null);
+  }
+
+  confirmCancelReservation(): void {
+    const reservation = this.pendingCancelReservation();
+    if (!reservation) return;
+
+    this.showCancelConfirmation.set(false);
+    this.pendingCancelReservation.set(null);
+
+    this.venues.cancelReservation(reservation.reservationId).subscribe({
       next: () => {
         this.toast.success(this.i18n.t('guestList.cancelledToast') || 'Reservation cancelled.');
         const ev = this.selectedEvent();

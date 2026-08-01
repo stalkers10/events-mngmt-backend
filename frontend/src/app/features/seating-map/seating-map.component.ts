@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ElementRef, HostListener, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,11 +8,13 @@ import { EventSummary } from '../../core/models/dashboard.model';
 import { EventOccupancy, OccupancyTable, OccupancyChair, VenueService } from '../../core/services/venue.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { isEventExpired } from '../../core/utils/event-status';
 
 @Component({
   selector: 'app-seating-map',
   standalone: true,
-  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule],
+  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule, ConfirmationDialogComponent],
   templateUrl: './seating-map.component.html',
   styleUrl: './seating-map.component.scss',
 })
@@ -25,6 +27,13 @@ export class SeatingMapComponent implements OnInit {
 
   readonly selectedChair = signal<OccupancyChair | null>(null);
   readonly selectedTable = signal<OccupancyTable | null>(null);
+  readonly isEventExpired = computed(() => {
+    const activeEvent = this.event();
+    return !!activeEvent && isEventExpired(activeEvent.start_time, activeEvent.end_time);
+  });
+
+  readonly showCancelReservationConfirmation = signal(false);
+  readonly pendingCancelReservation = signal<{ reservationId: string; guestName: string } | null>(null);
 
   inviteeName = '';
   inviteeEmail = '';
@@ -35,15 +44,63 @@ export class SeatingMapComponent implements OnInit {
   pan = signal({ x: 40, y: 120 });
   isPanning = signal(false);
   panStart = signal({ x: 0, y: 0 });
+  activePointerId = signal<number | null>(null);
+  private activePointers = new Map<number, { x: number; y: number }>();
+  private pinchStartDistance = 0;
+  private pinchStartZoom = 1;
 
-  @HostListener('window:mouseup')
-  onWindowMouseUp(): void {
-    this.isPanning.set(false);
+  @HostListener('window:pointerup')
+  onWindowPointerUp(event: PointerEvent): void {
+    this.activePointers.delete(event.pointerId);
+    if (this.activePointers.size === 0) {
+      this.isPanning.set(false);
+      this.activePointerId.set(null);
+      this.pinchStartDistance = 0;
+    }
   }
 
-  @HostListener('window:mousemove', ['$event'])
-  onWindowMouseMove(event: MouseEvent): void {
-    if (this.isPanning()) {
+  @HostListener('window:pointercancel')
+  onWindowPointerCancel(event: PointerEvent): void {
+    this.activePointers.delete(event.pointerId);
+    if (this.activePointers.size === 0) {
+      this.isPanning.set(false);
+      this.activePointerId.set(null);
+      this.pinchStartDistance = 0;
+    }
+  }
+
+  @HostListener('window:pointermove', ['$event'])
+  onWindowPointerMove(event: PointerEvent): void {
+    const stored = this.activePointers.get(event.pointerId);
+    if (!stored) {
+      return;
+    }
+
+    const pointerType = event.pointerType;
+    const currentPoint = { x: event.clientX, y: event.clientY };
+    this.activePointers.set(event.pointerId, currentPoint);
+
+    if (this.activePointers.size === 2) {
+      if (pointerType === 'touch') {
+        event.preventDefault();
+      }
+
+      const points = Array.from(this.activePointers.values());
+      const dx = points[1].x - points[0].x;
+      const dy = points[1].y - points[0].y;
+      const distance = Math.hypot(dx, dy);
+      const midpoint = { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 };
+
+      if (this.pinchStartDistance > 0) {
+        const newZoom = Math.min(Math.max((distance / this.pinchStartDistance) * this.pinchStartZoom, 0.3), 3);
+        const oldZoom = this.zoom();
+        const worldX = (midpoint.x - this.pan().x) / oldZoom;
+        const worldY = (midpoint.y - this.pan().y) / oldZoom;
+
+        this.zoom.set(newZoom);
+        this.pan.set({ x: midpoint.x - worldX * newZoom, y: midpoint.y - worldY * newZoom });
+      }
+    } else if (this.isPanning() && event.pointerId === this.activePointerId()) {
       const dx = event.clientX - this.panStart().x;
       const dy = event.clientY - this.panStart().y;
       this.pan.update((p) => ({ x: p.x + dx, y: p.y + dy }));
@@ -56,14 +113,14 @@ export class SeatingMapComponent implements OnInit {
     private router: Router,
     private venues: VenueService,
     private toast: ToastService,
-    private i18n: I18nextService
+    public translation: I18nextService
   ) {}
 
   ngOnInit(): void {
     this.loadData();
   }
 
-  loadData(): void {  
+  loadData(): void {
     const eventId = this.route.snapshot.paramMap.get('eventId');
     if (!eventId) return;
     this.isLoading.set(true);
@@ -91,7 +148,7 @@ export class SeatingMapComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.toast.error(this.i18n.t('errors.loadFailed'));
+        this.toast.error(this.translation.t('errors.loadFailed'));
       },
     });
   }
@@ -113,6 +170,10 @@ export class SeatingMapComponent implements OnInit {
   }
 
   selectChair(table: OccupancyTable, chair: OccupancyChair): void {
+    if (this.isEventExpired()) {
+      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      return;
+    }
     if (this.selectedChair()?.id === chair.id) {
       this.closeSidebar();
       return;
@@ -139,8 +200,13 @@ export class SeatingMapComponent implements OnInit {
 
     if (!activeEvent || !table || !chair) return;
 
+    if (this.isEventExpired()) {
+      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      return;
+    }
+
     if (!this.inviteeName.trim()) {
-      this.toast.error(this.i18n.t('errors.fillAllFields') || 'Please enter guest name.');
+      this.toast.error(this.translation.t('errors.fillAllFields') || 'Please enter guest name.');
       return;
     }
 
@@ -171,18 +237,32 @@ export class SeatingMapComponent implements OnInit {
     });
   }
 
-  cancelReservation(reservationId: string): void {
-    if (confirm('Are you sure you want to cancel this reservation and ticket?')) {
-      this.venues.cancelReservation(reservationId).subscribe({
-        next: () => {
-          this.toast.success('Reservation cancelled successfully.');
-          this.loadData();
-        },
-        error: () => {
-          this.toast.error('Failed to cancel reservation.');
-        },
-      });
-    }
+  requestCancelReservation(reservationId: string, guestName: string): void {
+    this.pendingCancelReservation.set({ reservationId, guestName });
+    this.showCancelReservationConfirmation.set(true);
+  }
+
+  closeCancelReservationConfirmation(): void {
+    this.showCancelReservationConfirmation.set(false);
+    this.pendingCancelReservation.set(null);
+  }
+
+  confirmCancelReservation(): void {
+    const pending = this.pendingCancelReservation();
+    if (!pending) return;
+
+    this.showCancelReservationConfirmation.set(false);
+    this.pendingCancelReservation.set(null);
+
+    this.venues.cancelReservation(pending.reservationId).subscribe({
+      next: () => {
+        this.toast.success('Reservation cancelled successfully.');
+        this.loadData();
+      },
+      error: () => {
+        this.toast.error('Failed to cancel reservation.');
+      },
+    });
   }
 
   viewTicket(ticketId: string): void {
@@ -212,7 +292,7 @@ export class SeatingMapComponent implements OnInit {
     }
   }
 
-  onCanvasMouseDown(event: MouseEvent): void {
+  onCanvasPointerDown(event: PointerEvent): void {
     const target = event.target as HTMLElement;
     if (
       target.classList.contains('canvas-viewport') ||
@@ -221,8 +301,22 @@ export class SeatingMapComponent implements OnInit {
       target.classList.contains('stage-banner')
     ) {
       if (event.button === 0 || event.button === 1) {
-        event.preventDefault();
+        if (event.pointerType !== 'touch') {
+          event.preventDefault();
+        }
+
+        this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (event.pointerType === 'touch' && this.activePointers.size === 2) {
+          const points = Array.from(this.activePointers.values());
+          const dx = points[1].x - points[0].x;
+          const dy = points[1].y - points[0].y;
+          this.pinchStartDistance = Math.hypot(dx, dy);
+          this.pinchStartZoom = this.zoom();
+          return;
+        }
+
         this.isPanning.set(true);
+        this.activePointerId.set(event.pointerId);
         this.panStart.set({ x: event.clientX, y: event.clientY });
       }
     }

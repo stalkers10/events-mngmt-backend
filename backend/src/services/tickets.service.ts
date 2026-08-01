@@ -2,6 +2,7 @@ import { query } from '../config/db';
 import QRCode from 'qrcode';
 import PDFDocument from 'pdfkit';
 import { RoleType } from '../types/auth';
+import { isEventExpired } from './events.service';
 
 export interface TicketDetails {
   id: string;
@@ -51,7 +52,7 @@ export const TicketsService = {
   async getDetailsById(ticketId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.id as event_id, e.name as event_name, e.start_time, 
+              e.id as event_id, e.name as event_name, e.start_time, e.end_time,
               i.name as invitee_name, 
               rm.room_number, rm.floor_number,
               tb.table_number,
@@ -187,7 +188,7 @@ export const TicketsService = {
   ): Promise<{ success: boolean; message: string; details?: TicketDetails }> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.id as event_id, e.name as event_name, e.start_time, 
+              e.id as event_id, e.name as event_name, e.start_time, e.end_time,
               i.name as invitee_name, 
               rm.room_number, rm.floor_number,
               tb.table_number,
@@ -208,6 +209,9 @@ export const TicketsService = {
     const details = res.rows[0];
     const eventId = (details as any).event_id;
 
+    if (isEventExpired((details as any).end_time)) {
+      throw new Error('This event has already finished and the QR code is no longer valid');
+    }
     if (details.status === 'CHECKED_IN') {
       throw new Error('Ticket already checked in');
     }

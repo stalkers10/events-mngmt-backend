@@ -8,7 +8,7 @@
     <!-- Left Panel: Configuration -->
     <div class="left-panel" [style.width.px]="leftPanelWidth()">
       <h2>{{ 'events.createEvent' | translate }}</h2>
-      
+
       <div class="form-field" style="margin-bottom: 24px;">
         <label>{{ 'events.name' | translate }}</label>
         <input type="text" [(ngModel)]="eventName" [placeholder]="'events.namePlaceholder' | translate">
@@ -84,19 +84,19 @@
             <button class="btn-icon" (click)="resetView()" title="{{ 'events.resetView' | translate }}">⌂</button>
           </div>
         </div>
-        <div class="canvas-viewport" 
+        <div class="canvas-viewport"
              style="flex: 1; position: relative; overflow: hidden; touch-action: none; background: var(--bg-primary);"
              (click)="onCanvasClick()"
              (mousedown)="onCanvasMouseDown($event)"
              (wheel)="onWheel($event)">
-          <div #canvas class="canvas" 
+          <div #canvas class="canvas"
                [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
                [style.transform-origin]="'0 0'"
                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: visible;">
             <div class="grid-background" style="position: fixed; inset: -5000px; background-position: center;"></div>
             <div class="stage-label">{{ 'events.stage' | translate }}</div>
-            <div *ngFor="let table of tables(); trackBy: trackByTableId" 
-             class="table-group" 
+            <div *ngFor="let table of tables(); trackBy: trackByTableId"
+             class="table-group"
              [class.selected]="table.selected"
              [style.left.px]="table.x"
              [style.top.px]="table.y"
@@ -104,7 +104,7 @@
              [style.height.px]="getTableSize(table.chairs)"
              (click)="onTableClick(table, $event)"
              (mousedown)="onTableMouseDown(table, $event)">
-             
+
             <!-- Chairs around table -->
             <div class="chairs-ring">
               <div *ngFor="let chair of getChairPositions(table); let i = index"
@@ -115,7 +115,7 @@
                 <span class="material-symbols-outlined">chair</span>
               </div>
             </div>
-            
+
             <!-- Table surface -->
             <div class="table-surface">
               <span class="table-number">T{{ table.id }}</span>

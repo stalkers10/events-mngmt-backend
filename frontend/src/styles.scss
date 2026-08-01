@@ -120,6 +120,17 @@ textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
+
+.section-heading h2::after {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 9999px;
+  background: rgba(128, 0, 32, 0.35);
+}
+
 /* ---- Material Symbols (icon font) ---- */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';

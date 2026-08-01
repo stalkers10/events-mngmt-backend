@@ -9,11 +9,12 @@ import { VenueService } from '../../core/services/venue.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
 import { describeHttpError } from '../../core/utils/http-error.util';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-venues',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, I18nextPipe, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, I18nextPipe, FormsModule, ConfirmationDialogComponent],
   templateUrl: './venues.component.html',
   styleUrl: './venues.component.scss',
 })
@@ -27,6 +28,10 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   readonly showCreateModal = signal(false);
   readonly activeRoomsBuilding = signal<Building | null>(null);
   readonly searchQuery = signal('');
+  readonly showDeleteBuildingConfirmation = signal(false);
+  readonly showDeleteRoomConfirmation = signal(false);
+  readonly pendingDeleteBuildingId = signal<string | null>(null);
+  readonly pendingDeleteRoomId = signal<string | null>(null);
 
   readonly filteredBuildings = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
@@ -65,7 +70,7 @@ export class VenuesComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private venues: VenueService,
     private toast: ToastService,
-    private i18n: I18nextService,
+    public i18n: I18nextService,
     private route: ActivatedRoute
   ) {
     this.buildingForm = this.fb.group({
@@ -184,7 +189,32 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   }
 
   deleteBuilding(buildingId: string): void {
-    if (!confirm(this.i18n.t('venues.confirmDeleteBuilding'))) return;
+    this.pendingDeleteBuildingId.set(buildingId);
+    this.showDeleteBuildingConfirmation.set(true);
+  }
+
+  deleteRoom(roomId: string): void {
+    this.pendingDeleteRoomId.set(roomId);
+    this.showDeleteRoomConfirmation.set(true);
+  }
+
+  closeDeleteBuildingConfirmation(): void {
+    this.showDeleteBuildingConfirmation.set(false);
+    this.pendingDeleteBuildingId.set(null);
+  }
+
+  closeDeleteRoomConfirmation(): void {
+    this.showDeleteRoomConfirmation.set(false);
+    this.pendingDeleteRoomId.set(null);
+  }
+
+  confirmDeleteBuilding(): void {
+    const buildingId = this.pendingDeleteBuildingId();
+    if (!buildingId) return;
+
+    this.showDeleteBuildingConfirmation.set(false);
+    this.pendingDeleteBuildingId.set(null);
+
     this.venues.deleteBuilding(buildingId).subscribe({
       next: () => {
         this.buildings.update((buildings) => buildings.filter((b) => b.id !== buildingId));
@@ -198,8 +228,13 @@ export class VenuesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  deleteRoom(roomId: string): void {
-    if (!confirm(this.i18n.t('venues.confirmDeleteRoom'))) return;
+  confirmDeleteRoom(): void {
+    const roomId = this.pendingDeleteRoomId();
+    if (!roomId) return;
+
+    this.showDeleteRoomConfirmation.set(false);
+    this.pendingDeleteRoomId.set(null);
+
     this.venues.deleteRoom(roomId).subscribe({
       next: () => {
         this.rooms.update((rooms) => rooms.filter((r) => r.id !== roomId));

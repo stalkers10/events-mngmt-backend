@@ -1,6 +1,7 @@
 import { query, withTransaction } from '../config/db';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
+import { isEventExpired } from './events.service';
 export const ReservationsService = {
   async getEventOccupancy(eventId: string): Promise<any> {
     const tablesRes = await query(`SELECT * FROM tables WHERE event_id = $1 ORDER BY table_number ASC`, [eventId]);
@@ -27,6 +28,17 @@ export const ReservationsService = {
   },
   async createReservationAndTicket(eventId: string, tableId: string, chairId: string, invitee: { name: string, email?: string, phone?: string }) {
     return await withTransaction(async (client) => {
+      const eventRes = await client.query<{ end_time: Date }>(
+        `SELECT end_time FROM events WHERE id = $1`,
+        [eventId]
+      );
+      if (eventRes.rows.length === 0) {
+        throw new Error('Event not found');
+      }
+      if (isEventExpired(eventRes.rows[0].end_time)) {
+        throw new Error('This event has already finished and seating can no longer be edited.');
+      }
+
       const inviteeRes = await client.query(
         `INSERT INTO invitees (name, email, phone) VALUES ($1, $2, $3) RETURNING id`,
         [invitee.name, invitee.email || null, invitee.phone || null]

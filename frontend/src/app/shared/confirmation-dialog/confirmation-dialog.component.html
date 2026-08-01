@@ -1,0 +1,19 @@
+<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true" (click)="close()">
+  <section class="creation-modal card" (click)="$event.stopPropagation()" [attr.aria-label]="title || 'Confirmation'">
+    <div class="modal-header">
+      <h2 class="text-headline-sm">{{ title }}</h2>
+      <button type="button" class="close-btn" (click)="close()" aria-label="Close dialog">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>{{ message }}</p>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="close()">{{ cancelLabel }}</button>
+      <button type="button" class="btn" [ngClass]="confirmButtonClass" (click)="confirmAction()">{{ confirmLabel }}</button>
+    </div>
+  </section>
+</div>

@@ -9,11 +9,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { describeHttpError } from '../../core/utils/http-error.util';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-gate-staff',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, I18nextPipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, I18nextPipe, ConfirmationDialogComponent],
   templateUrl: './gate-staff.component.html',
   styleUrl: './gate-staff.component.scss',
 })
@@ -29,6 +30,11 @@ export class GateStaffComponent implements OnInit {
   activeAssignAccount = signal<GateStaffAccount | null>(null);
   activeRemoveAssignment = signal<{ account: GateStaffAccount; assignment: { id: string; name: string } } | null>(null);
   selectedEventId = '';
+
+  readonly showDeactivateConfirmation = signal(false);
+  readonly pendingDeactivateAccount = signal<GateStaffAccount | null>(null);
+  readonly showDeleteConfirmation = signal(false);
+  readonly pendingDeleteAccount = signal<GateStaffAccount | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -93,12 +99,21 @@ export class GateStaffComponent implements OnInit {
   }
 
   deactivate(account: GateStaffAccount): void {
-    const confirmMessage = this.translation.t('gateStaff.confirmDeactivate', {
-      username: account.username,
-    });
-    if (!confirm(confirmMessage)) {
-      return;
-    }
+    this.pendingDeactivateAccount.set(account);
+    this.showDeactivateConfirmation.set(true);
+  }
+
+  closeDeactivateConfirmation(): void {
+    this.showDeactivateConfirmation.set(false);
+    this.pendingDeactivateAccount.set(null);
+  }
+
+  confirmDeactivate(): void {
+    const account = this.pendingDeactivateAccount();
+    if (!account) return;
+
+    this.showDeactivateConfirmation.set(false);
+    this.pendingDeactivateAccount.set(null);
 
     this.processingId.set(account.id);
     this.gateStaffService.deactivate(account.id).subscribe({
@@ -206,12 +221,21 @@ export class GateStaffComponent implements OnInit {
   }
 
   deletePermanently(account: GateStaffAccount): void {
-    const confirmMessage = this.translation.t('gateStaff.confirmDeletePermanently', {
-      username: account.username,
-    });
-    if (!confirm(confirmMessage)) {
-      return;
-    }
+    this.pendingDeleteAccount.set(account);
+    this.showDeleteConfirmation.set(true);
+  }
+
+  closeDeleteConfirmation(): void {
+    this.showDeleteConfirmation.set(false);
+    this.pendingDeleteAccount.set(null);
+  }
+
+  confirmDeletePermanently(): void {
+    const account = this.pendingDeleteAccount();
+    if (!account) return;
+
+    this.showDeleteConfirmation.set(false);
+    this.pendingDeleteAccount.set(null);
 
     this.processingId.set(account.id);
     this.gateStaffService.deletePermanently(account.id).subscribe({

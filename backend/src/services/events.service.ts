@@ -1,4 +1,11 @@
 import { query } from '../config/db';
+export const EVENT_GRACE_MINUTES = 30;
+
+export function isEventExpired(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
+  const expiryTime = new Date(endTime).getTime() + graceMinutes * 60 * 1000;
+  return expiryTime < now.getTime();
+}
+
 export interface EventRecord {
   id: string;
   room_id: string;
@@ -24,7 +31,7 @@ export interface ChairRecord {
 export const EventsService = {
   async listAll(): Promise<EventRecord[]> {
     const result = await query<EventRecord>(
-      `SELECT * FROM events ORDER BY start_time ASC`
+      `SELECT * FROM events WHERE end_time + interval '30 minutes' > NOW() ORDER BY start_time ASC`
     );
     return result.rows;
   },
@@ -34,6 +41,7 @@ export const EventsService = {
        FROM events e
        JOIN gate_staff_assignments gsa ON e.id = gsa.event_id
        WHERE gsa.user_id = $1
+         AND e.end_time + interval '30 minutes' > NOW()
        ORDER BY e.start_time ASC`,
       [userId]
     );

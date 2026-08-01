@@ -46,11 +46,11 @@
     "nextBooking": "Prochaine réservation",
     "noBooking": "Aucune réservation en cours",
     "eventsTitle": "Événements",
-    "eventsSubtitle": "Événements en cours et à venir",
+    "eventsSubtitle": "Événements en cours",
     "viewAll": "Tout voir",
     "noRoomsTitle": "Aucune salle pour le moment",
     "noRoomsBody": "Créez votre première salle pour commencer à planifier des événements.",
-    "noEvents": "Aucun événement en cours ou à venir.",
+    "noEvents": "Aucun événement en cours.",
     "live": "En cours",
     "upcoming": "À venir",
     "past": "Passé",
@@ -91,17 +91,20 @@
     "creatingRoom": "Création de la salle…",
     "roomCreated": "Salle et disposition créées.",
     "noResults": "Aucun événement ne correspond à votre recherche.",
-    "searchPlaceholder": "Rechercher des bâtiments ou des salles...",
+    "searchPlaceholder": "Bâtiments ou des salles...",
     "noBuildingsTitle": "Aucun lieu",
     "noBuildingsBody": "Créez votre premier bâtiment pour commencer.",
     "noRooms": "Aucune salle dans ce bâtiment.",
     "addFirstRoom": "Ajouter une salle",
     "viewAllRooms": "Voir toutes les salles",
     "deleteRoom": "Supprimer la salle",
+    "confirmDeleteRoomTitle": "Confirmer la suppression de la salle",
     "confirmDeleteRoom": "Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.",
     "deleteBuilding": "Supprimer le bâtiment",
     "confirmDeleteBuilding": "Êtes-vous sûr de vouloir supprimer ce bâtiment ? Cela supprimera également toutes les salles de ce bâtiment et cette action est irréversible.",
+    "confirmDeleteBuildingTitle": "Confirmer la suppression",
     "buildingDeleted": "Bâtiment supprimé avec succès.",
+
     "roomDeleted": "Salle supprimée avec succès."
   },
   "events": {
@@ -138,6 +141,7 @@
     "statsTotalGuests": "Capacité totale",
     "statsTotal": "Tous les événements",
     "spotlightTitle": "À la une",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet événement ? Cette action ne peut être annulée.",
     "spotlightBody": "Nos suites premium sont disponibles pour les réservations fin 2028. Réservez le Grand Salon pour votre prochain gala.",
     "filter": {
       "all": "Tous",
@@ -244,7 +248,10 @@
     "assignedSuccess": "L'agent d'accueil {{username}} a été assigné avec succès à l'événement.",
     "confirmRemoveAssignment": "Retirer {{assignment}} de {{username}} ?",
     "removedAssignmentSuccess": "L'assignation a été retirée de {{username}}.",
-    "removeAssignmentTitle": "Supprimer l'événement assigné"
+    "removeAssignmentTitle": "Supprimer l'événement assigné",
+    "confirmDeactivateTitle": "Désactiver le compte",
+    "confirmDeletePermanentlyTitle": "Supprimer le compte",
+    "deactivate": "Désactiver"
   },
 
   "guestList": {

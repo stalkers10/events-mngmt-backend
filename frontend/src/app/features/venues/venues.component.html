@@ -259,3 +259,25 @@
     </section>
   </div>
 }
+
+<app-confirmation-dialog
+  [open]="showDeleteBuildingConfirmation()"
+  [title]="i18n.t('venues.confirmDeleteBuildingTitle') || 'Confirm delete building'"
+  [message]="i18n.t('venues.confirmDeleteBuilding') || 'Are you sure you want to delete this building? This action cannot be undone.'"
+  [confirmLabel]="i18n.t('common.delete') || 'Delete'"
+  [cancelLabel]="i18n.t('common.cancel') || 'Cancel'"
+  confirmButtonClass="btn-danger"
+  (confirm)="confirmDeleteBuilding()"
+  (cancel)="closeDeleteBuildingConfirmation()"
+></app-confirmation-dialog>
+
+<app-confirmation-dialog
+  [open]="showDeleteRoomConfirmation()"
+  [title]="i18n.t('venues.confirmDeleteRoomTitle') || 'Confirm delete room'"
+  [message]="i18n.t('venues.confirmDeleteRoom') || 'Are you sure you want to delete this room? This action cannot be undone.'"
+  [confirmLabel]="i18n.t('common.delete') || 'Delete'"
+  [cancelLabel]="i18n.t('common.cancel') || 'Cancel'"
+  confirmButtonClass="btn-danger"
+  (confirm)="confirmDeleteRoom()"
+  (cancel)="closeDeleteRoomConfirmation()"
+></app-confirmation-dialog>
