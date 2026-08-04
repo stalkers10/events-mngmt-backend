@@ -7,15 +7,26 @@ const router = Router();
 
 router.use(requireAuth);
 const eventSchema = z.object({
-  roomId: z.string().uuid(),
+  roomIds: z.array(z.string().uuid()).min(1).optional(),
+  roomId: z.string().uuid().optional(),
   name: z.string().min(1),
   startTime: z.string().datetime(),
   endTime: z.string().datetime(),
   tables: z.array(z.object({
     tableNumber: z.string().min(1),
     position: z.string().optional(),
-    numberOfChairs: z.number().int().positive()
+    numberOfChairs: z.number().int().positive(),
+    roomId: z.string().uuid().optional()
   })).optional(),
+}).superRefine((data, ctx) => {
+  const selectedRoomIds = data.roomIds ?? (data.roomId ? [data.roomId] : []);
+  if (selectedRoomIds.length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Select at least one room',
+      path: ['roomIds']
+    });
+  }
 });
 
 // GET /events (Admins see all, Gate Staff see assigned)
@@ -56,8 +67,9 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.create(
-      parsed.data.roomId,
+      roomIds,
       parsed.data.name,
       new Date(parsed.data.startTime),
       new Date(parsed.data.endTime),
@@ -76,9 +88,10 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
     return;
   }
   try {
+    const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.update(
       req.params.eventId,
-      parsed.data.roomId,
+      roomIds,
       parsed.data.name,
       new Date(parsed.data.startTime),
       new Date(parsed.data.endTime)
@@ -102,6 +115,7 @@ router.delete('/:eventId', async (req: Request<{ eventId: string }>, res: Respon
 const tableSchema = z.object({
   tableNumber: z.string().min(1),
   position: z.string().optional(),
+  roomId: z.string().uuid().optional(),
 });
 router.post('/:eventId/tables', async (req: Request<{ eventId: string }>, res: Response) => {
   const parsed = tableSchema.safeParse(req.body);
@@ -110,7 +124,7 @@ router.post('/:eventId/tables', async (req: Request<{ eventId: string }>, res: R
     return;
   }
   try {
-    const table = await EventsService.addTable(req.params.eventId, parsed.data.tableNumber, parsed.data.position || null);
+    const table = await EventsService.addTable(req.params.eventId, parsed.data.tableNumber, parsed.data.position || null, parsed.data.roomId);
     res.status(201).json(table);
   } catch (err: any) {
     res.status(409).json({ error: err.message });

@@ -30,6 +30,17 @@
             </div>
           </div>
 
+          @if (eventRooms().length > 1) {
+            <div class="room-switcher form-field">
+              <label>{{ 'events.previewRoom' | translate }}</label>
+              <select [ngModel]="selectedRoomId()" (ngModelChange)="changeSelectedRoom($event)">
+                @for (room of eventRooms(); track room.id) {
+                  <option [value]="room.id">{{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}</option>
+                }
+              </select>
+            </div>
+          }
+
           <div class="canvas-viewport"
           (pointerdown)="onCanvasPointerDown($event)"
           (wheel)="onWheel($event)"
@@ -40,7 +51,7 @@
               <div class="grid-background"></div>
               <div class="stage-label">{{ 'events.stage' | translate }}</div>
 
-              @for (table of occupancy()?.tables ?? []; track table.id) {
+              @for (table of selectedRoomTables(); track table.id) {
                 <div
                   class="table-group"
                   [class.selected]="selectedTable()?.id === table.id"
@@ -142,6 +153,10 @@
               </div>
             }
             <div class="guest-field">
+              <span class="text-label-caps field-label">Room</span>
+              <span class="text-body-sm field-value">{{ roomLabel(chair.reservation_room_id) }}</span>
+            </div>
+            <div class="guest-field">
               <span class="text-label-caps field-label">Ticket Status</span>
               <span class="status-badge" [class.checked-in]="chair.ticket_status === 'CHECKED_IN'">
                 {{ chair.ticket_status || 'Reserved' }}
@@ -164,6 +179,22 @@
         } @else {
           <!-- Form to Assign Seat -->
           <form (submit)="assignSeat()" class="assignment-form">
+            @if (eventRooms().length > 1) {
+              <div class="form-field">
+                <label for="guest-room">Room *</label>
+                <select
+                  id="guest-room"
+                  name="selectedRoomId"
+                  [(ngModel)]="selectedRoomId"
+                  required
+                >
+                  @for (room of eventRooms(); track room.id) {
+                    <option [value]="room.id">{{ room.room_number }} · Floor {{ room.floor_number }}</option>
+                  }
+                </select>
+              </div>
+            }
+
             <div class="form-field">
               <label for="guest-name">Guest Name *</label>
               <input

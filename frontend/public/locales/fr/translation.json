@@ -133,7 +133,7 @@
     "editSeating": "Modifier le plan",
     "filterEmpty": "Aucun événement ne correspond à ce filtre.",
     "noResults": "Aucun événement ne correspond à votre recherche.",
-    "searchPlaceholder": "salles, bâtiments...",
+    "searchPlaceholder": "Rechercher des evenements...",
     "sortBy": "Trier par",
     "sortLatest": "Plus récent",
     "sortOldest": "Plus ancien",
@@ -181,6 +181,7 @@
     "tableCount": "Nombre de tables",
     "chairsPerTable": "Chaises par table",
     "selectRoom": "Sélectionner une salle",
+    "selectRooms": "Sélectionner des salles",
     "namePlaceholder": "ex: Dîner de Gala",
     "stage": "Scène"
   },
@@ -233,6 +234,8 @@
     "colStatus": "Statut",
     "colCreated": "Créé le",
     "colActions": "Actions",
+    "searchPlaceholder": "Rechercher par nom ou assignation…",
+    "listNoResults": "Aucun compte de personnel ne correspond à votre recherche.",
     "confirmDeactivate": "Désactiver « {{username}} » ? Cette personne ne pourra plus se connecter.",
     "confirmDeletePermanently": "Supprimer définitivement « {{username}} » ? Cette action est irréversible.",
     "createdToast": "Compte « {{username}} » créé avec succès.",
@@ -296,5 +299,7 @@
     "loadFailed": "Échec du chargement. Veuillez réessayer.",
     "deactivateFailed": "Échec de la désactivation du compte. Veuillez réessayer.",
     "fillAllFields": "Veuillez remplir tous les champs obligatoires.",
+    "roomNotConfigured": "Toutes les salles sélectionnées doivent être configurées avant de créer l'événement.",
+    "startTimeInPast": "L'heure de début de l'événement ne peut pas être antérieure à l'heure actuelle.",
     "createFailed": "Échec de la création de l'événement. Veuillez réessayer." }
 }

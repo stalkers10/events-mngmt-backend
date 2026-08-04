@@ -101,15 +101,17 @@ export class DashboardComponent implements OnInit {
   }
 
   roomEvent(roomId: string): EventSummary | undefined {
-    return this.events().find((event) =>
-      event.room_id === roomId && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live'
-    );
+    return this.events().find((event) => {
+      const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live';
+    });
   }
 
   nextRoomEvent(roomId: string): EventSummary | undefined {
-    return this.events().find((event) =>
-      event.room_id === roomId && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'upcoming'
-    );
+    return this.events().find((event) => {
+      const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'upcoming';
+    });
   }
 
   roomStatus(room: Room): RoomStatus {
@@ -129,7 +131,8 @@ export class DashboardComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    return this.rooms().find((room) => room.id === event.room_id);
+    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    return this.rooms().find((room) => roomIds.includes(room.id));
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {

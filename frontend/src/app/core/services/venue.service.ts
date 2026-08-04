@@ -17,7 +17,8 @@ export interface CreateRoomPayload {
 }
 
 export interface CreateEventPayload {
-  roomId: string;
+  roomIds: string[];
+  roomId?: string;
   name: string;
   startTime: string;
   endTime: string;
@@ -93,6 +94,7 @@ export class VenueService {
     eventId: string;
     tableId: string;
     chairId: string;
+    roomId?: string;
     invitee: { name: string; email?: string; phone?: string };
   }): Observable<any> {
     return this.http.post(`${environment.apiUrl}/reservations`, payload);
@@ -117,6 +119,7 @@ export interface OccupancyChair {
   chair_number: string;
   reservation_id: string | null;
   reservation_status: 'ACTIVE' | null;
+  reservation_room_id: string | null;
   invitee_name: string | null;
   invitee_email: string | null;
   ticket_id: string | null;
@@ -125,6 +128,7 @@ export interface OccupancyChair {
 
 export interface OccupancyTable {
   id: string;
+  room_id: string | null;
   table_number: string;
   position: string | null;
   chairs: OccupancyChair[];

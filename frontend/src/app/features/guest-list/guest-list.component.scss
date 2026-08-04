@@ -236,12 +236,13 @@ h3 { margin-top: 0; }
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 480px;
+  max-width: 520px;
+  width: 100%;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   font-size: 20px;
   color: var(--color-on-surface-variant);
   pointer-events: none;
@@ -249,9 +250,9 @@ h3 { margin-top: 0; }
 
 .search-input {
   width: 100%;
-  padding: 12px 44px;
+  padding: 14px 50px;
   border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-default, 12px);
+  border-radius: 18px;
   background: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
   font-size: 15px;

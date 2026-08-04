@@ -86,7 +86,7 @@ h1 {
 /* ── Filter bar ── */
 .filter-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
@@ -161,19 +161,22 @@ h1 {
 
 /* ── Search bar ── */
 .search-bar-row {
-  margin: 0 0 var(--space-md);
+  margin: 0;
+  display: flex;
+  align-items: center;
 }
 
 .search-field {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 360px;
+  max-width: 420px;
+  width: 100%;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   font-size: 20px;
   color: var(--color-on-surface-variant);
   pointer-events: none;
@@ -181,9 +184,10 @@ h1 {
 
 .search-input {
   width: 100%;
-  padding: 12px 44px;
+  padding: 12px 48px;
+  min-height: 44px;
   border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-default, 12px);
+  border-radius: 16px;
   background: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
   font-size: 15px;

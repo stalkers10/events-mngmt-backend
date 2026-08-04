@@ -47,11 +47,28 @@
 
   <!-- ---- List ---- -->
   <section class="card list-card">
-    <h2 class="text-headline-sm section-title">{{ 'gateStaff.listSectionTitle' | translate }}</h2>
+    <div class="list-header">
+      <h2 class="text-headline-sm section-title">{{ 'gateStaff.listSectionTitle' | translate }}</h2>
+      <div class="search-field form-field">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          [placeholder]="'gateStaff.searchPlaceholder' | translate"
+          class="search-input"
+        />
+        @if (searchQuery()) {
+          <button type="button" class="clear-btn" (click)="searchQuery.set('')">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        }
+      </div>
+    </div>
 
     @if (isLoadingList()) {
       <p class="text-body-sm muted">{{ 'common.loading' | translate }}</p>
-    } @else if (staff().length === 0) {
+    } @else if (filteredStaff().length === 0) {
       <p class="text-body-sm muted">{{ 'gateStaff.listEmpty' | translate }}</p>
     } @else {
       <!-- Desktop table -->
@@ -66,13 +83,13 @@
             </tr>
           </thead>
           <tbody>
-            @for (account of staff(); track account.id) {
+            @for (account of filteredStaff(); track account.id) {
               <tr>
                 <td class="username-cell">
                   <div class="username-text">{{ account.username }}</div>
                   @if (account.assignments && account.assignments.length > 0) {
                     <div class="assignments-list">
-                      @for (assignment of account.assignments; track assignment.id) {
+                      @for (assignment of account.assignments.slice(0, 3); track assignment.id) {
                         <button
                           type="button"
                           class="assignment-badge"
@@ -82,6 +99,9 @@
                           <span class="assignment-label">{{ assignment.name }}</span>
                           <span class="assignment-remove material-symbols-outlined">delete</span>
                         </button>
+                      }
+                      @if (account.assignments.length > 3) {
+                        <span class="more-assignments">+{{ account.assignments.length - 3 }} more</span>
                       }
                     </div>
                   }
@@ -126,11 +146,13 @@
                   }
                   <button
                     type="button"
-                    class="btn btn-secondary delete-btn"
+                    class="btn btn-secondary icon-btn delete-btn"
                     [disabled]="processingId() === account.id"
                     (click)="deletePermanently(account)"
+                    [attr.title]="'common.delete' | translate"
+                    [attr.aria-label]="'common.delete' | translate"
                   >
-                    {{ 'common.delete' | translate }}
+                    <span class="material-symbols-outlined">delete</span>
                   </button>
                 </td>
               </tr>
@@ -203,11 +225,13 @@
               }
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="btn btn-secondary icon-btn"
                 [disabled]="processingId() === account.id"
                 (click)="deletePermanently(account)"
+                [attr.title]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate"
               >
-                {{ 'common.delete' | translate }}
+                <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
           </div>

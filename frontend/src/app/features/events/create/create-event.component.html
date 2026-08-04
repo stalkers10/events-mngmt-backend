@@ -14,24 +14,55 @@
         <input type="text" [(ngModel)]="eventName" [placeholder]="'events.namePlaceholder' | translate">
       </div>
 
-      <div class="form-field" style="margin-bottom: 24px;">
+      <div class="form-field" style="margin-bottom: 24px; position: relative;">
         <label>{{ 'events.room' | translate }}</label>
-        <select [(ngModel)]="selectedRoom">
-          <option value="">{{ 'events.selectRoom' | translate }}</option>
-          <option *ngFor="let room of rooms()" [value]="room.id">
-            {{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}{{ room.building ? ' · ' + room.building.name : '' }}
-          </option>
-        </select>
+        <button type="button" class="room-dropdown-toggle" (click)="toggleRoomDropdown()">
+          <span *ngIf="selectedRoomIds().length === 0">{{ 'events.selectRooms' | translate }}</span>
+          <span *ngIf="selectedRoomIds().length > 0">
+            {{ selectedRoomLabel() }}
+          </span>
+          <span class="material-symbols-outlined">arrow_drop_down</span>
+        </button>
+        <div class="room-dropdown-menu" *ngIf="roomDropdownOpen()">
+          @for (room of rooms(); track room.id) {
+            <label class="room-dropdown-item">
+              <input
+                type="checkbox"
+                [checked]="isRoomSelected(room.id)"
+                (change)="toggleRoomSelection(room.id)"
+              />
+              <span>{{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}</span>
+              <span class="room-dropdown-chip">{{ room.building?.name || 'Room' }}</span>
+            </label>
+          }
+        </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-field" *ngIf="selectedRoomIds().length > 1" style="margin-bottom: 24px;">
+        <label>{{ 'events.previewRoom' | translate }}</label>
+        <select
+          [ngModel]="activeRoomId()"
+          (ngModelChange)="setActiveRoom($event)"
+          class="room-preview-select"
+        >
+          @for (room of selectedRooms(); track room.id) {
+            <option [value]="room.id">
+              {{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}
+              ({{ roomTableCount(room.id) }} {{ 'events.tablesLabel' | translate }})
+            </option>
+          }
+        </select>
+        <p class="field-note">{{ 'events.previewRoomHint' | translate }}</p>
+      </div>
+
+      <div class="form-row form-row--stacked">
         <div class="form-field" style="margin-bottom: 24px;">
           <label>{{ 'events.startTime' | translate }}</label>
-          <input type="datetime-local" [(ngModel)]="startTime">
+          <input type="datetime-local" [(ngModel)]="startTime" [min]="minStartTime()">
         </div>
         <div class="form-field" style="margin-bottom: 24px;">
           <label>{{ 'events.endTime' | translate }}</label>
-          <input type="datetime-local" [(ngModel)]="endTime">
+          <input type="datetime-local" [(ngModel)]="endTime" [min]="minEndTime()">
         </div>
       </div>
 
@@ -95,7 +126,7 @@
                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: visible;">
             <div class="grid-background" style="position: fixed; inset: -5000px; background-position: center;"></div>
             <div class="stage-label">{{ 'events.stage' | translate }}</div>
-            <div *ngFor="let table of tables(); trackBy: trackByTableId"
+            <div *ngFor="let table of currentTables(); trackBy: trackByTableId"
              class="table-group"
              [class.selected]="table.selected"
              [style.left.px]="table.x"

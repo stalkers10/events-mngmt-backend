@@ -56,7 +56,7 @@
                   <div>
                     <span class="booking-label">{{ 'dashboard.liveNow' | translate }}</span>
                     <strong>{{ activeEvent.name }}</strong>
-                    <span>{{ activeEvent.start_time | date: 'shortTime' }} – {{ activeEvent.end_time | date: 'shortTime' }}</span>
+                    <span>{{ activeEvent.start_time | date: 'MMM dd, yyyy' }} – {{ activeEvent.end_time | date: 'MMM dd, yyyy' }}</span>
                   </div>
                 </div>
               } @else {
@@ -66,7 +66,7 @@
                     <div>
                       <span class="booking-label">{{ 'dashboard.nextBooking' | translate }}</span>
                       <strong>{{ nextEvent.name }}</strong>
-                      <span>{{ nextEvent.start_time | date: 'MMM d, shortTime' }}</span>
+                      <span>{{ nextEvent.start_time | date: 'MMM d, yyyy' }} – {{ nextEvent.end_time | date: 'MMM d, yyyy' }}</span>
                     </div>
                   </div>
                 } @else {
@@ -118,7 +118,7 @@
                 </p>
                 <p class="event-time text-body-sm">
                   <span class="material-symbols-outlined">schedule</span>
-                  {{ event.start_time | date: 'MMM d, yyyy' }} || {{ event.start_time | date: 'shortTime' }} – {{ event.end_time | date: 'shortTime' }}
+                  {{ event.start_time | date: 'MMM d, yyyy' }} – {{ event.end_time | date: 'MMM d, yyyy' }}
                 </p>
               </div>
             </a>

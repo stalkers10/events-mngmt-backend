@@ -18,6 +18,7 @@ export interface TicketDetails {
   invitee_name: string;
   room_number: string;
   floor_number: number;
+  reservation_room_id: string | null;
   table_number: string;
   chair_number: string;
 }
@@ -33,7 +34,7 @@ export const TicketsService = {
       `SELECT t.*, 
               e.id as event_id, e.name as event_name, e.start_time, 
               i.name as invitee_name, 
-              rm.room_number, rm.floor_number, 
+              rm.room_number, rm.floor_number, r.room_id as reservation_room_id, 
               tb.table_number,
               ch.chair_number
         FROM tickets t
@@ -42,7 +43,7 @@ export const TicketsService = {
         JOIN invitees i ON r.invitee_id = i.id
         JOIN chairs ch ON r.chair_id = ch.id
         JOIN tables tb ON r.table_id = tb.id
-        JOIN rooms rm ON e.room_id = rm.id
+        JOIN rooms rm ON rm.id = COALESCE(r.room_id, e.room_id)
         WHERE t.reservation_id = $1`,
       [reservationId]
     );
@@ -54,7 +55,7 @@ export const TicketsService = {
       `SELECT t.*, 
               e.id as event_id, e.name as event_name, e.start_time, e.end_time,
               i.name as invitee_name, 
-              rm.room_number, rm.floor_number,
+              rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
               ch.chair_number
         FROM tickets t
@@ -63,7 +64,7 @@ export const TicketsService = {
         JOIN invitees i ON r.invitee_id = i.id
         JOIN chairs ch ON r.chair_id = ch.id
         JOIN tables tb ON r.table_id = tb.id
-        JOIN rooms rm ON e.room_id = rm.id
+        JOIN rooms rm ON rm.id = COALESCE(r.room_id, e.room_id)
         WHERE t.id = $1`,
       [ticketId]
     );
@@ -190,7 +191,7 @@ export const TicketsService = {
       `SELECT t.*, 
               e.id as event_id, e.name as event_name, e.start_time, e.end_time,
               i.name as invitee_name, 
-              rm.room_number, rm.floor_number,
+              rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
               ch.chair_number
         FROM tickets t
@@ -199,7 +200,7 @@ export const TicketsService = {
         JOIN invitees i ON r.invitee_id = i.id
         JOIN chairs ch ON r.chair_id = ch.id
         JOIN tables tb ON r.table_id = tb.id
-        JOIN rooms rm ON e.room_id = rm.id
+        JOIN rooms rm ON rm.id = COALESCE(r.room_id, e.room_id)
         WHERE t.qr_token = $1`,
       [qrToken]
     );

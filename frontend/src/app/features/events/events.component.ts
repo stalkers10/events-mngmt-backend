@@ -108,7 +108,8 @@ export class EventsComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    return this.rooms().find((r) => r.id === event.room_id);
+    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    return this.rooms().find((r) => roomIds.includes(r.id));
   }
 
   buildingFor(room: Room | undefined): Building | undefined {
@@ -116,9 +117,13 @@ export class EventsComponent implements OnInit {
   }
 
   roomFloorLabel(event: EventSummary): string {
-    const room = this.roomFor(event);
-    if (!room) return '—';
-    return `${room.room_number} · Floor ${room.floor_number}`;
+    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    const rooms = this.rooms().filter((room) => roomIds.includes(room.id));
+    if (rooms.length === 0) return '—';
+    if (rooms.length === 1) {
+      return `${rooms[0].room_number} · Floor ${rooms[0].floor_number}`;
+    }
+    return `${rooms.length} rooms selected`;
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {

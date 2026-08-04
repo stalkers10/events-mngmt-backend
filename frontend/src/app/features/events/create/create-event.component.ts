@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, signal, computed, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -24,27 +24,54 @@ interface TableItem {
 })
 export class CreateEventComponent implements AfterViewInit {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
-  
+
   eventName = signal('');
   startTime = signal('');
   endTime = signal('');
   tableCount = signal(1);
   chairsPerTable = signal(4);
-  
-  tables = signal<TableItem[]>([]);
+
+  tablesByRoom = signal<Record<string, TableItem[]>>({});
+  activeRoomId = signal('');
   selectedTable = signal<TableItem | null>(null);
+  roomDropdownOpen = signal(false);
   isDragging = signal(false);
   dragStart = signal({ x: 0, y: 0 });
   zoom = signal(1);
   pan = signal({ x: 0, y: 0 });
   isPanning = signal(false);
   panStart = signal({ x: 0, y: 0 });
-  
+
   leftPanelWidth = signal(400);
   isResizing = signal(false);
 
   rooms = signal<any[]>([]);
-  selectedRoom = signal<string>('');
+  selectedRoomIds = signal<string[]>([]);
+
+  /** Tables being configured for the currently active room. */
+  readonly currentTables = computed<TableItem[]>(
+    () => this.tablesByRoom()[this.activeRoomId()] ?? []
+  );
+
+  /** The event's selected rooms, for the room-switcher tabs. */
+  readonly selectedRooms = computed<any[]>(() =>
+    this.rooms().filter((r) => this.selectedRoomIds().includes(r.id))
+  );
+
+  private setCurrentTables(next: TableItem[]): void {
+    const roomId = this.activeRoomId();
+    if (!roomId) return;
+    this.tablesByRoom.update((map) => ({ ...map, [roomId]: next }));
+  }
+
+  private updateCurrentTables(fn: (tabs: TableItem[]) => TableItem[]): void {
+    const roomId = this.activeRoomId();
+    if (!roomId) return;
+    this.tablesByRoom.update((map) => ({
+      ...map,
+      [roomId]: fn(map[roomId] ?? []),
+    }));
+  }
 
   constructor(
     private router: Router,
@@ -52,6 +79,40 @@ export class CreateEventComponent implements AfterViewInit {
     private toast: ToastService,
     private i18n: I18nextService
   ) {}
+
+  selectedRoomLabel(): string {
+    const floorLabel = this.i18n.t('events.floor');
+    return this.selectedRooms()
+      .map((room) => `${room.room_number} · ${floorLabel} ${room.floor_number}`)
+      .join(', ');
+  }
+
+  toggleRoomDropdown(): void {
+    this.roomDropdownOpen.update((current) => !current);
+  }
+
+  toggleRoomSelection(roomId: string): void {
+    this.selectedRoomIds.update((current) => {
+      const next = current.includes(roomId)
+        ? current.filter((id) => id !== roomId)
+        : [...current, roomId];
+
+      if (next.length === 0) {
+        this.activeRoomId.set('');
+      } else if (!next.includes(this.activeRoomId())) {
+        this.activeRoomId.set(next[0]);
+      }
+
+      if (!next.includes(roomId)) {
+        this.tablesByRoom.update((map) => {
+          const { [roomId]: removed, ...remaining } = map;
+          return remaining;
+        });
+      }
+
+      return next;
+    });
+  }
 
   ngAfterViewInit(): void {
     this.loadRooms();
@@ -71,14 +132,14 @@ export class CreateEventComponent implements AfterViewInit {
       this.leftPanelWidth.set(newWidth);
       return;
     }
-    
+
     if (this.isDragging() && this.selectedTable()) {
       const canvas = this.canvasRef?.nativeElement;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       const newX = (event.clientX - rect.left - this.pan().x) / this.zoom() - this.dragStart().x;
       const newY = (event.clientY - rect.top - this.pan().y) / this.zoom() - this.dragStart().y;
-      this.tables.update(tabs => tabs.map(t => 
+      this.updateCurrentTables(tabs => tabs.map(t =>
         t.id === this.selectedTable()!.id ? { ...t, x: newX, y: newY } : t
       ));
       this.selectedTable.update(t => t ? { ...t, x: newX, y: newY } : null);
@@ -97,7 +158,7 @@ export class CreateEventComponent implements AfterViewInit {
   }
 
   getTableSize(chairs: number): number {
-    return 60 + (chairs * 2); 
+    return 60 + (chairs * 2);
   }
 
   round(value: number): number {
@@ -130,17 +191,17 @@ export class CreateEventComponent implements AfterViewInit {
         selected: false
       });
     }
-    this.tables.set(newTables);
+    this.setCurrentTables(newTables);
   }
 
   onTableClick(table: TableItem, event: MouseEvent): void {
     event.stopPropagation();
-    this.tables.update(tabs => tabs.map(t => ({ ...t, selected: t.id === table.id })));
+    this.updateCurrentTables(tabs => tabs.map(t => ({ ...t, selected: t.id === table.id })));
     this.selectedTable.set({ ...table, selected: true });
   }
 
   onCanvasClick(): void {
-    this.tables.update(tabs => tabs.map(t => ({ ...t, selected: false })));
+    this.updateCurrentTables(tabs => tabs.map(t => ({ ...t, selected: false })));
     this.selectedTable.set(null);
   }
 
@@ -161,20 +222,20 @@ export class CreateEventComponent implements AfterViewInit {
       x: (event.clientX - rect.left - this.pan().x) / this.zoom() - table.x,
       y: (event.clientY - rect.top - this.pan().y) / this.zoom() - table.y
     });
-    this.tables.update(tabs => tabs.map(t => ({ ...t, selected: t.id === table.id })));
+    this.updateCurrentTables(tabs => tabs.map(t => ({ ...t, selected: t.id === table.id })));
     this.selectedTable.set({ ...table, selected: true });
   }
 
   updateChairs(chairs: number): void {
     if (this.selectedTable()) {
-      this.tables.update(tabs => tabs.map(t => t.id === this.selectedTable()!.id ? { ...t, chairs } : t));
+      this.updateCurrentTables(tabs => tabs.map(t => t.id === this.selectedTable()!.id ? { ...t, chairs } : t));
       this.selectedTable.update(t => t ? { ...t, chairs } : null);
     }
   }
 
   removeTable(): void {
     if (this.selectedTable()) {
-      this.tables.update(tabs => tabs.filter(t => t.id !== this.selectedTable()!.id));
+      this.updateCurrentTables(tabs => tabs.filter(t => t.id !== this.selectedTable()!.id));
       this.selectedTable.set(null);
     }
   }
@@ -183,7 +244,7 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
     const positions: { left: number; top: number; angle: number }[] = [];
     const center = 50;
     const radius = 65; // Increased to place chairs outside the table surface
-    
+
     for (let i = 0; i < table.chairs; i++) {
       const angle = (i / table.chairs) * 2 * Math.PI - Math.PI / 2;
       positions.push({
@@ -218,37 +279,110 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
     }
   }
 
+
+  isRoomSelected(roomId: string): boolean {
+    return this.selectedRoomIds().includes(roomId);
+  }
+
+  setActiveRoom(roomId: string): void {
+    if (this.selectedRoomIds().includes(roomId)) {
+      this.activeRoomId.set(roomId);
+    }
+  }
+
+  roomTableCount(roomId: string): number {
+    return this.tablesByRoom()[roomId]?.length ?? 0;
+  }
+
+  minStartTime(): string {
+    return this.formatDateTimeLocal(new Date());
+  }
+
+  minEndTime(): string {
+    const now = new Date();
+    const startTimeValue = this.startTime();
+    if (!startTimeValue) {
+      return this.formatDateTimeLocal(now);
+    }
+    const start = new Date(startTimeValue);
+    const minDate = start > now ? start : now;
+    return this.formatDateTimeLocal(minDate);
+  }
+
+  private formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
   async createEvent(): Promise<void> {
-    if (!this.eventName() || !this.startTime() || !this.endTime() || !this.selectedRoom()) {
+    const selectedRoomIds = this.selectedRoomIds();
+    if (!this.eventName() || !this.startTime() || !this.endTime() || selectedRoomIds.length === 0) {
       this.toast.error(this.i18n.t('errors.fillAllFields'));
       return;
     }
-    if (this.tables().length === 0) {
-      this.toast.error(this.i18n.t('events.noTables'));
+
+    const startDate = new Date(this.startTime());
+    const endDate = new Date(this.endTime());
+    const now = new Date();
+
+    if (startDate.getTime() < now.getTime()) {
+      this.toast.error(this.i18n.t('errors.startTimeInPast'));
+      return;
+    }
+    if (endDate.getTime() <= startDate.getTime()) {
+      this.toast.error(this.i18n.t('events.endBeforeStart'));
       return;
     }
 
-    const tables = this.tables().map(t => ({
-      tableNumber: String(t.id),
-      position: `${Math.round(t.x)},${Math.round(t.y)}`,
-      numberOfChairs: t.chairs
-    }));
+    const missingRooms = selectedRoomIds.filter((roomId) => (this.tablesByRoom()[roomId] ?? []).length === 0);
+    if (missingRooms.length > 0) {
+      this.toast.error(this.i18n.t('errors.roomNotConfigured'));
+      return;
+    }
+
+    const allTables = selectedRoomIds.flatMap((roomId) =>
+      (this.tablesByRoom()[roomId] ?? []).map((t) => ({
+        roomId,
+        tableNumber: String(t.id),
+        position: `${Math.round(t.x)},${Math.round(t.y)}`,
+        numberOfChairs: t.chairs,
+      }))
+    );
+
+    if (allTables.length === 0) {
+      this.toast.error(this.i18n.t('events.noTables'));
+      return;
+    }
 
     const startIso = new Date(this.startTime()).toISOString();
     const endIso = new Date(this.endTime()).toISOString();
 
     this.venues.createEvent({
-      roomId: this.selectedRoom(),
+      roomIds: selectedRoomIds,
+      roomId: selectedRoomIds[0],
       name: this.eventName(),
       startTime: startIso,
       endTime: endIso,
-      tables
+      tables: allTables
     }).subscribe({
       next: () => {
         this.toast.success(this.i18n.t('events.createdToast'));
         this.router.navigate(['/events']);
       },
-      error: (err) => this.toast.error(err.error?.error || this.i18n.t('errors.createFailed'))
+      error: (err) => {
+        const serverError = err.error?.error;
+        if (serverError === 'Event start time cannot be in the past') {
+          this.toast.error(this.i18n.t('errors.startTimeInPast'));
+        } else if (serverError === 'Start time must be before end time') {
+          this.toast.error(this.i18n.t('events.endBeforeStart'));
+        } else {
+          this.toast.error(serverError || this.i18n.t('errors.createFailed'));
+        }
+      }
     });
   }
 

@@ -142,7 +142,8 @@ export class GuestListComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    return this.rooms().find((r) => r.id === event.room_id);
+    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    return this.rooms().find((r) => roomIds.includes(r.id));
   }
 
   eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {

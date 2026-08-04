@@ -1,0 +1,3 @@
+# Memory index
+- [elite-events stack & commands](elite-events-stack-commands.md) — Project: elite-events (high-end event management: reservations, tickets, QR check-in).
+- [multi-room events + per-reservation room](multi-room-events-per-reservation-room.md) — User is building a feature where the admin can select multiple rooms when creating an event (their words: "I tried to add a feature in which the admin can sele…

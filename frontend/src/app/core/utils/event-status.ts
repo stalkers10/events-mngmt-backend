@@ -13,19 +13,12 @@ export function isEventVisible(startTime: string | Date, endTime: string | Date,
 }
 
 export function getEventState(startTime: string | Date, endTime: string | Date, now: Date = new Date()): EventState {
-  const start = new Date(startTime);
-  const end = new Date(endTime);
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
   const referenceNow = now.getTime();
 
-  const eventStartDay = new Date(start);
-  const currentDay = new Date(now);
-  eventStartDay.setHours(0, 0, 0, 0);
-  currentDay.setHours(0, 0, 0, 0);
-
   if (isEventExpired(startTime, endTime, now)) return 'past';
-  if (eventStartDay.getTime() < currentDay.getTime()) return 'past';
-  if (eventStartDay.getTime() > currentDay.getTime()) return 'upcoming';
-  if (end.getTime() < referenceNow) return 'past';
-  if (start.getTime() <= referenceNow && end.getTime() >= referenceNow) return 'live';
-  return 'upcoming';
+  if (referenceNow < start) return 'upcoming';
+  if (referenceNow >= start && referenceNow <= end) return 'live';
+  return 'past';
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { GateStaffService } from '../../core/services/gate-staff.service';
@@ -22,6 +22,16 @@ export class GateStaffComponent implements OnInit {
   form;
 
   staff = signal<GateStaffAccount[]>([]);
+  searchQuery = signal('');
+  filteredStaff = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) return this.staff();
+
+    return this.staff().filter((account) =>
+      account.username.toLowerCase().includes(query) ||
+      account.assignments?.some((assignment) => assignment.name.toLowerCase().includes(query))
+    );
+  });
   events = signal<EventSummary[]>([]);
   isLoadingList = signal(true);
   isSubmitting = signal(false);

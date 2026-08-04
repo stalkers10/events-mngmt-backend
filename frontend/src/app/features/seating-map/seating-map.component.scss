@@ -146,7 +146,9 @@
   position: relative;
   flex: 1;
   overflow: hidden;
-  touch-action: pan-y;
+  /* Allow the app to fully handle touch gestures (pinch, pan) via pointer events */
+  touch-action: none;
+  -ms-touch-action: none;
   background: #faf5f5;
   cursor: grab;
 
@@ -327,15 +329,17 @@
   background: var(--color-surface-container-lowest);
   border-left: 1px solid rgba(224, 191, 191, 0.4);
   box-shadow: -4px 0 20px rgba(128, 0, 32, 0.04);
-  height: calc(100vh - 120px);
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 120px;
+  bottom: 0;
   right: 0;
   display: flex;
   flex-direction: column;
-  z-index: 50;
+  z-index: 60;
   animation: slideIn 0.3s ease-out;
   overflow-y: auto;
+  border-top-left-radius: var(--radius-xl);
+  border-bottom-left-radius: var(--radius-xl);
 }
 
 .sidebar-header {

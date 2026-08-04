@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
-import { EventSummary } from '../../core/models/dashboard.model';
+import { EventSummary, Room } from '../../core/models/dashboard.model';
 import { EventOccupancy, OccupancyTable, OccupancyChair, VenueService } from '../../core/services/venue.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
@@ -23,10 +23,29 @@ export class SeatingMapComponent implements OnInit {
 
   readonly event = signal<EventSummary | null>(null);
   readonly occupancy = signal<EventOccupancy | null>(null);
+  readonly rooms = signal<Room[]>([]);
   readonly isLoading = signal(true);
 
   readonly selectedChair = signal<OccupancyChair | null>(null);
   readonly selectedTable = signal<OccupancyTable | null>(null);
+  readonly selectedRoomId = signal('');
+
+  readonly eventRooms = computed<Room[]>(() => {
+    const activeEvent = this.event();
+    if (!activeEvent) return [];
+    const roomIds = activeEvent.room_ids && activeEvent.room_ids.length > 0
+      ? activeEvent.room_ids
+      : [activeEvent.room_id];
+    return this.rooms()
+      .filter((room) => roomIds.includes(room.id))
+      .sort((a, b) => a.floor_number - b.floor_number || a.room_number.localeCompare(b.room_number));
+  });
+
+  readonly selectedRoomTables = computed<OccupancyTable[]>(() => {
+    const selectedRoomId = this.selectedRoomId();
+    return (this.occupancy()?.tables ?? []).filter((table) => table.room_id === selectedRoomId);
+  });
+
   readonly isEventExpired = computed(() => {
     const activeEvent = this.event();
     return !!activeEvent && isEventExpired(activeEvent.start_time, activeEvent.end_time);
@@ -49,7 +68,7 @@ export class SeatingMapComponent implements OnInit {
   private pinchStartDistance = 0;
   private pinchStartZoom = 1;
 
-  @HostListener('window:pointerup')
+  @HostListener('window:pointerup', ['$event'])
   onWindowPointerUp(event: PointerEvent): void {
     this.activePointers.delete(event.pointerId);
     if (this.activePointers.size === 0) {
@@ -59,7 +78,7 @@ export class SeatingMapComponent implements OnInit {
     }
   }
 
-  @HostListener('window:pointercancel')
+  @HostListener('window:pointercancel', ['$event'])
   onWindowPointerCancel(event: PointerEvent): void {
     this.activePointers.delete(event.pointerId);
     if (this.activePointers.size === 0) {
@@ -126,12 +145,20 @@ export class SeatingMapComponent implements OnInit {
     this.isLoading.set(true);
     forkJoin({
       event: this.venues.event(eventId),
-      occupancy: this.venues.occupancy(eventId)
+      occupancy: this.venues.occupancy(eventId),
+      rooms: this.venues.rooms()
     }).subscribe({
-      next: ({ event, occupancy }) => {
+      next: ({ event, occupancy, rooms }) => {
         this.event.set(event);
         this.occupancy.set(occupancy);
+        this.rooms.set(rooms);
         this.isLoading.set(false);
+
+        // Default the room picker to the first active room. For multi-room events, prefer room_ids.
+        const defaultRoomId = (event.room_ids && event.room_ids.length > 0) ? event.room_ids[0] : event.room_id;
+        if (defaultRoomId) {
+          this.selectedRoomId.set(defaultRoomId);
+        }
 
         // If a chair was selected, refresh its reference from the updated occupancy data
         const currentChair = this.selectedChair();
@@ -185,7 +212,20 @@ export class SeatingMapComponent implements OnInit {
       this.inviteeName = '';
       this.inviteeEmail = '';
       this.inviteePhone = '';
+      // Keep the selected room aligned with the table being assigned.
+      this.selectedRoomId.set(table.room_id || this.event()?.room_id || '');
     }
+  }
+
+  roomLabel(roomId: string | null | undefined): string {
+    if (!roomId) return '—';
+    const room = this.rooms().find((r) => r.id === roomId);
+    return room ? `${room.room_number} · Floor ${room.floor_number}` : '—';
+  }
+
+  changeSelectedRoom(roomId: string): void {
+    this.selectedRoomId.set(roomId);
+    this.closeSidebar();
   }
 
   closeSidebar(): void {
@@ -215,6 +255,7 @@ export class SeatingMapComponent implements OnInit {
       eventId: activeEvent.id,
       tableId: table.id,
       chairId: chair.id,
+      roomId: this.selectedRoomId() || undefined,
       invitee: {
         name: this.inviteeName.trim(),
         email: this.inviteeEmail.trim() || undefined,

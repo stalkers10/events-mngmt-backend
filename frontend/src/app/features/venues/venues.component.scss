@@ -22,12 +22,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 360px;
+  max-width: 440px;
+  width: 100%;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   font-size: 20px;
   color: var(--color-on-surface-variant);
   pointer-events: none;
@@ -35,9 +36,9 @@
 
 .search-input {
   width: 100%;
-  padding: 12px 44px;
+  padding: 14px 48px;
   border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-default, 12px);
+  border-radius: 16px;
   background: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
   font-size: 15px;

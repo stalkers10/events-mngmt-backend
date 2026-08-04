@@ -108,13 +108,16 @@
     "editTable": "Edit Table", "chairsForTable": "Chairs for Table",
     "removeTable": "Remove Table", "position": "Position", "seatingPreview": "Seating Preview",
     "zoomIn": "Zoom In", "zoomOut": "Zoom Out", "resetView": "Reset View",
-    "noTables": "No tables configured. Add tables to begin.", "selectRoom": "Select a room",
+    "noTables": "No tables configured. Add tables to begin.", "selectRoom": "Select a room", "selectRooms": "Select rooms",
     "startTime": "Start Date & Time", "endTime": "End Date & Time", "stage": "Stage",
+    "previewRoom": "Preview room",
+    "previewRoomHint": "Pick a selected room to preview and configure tables before creating the event.",
+    "tablesLabel": "tables",
     "editSeating": "Edit Seating",
     "filterEmpty": "No events match this filter.",
     "sortBy": "Sort by",
     "noResults": "No events match your search.",
-    "searchPlaceholder": "Search events...",
+    "searchPlaceholder": "Search for events...",
     "sortLatest": "Latest",
     "sortOldest": "Oldest",
     "statsActive": "Active Events",
@@ -175,7 +178,8 @@
     "confirmRemoveAssignment": "Remove {{assignment}} from {{username}}?",
     "removedAssignmentSuccess": "Assignment removed from {{username}}.", "removeAssignmentTitle": "Remove assigned event",
     "confirmDeactivateTitle": "Deactivate Account", "confirmDeletePermanentlyTitle": "Delete Account",
-    "deactivate":""
+    "deactivate":"",
+    "searchPlaceholder":"Search staff by name or assignment…"
   },
 
   "guestList": {
@@ -208,6 +212,8 @@
     "loadFailed": "Failed to load. Please try again.",
     "deactivateFailed": "Failed to deactivate account. Please try again.",
     "fillAllFields": "Please fill in all required fields.",
+    "roomNotConfigured": "All selected rooms must be configured before creating the event.",
+    "startTimeInPast": "Event start time cannot be in the past.",
     "createFailed": "Failed to create event. Please try again."
   }
 }
