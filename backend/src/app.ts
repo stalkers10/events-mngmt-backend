@@ -10,6 +10,7 @@ import reservationRoutes from './routes/reservations.routes';
 import ticketRoutes from './routes/tickets.routes';
 import gateStaffRoutes from './routes/gateStaff.routes';
 import buildingRoutes from './routes/buildings.routes';
+import clientsRoutes from './routes/clients.routes';
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/reservations', reservationRoutes);
 app.use('/tickets', ticketRoutes);
 app.use('/gate-staff', gateStaffRoutes);
 app.use('/buildings', buildingRoutes);
+app.use('/clients', clientsRoutes);
 
 // 404 handler
 app.use((req, res) => {

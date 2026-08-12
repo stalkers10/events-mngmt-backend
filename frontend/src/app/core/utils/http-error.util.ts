@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-export type ErrorContext = 'login' | 'otp' | 'gateStaffCreate' | 'gateStaffAction' | 'generic';
+export type ErrorContext = 'login' | 'otp' | 'gateStaffCreate' | 'clientCreate' | 'gateStaffAction' | 'generic';
 
 export interface ErrorDescription {
   /** Translation key to look up (e.g. "errors.wrongCredentials") */
@@ -37,7 +37,10 @@ export function describeHttpError(err: unknown, context: ErrorContext = 'generic
       return { key: 'errors.notFound' };
 
     case 409:
-      if (context === 'gateStaffCreate') return { key: 'errors.usernameTaken' };
+      if (err.error?.error === 'Reserved super admin username') {
+        return { key: 'errors.reservedUsername' };
+      }
+      if (context === 'gateStaffCreate' || context === 'clientCreate') return { key: 'errors.usernameTaken' };
       return { key: 'errors.conflict' };
 
     case 422:

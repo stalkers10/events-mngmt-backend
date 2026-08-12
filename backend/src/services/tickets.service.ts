@@ -220,7 +220,7 @@ export const TicketsService = {
       throw new Error('Ticket has been cancelled');
     }
 
-    if (gateStaffUserRole !== RoleType.ADMIN) {
+    if (gateStaffUserRole !== RoleType.SUPER_ADMIN && gateStaffUserRole !== RoleType.CLIENT_ADMIN) {
       const assignmentRes = await query(
         `SELECT 1 FROM gate_staff_assignments WHERE user_id = $1 AND event_id = $2`,
         [gateStaffUserId, eventId]

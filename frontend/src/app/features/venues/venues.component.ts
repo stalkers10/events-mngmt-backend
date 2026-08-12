@@ -10,6 +10,7 @@ import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
 import { describeHttpError } from '../../core/utils/http-error.util';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ClientFilterService } from '../../core/services/client-filter.service';
 
 @Component({
   selector: 'app-venues',
@@ -34,10 +35,11 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   readonly pendingDeleteRoomId = signal<string | null>(null);
 
   readonly filteredBuildings = computed(() => {
+    let list = this.clientFilter.filterList(this.buildings());
     const query = this.searchQuery().trim().toLowerCase();
-    if (!query) return this.buildings();
+    if (!query) return list;
 
-    return this.buildings().filter((building) => {
+    return list.filter((building) => {
       const matchesBuilding =
         building.name.toLowerCase().includes(query) ||
         (building.address?.toLowerCase().includes(query) ?? false);
@@ -71,7 +73,8 @@ export class VenuesComponent implements OnInit, AfterViewInit {
     private venues: VenueService,
     private toast: ToastService,
     public i18n: I18nextService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public clientFilter: ClientFilterService
   ) {
     this.buildingForm = this.fb.group({
       name: ['', Validators.required],
@@ -95,13 +98,11 @@ export class VenuesComponent implements OnInit, AfterViewInit {
   }
 
   private scrollAndHighlight(roomId: string): void {
-    // Give the DOM a tick to render after signal update
     setTimeout(() => {
       const el = document.getElementById(`room-${roomId}`);
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       el.classList.add('room-highlight');
-      // Remove the class after animation finishes so it can re-trigger if needed
       setTimeout(() => el.classList.remove('room-highlight'), 2400);
     }, 100);
   }

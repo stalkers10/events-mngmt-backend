@@ -6,10 +6,6 @@ export function isEventExpired(endTime: Date | string, now: Date = new Date(), g
   return expiryTime < now.getTime();
 }
 
-export function isEventVisible(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
-  return !isEventExpired(endTime, now, graceMinutes);
-}
-
 export interface EventRecord {
   id: string;
   room_id: string;
@@ -17,6 +13,7 @@ export interface EventRecord {
   name: string;
   start_time: Date;
   end_time: Date;
+  client_id: string | null;
   created_at: Date;
 }
 
@@ -39,9 +36,8 @@ export function normalizeRoomIds(roomIds: unknown, fallbackRoomId?: string | nul
   return fallbackRoomId && fallbackRoomId.length > 0 ? [fallbackRoomId] : [];
 }
 
-type EventLike = Partial<EventRecord>;
-
-export function normalizeEventRecord(event: EventLike): EventRecord {
+// Accept a wide input shape coming from DB rows (which may be typed as EventRecord)
+export function normalizeEventRecord(event: any): EventRecord {
   const startTimeValue = event.start_time as unknown;
   const endTimeValue = event.end_time as unknown;
   const createdAtValue = event.created_at as unknown;
@@ -53,6 +49,7 @@ export function normalizeEventRecord(event: EventLike): EventRecord {
     name: typeof event.name === 'string' ? event.name : '',
     start_time: startTimeValue instanceof Date ? startTimeValue : new Date(startTimeValue as string | Date),
     end_time: endTimeValue instanceof Date ? endTimeValue : new Date(endTimeValue as string | Date),
+    client_id: typeof event.client_id === 'string' ? event.client_id : null,
     created_at: createdAtValue instanceof Date ? createdAtValue : new Date(createdAtValue as string | Date),
   };
 }
@@ -60,7 +57,6 @@ export function normalizeEventRecord(event: EventLike): EventRecord {
 export interface TableRecord {
   id: string;
   event_id: string;
-  room_id: string;
   table_number: string;
   position: string | null;
   created_at: Date;
@@ -72,13 +68,27 @@ export interface ChairRecord {
   chair_number: string;
   created_at: Date;
 }
+
+class NotFoundOrForbiddenError extends Error {
+  statusCode = 403;
+  constructor(msg = 'Event not found or access denied') {
+    super(msg);
+  }
+}
+
 export const EventsService = {
-  async listAll(): Promise<EventRecord[]> {
-    const result = await query<EventRecord>(
-      `SELECT * FROM events WHERE end_time + interval '30 minutes' > NOW() ORDER BY start_time ASC`
-    );
+  async list(clientId?: string): Promise<EventRecord[]> {
+    let sql = `SELECT * FROM events WHERE end_time + interval '30 minutes' > NOW()`;
+    const params: any[] = [];
+    if (clientId) {
+      params.push(clientId);
+      sql += ` AND client_id = $${params.length}`;
+    }
+    sql += ` ORDER BY start_time ASC`;
+    const result = await query<EventRecord>(sql, params);
     return result.rows.map((event) => normalizeEventRecord(event));
   },
+  
   async listForGateStaff(userId: string): Promise<EventRecord[]> {
     const result = await query<EventRecord>(
       `SELECT e.* 
@@ -91,13 +101,19 @@ export const EventsService = {
     );
     return result.rows.map((event) => normalizeEventRecord(event));
   },
-  async getById(eventId: string): Promise<EventRecord | null> {
-    const result = await query<EventRecord>(
-      `SELECT * FROM events WHERE id = $1`,
-      [eventId]
-    );
+  
+  async getById(eventId: string, clientId?: string): Promise<EventRecord | null> {
+    let sql = `SELECT * FROM events WHERE id = $1`;
+    const params: any[] = [eventId];
+    if (clientId) {
+      params.push(clientId);
+      sql += ` AND client_id = $${params.length}`;
+    }
+    
+    const result = await query<EventRecord>(sql, params);
     return result.rows.length > 0 ? normalizeEventRecord(result.rows[0]) : null;
   },
+  
   async getTables(eventId: string): Promise<TableRecord[]> {
     const result = await query<TableRecord>(
       `SELECT * FROM tables WHERE event_id = $1 ORDER BY table_number`,
@@ -105,6 +121,7 @@ export const EventsService = {
     );
     return result.rows;
   },
+  
   async getTablesWithChairs(eventId: string): Promise<(TableRecord & { chairs: ChairRecord[] })[]> {
     const tables = await this.getTables(eventId);
     const tablesWithChairs: (TableRecord & { chairs: ChairRecord[] })[] = [];
@@ -117,6 +134,7 @@ export const EventsService = {
     }
     return tablesWithChairs;
   },
+  
   async checkRoomAvailability(roomId: string, startTime: Date, endTime: Date, excludeEventId?: string): Promise<boolean> {
     let sql = `SELECT id FROM events 
                WHERE (
@@ -124,7 +142,7 @@ export const EventsService = {
                  OR EXISTS (
                    SELECT 1
                    FROM jsonb_array_elements_text(COALESCE(room_ids, '[]'::jsonb)) AS assigned_room_id
-                   WHERE assigned_room_id::uuid = $1
+                   WHERE assigned_room_id = $1
                  )
                )
                AND start_time < $3 
@@ -137,6 +155,7 @@ export const EventsService = {
     const result = await query(sql, params);
     return result.rows.length === 0;
   },
+  
   async hasTickets(eventId: string): Promise<boolean> {
     const result = await query<{ count: string }>(
       `SELECT COUNT(*) FROM tickets t
@@ -146,14 +165,8 @@ export const EventsService = {
     );
     return parseInt(result.rows[0].count, 10) > 0;
   },
-   isInPast(date: Date, now = new Date()): boolean {
-    return date.getTime() < now.getTime();
-  },
-
-  async create(roomIds: string[], name: string, startTime: Date, endTime: Date, tables?: { tableNumber: string; position?: string; numberOfChairs: number; roomId?: string }[]): Promise<EventRecord> {
-    if (this.isInPast(startTime)) {
-      throw new Error('Event start time cannot be in the past');
-    }
+  
+  async create(roomIds: string[], name: string, startTime: Date, endTime: Date, tables?: { tableNumber: string; position?: string; numberOfChairs: number }[], clientId?: string): Promise<EventRecord> {
     if (startTime >= endTime) {
       throw new Error('Start time must be before end time');
     }
@@ -163,12 +176,18 @@ export const EventsService = {
       throw new Error('Select at least one room for this event');
     }
 
-    const primaryRoomId = uniqueRoomIds[0];
-    if (tables && tables.length > 0) {
-      const roomsWithTables = new Set(tables.map((table) => table.roomId || primaryRoomId));
-      const missingRoom = uniqueRoomIds.find((roomId) => !roomsWithTables.has(roomId));
-      if (missingRoom) {
-        throw new Error('Each selected room must have seating configured before creating the event');
+    // Verify room ownership if clientId is present
+    if (clientId) {
+      for (const roomId of uniqueRoomIds) {
+        const roomResult = await query(
+          `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
+          [roomId, clientId]
+        );
+        if (roomResult.rows.length === 0) {
+           const e = new Error('One or more selected rooms do not belong to you');
+           (e as any).statusCode = 403;
+           throw e;
+        }
       }
     }
 
@@ -179,13 +198,14 @@ export const EventsService = {
       }
     }
 
+    const primaryRoomId = uniqueRoomIds[0];
     const roomIdsPayload = JSON.stringify(uniqueRoomIds);
 
     if (!tables || tables.length === 0) {
       const result = await query<EventRecord>(
-        `INSERT INTO events (room_id, room_ids, name, start_time, end_time) 
-         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [primaryRoomId, roomIdsPayload, name, startTime, endTime]
+        `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [primaryRoomId, roomIdsPayload, name, startTime, endTime, clientId ?? null]
       );
       return normalizeEventRecord(result.rows[0]);
     }
@@ -193,20 +213,16 @@ export const EventsService = {
     const { withTransaction } = await import('../config/db');
     return await withTransaction(async (client) => {
       const result = await client.query(
-        `INSERT INTO events (room_id, room_ids, name, start_time, end_time) 
-         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [primaryRoomId, roomIdsPayload, name, startTime, endTime]
+        `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [primaryRoomId, roomIdsPayload, name, startTime, endTime, clientId ?? null]
       );
       const event = result.rows[0];
 
       for (const tableData of tables) {
-        const tableRoomId = tableData.roomId || primaryRoomId;
-        if (!uniqueRoomIds.includes(tableRoomId)) {
-          throw new Error('Table assigned to a room that is not part of this event');
-        }
         const tableRes = await client.query(
-          `INSERT INTO tables (event_id, room_id, table_number, position) VALUES ($1, $2, $3, $4) RETURNING *`,
-          [event.id, tableRoomId, tableData.tableNumber, tableData.position || null]
+          `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
+          [event.id, tableData.tableNumber, tableData.position || null]
         );
         const tableId = tableRes.rows[0].id;
         for (let i = 1; i <= tableData.numberOfChairs; i++) {
@@ -219,21 +235,15 @@ export const EventsService = {
       return normalizeEventRecord(event);
     });
   },
-  async addTable(eventId: string, tableNumber: string, position: string | null, roomId?: string): Promise<TableRecord> {
-    const event = await this.getById(eventId);
-    if (!event) {
-      throw new Error('Event not found');
-    }
-    const tableRoomId = roomId || event.room_id;
-    if (!normalizeRoomIds(event.room_ids, event.room_id).includes(tableRoomId)) {
-      throw new Error('Table assigned to a room that is not part of this event');
-    }
+  
+  async addTable(eventId: string, tableNumber: string, position: string | null, _roomId?: string): Promise<TableRecord> {
     const result = await query<TableRecord>(
-      `INSERT INTO tables (event_id, room_id, table_number, position) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [eventId, tableRoomId, tableNumber, position]
+      `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
+      [eventId, tableNumber, position]
     );
     return result.rows[0];
   },
+  
   async addChairs(tableId: string, count: number): Promise<ChairRecord[]> {
     const chairs: ChairRecord[] = [];
     for (let i = 1; i <= count; i++) {
@@ -245,21 +255,33 @@ export const EventsService = {
     }
     return chairs;
   },
-  async update(eventId: string, roomIds: string[], name: string, startTime: Date, endTime: Date): Promise<EventRecord> {
-    if (this.isInPast(startTime)) {
-      throw new Error('Event start time cannot be in the past');
-    }
+  
+  async update(eventId: string, roomIds: string[], name: string, startTime: Date, endTime: Date, clientId?: string): Promise<EventRecord> {
     if (startTime >= endTime) {
       throw new Error('Start time must be before end time');
     }
-    const existingEvent = await this.getById(eventId);
+    const existingEvent = await this.getById(eventId, clientId);
     if (!existingEvent) {
-      throw new Error('Event not found');
+      throw new NotFoundOrForbiddenError();
     }
 
     const uniqueRoomIds = Array.from(new Set(roomIds.filter(Boolean)));
     if (uniqueRoomIds.length === 0) {
       throw new Error('Select at least one room for this event');
+    }
+
+    if (clientId) {
+      for (const roomId of uniqueRoomIds) {
+        const roomResult = await query(
+          `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
+          [roomId, clientId]
+        );
+        if (roomResult.rows.length === 0) {
+           const e = new Error('One or more selected rooms do not belong to you');
+           (e as any).statusCode = 403;
+           throw e;
+        }
+      }
     }
 
     const ticketsExist = await this.hasTickets(eventId);
@@ -286,11 +308,18 @@ export const EventsService = {
     );
     return normalizeEventRecord(result.rows[0]);
   },
-  async delete(eventId: string): Promise<void> {
+  
+  async delete(eventId: string, clientId?: string): Promise<void> {
+    const existingEvent = await this.getById(eventId, clientId);
+    if (!existingEvent) {
+      throw new NotFoundOrForbiddenError();
+    }
+    
     const ticketsExist = await this.hasTickets(eventId);
     if (ticketsExist) {
       throw new Error('Cannot delete an event that has issued tickets');
     }
+    
     await query(`DELETE FROM events WHERE id = $1`, [eventId]);
   }
-}; 
+};

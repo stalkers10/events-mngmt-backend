@@ -11,6 +11,7 @@ import { VenueService } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { getEventState, isEventVisible } from '../../core/utils/event-status';
+import { ClientFilterService } from '../../core/services/client-filter.service';
 
 export type FilterTab = 'all' | 'upcoming' | 'live' | 'past';
 export type SortOrder = 'latest' | 'oldest';
@@ -27,7 +28,7 @@ export class EventsComponent implements OnInit {
   readonly buildings = signal<Building[]>([]);
   readonly events = signal<EventSummary[]>([]);
   readonly isLoading = signal(true);
-   readonly searchQuery = signal('');
+  readonly searchQuery = signal('');
 
   readonly filterTabs: FilterTab[] = ['all', 'upcoming', 'live', 'past'];
   readonly activeFilter = signal<FilterTab>('all');
@@ -38,7 +39,8 @@ export class EventsComponent implements OnInit {
     const sort = this.sortOrder();
     const query = this.searchQuery().trim().toLowerCase();
 
-    let list = this.events().filter(e => isEventVisible(e.start_time, e.end_time));
+    let list = this.clientFilter.filterList(this.events());
+    list = list.filter(e => isEventVisible(e.start_time, e.end_time));
     list = list.filter(e => filter === 'all' ? true : this.eventState(e) === filter);
 
     if (query) {
@@ -62,11 +64,11 @@ export class EventsComponent implements OnInit {
   });
 
   readonly activeEventsCount = computed(() =>
-    this.events().filter(e => isEventVisible(e.start_time, e.end_time) && (this.eventState(e) === 'live' || this.eventState(e) === 'upcoming')).length
+    this.clientFilter.filterList(this.events()).filter(e => isEventVisible(e.start_time, e.end_time) && (this.eventState(e) === 'live' || this.eventState(e) === 'upcoming')).length
   );
 
   readonly totalCapacity = computed(() =>
-    this.events().reduce((sum, e) => {
+    this.clientFilter.filterList(this.events()).reduce((sum, e) => {
       const room = this.roomFor(e);
       return sum + (room?.capacity ?? 0);
     }, 0)
@@ -80,7 +82,8 @@ export class EventsComponent implements OnInit {
     private dashboard: DashboardService,
     private toast: ToastService,
     public i18n: I18nextService,
-    private router: Router
+    private router: Router,
+    public clientFilter: ClientFilterService
   ) {}
 
   ngOnInit(): void {
@@ -147,8 +150,9 @@ export class EventsComponent implements OnInit {
   }
 
   countByFilter(filter: FilterTab): number {
-    if (filter === 'all') return this.events().filter(e => isEventVisible(e.start_time, e.end_time)).length;
-    return this.events().filter(e => isEventVisible(e.start_time, e.end_time) && this.eventState(e) === filter).length;
+    const list = this.clientFilter.filterList(this.events());
+    if (filter === 'all') return list.filter(e => isEventVisible(e.start_time, e.end_time)).length;
+    return list.filter(e => isEventVisible(e.start_time, e.end_time) && this.eventState(e) === filter).length;
   }
 
   deleteEvent(id: string): void {

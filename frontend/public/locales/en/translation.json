@@ -6,13 +6,17 @@
   "save": "Save",
   "create": "Create",
   "delete": "Delete",
+  "edit": "Edit",
   "deactivate": "Deactivate",
   "deactivating": "Deactivating…",
   "reactivate": "Reactivate",
   "reactivating": "Reactivating…",
   "active": "Active",
   "deactivated": "Deactivated",
-  "logout": "Log out"
+  "logout": "Log out",
+  "actions": "Actions",
+  "processing": "Processing...",
+  "allClients": "All Clients"
   },
 
   "nav": {
@@ -22,6 +26,7 @@
   "gateStaff": "Gate Staff",
   "guestList": "Guest List",
   "scanner": "Scanner",
+  "clients": "Clients",
   "newEvent": "+ New Event"
   },
 
@@ -139,6 +144,42 @@
     }
   },
 
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Manage client accounts and administrators",
+    "searchPlaceholder": "Search clients...",
+    "create": "Create Client",
+    "name": "Client Name",
+    "email": "Email",
+    "phone": "Phone (Optional)",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "edit": "Edit Client",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "emailHint": "They will use this to log in.",
+    "noClients": "No clients found",
+    "noClientsSub": "Get started by creating a new client.",
+    "createdToast": "Client {{name}} created successfully.",
+    "updatedToast": "Client {{name}} updated successfully.",
+    "deactivatedToast": "Client {{name}} deactivated.",
+    "reactivatedToast": "Client {{name}} reactivated.",
+    "deletedToast": "Client {{name}} deleted permanently.",
+    "deactivateConfirmTitle": "Deactivate Client?",
+    "deactivateConfirmMsg": "Are you sure you want to deactivate {{name}}? They will no longer be able to log in.",
+    "deleteConfirmTitle": "Delete Client Permanently?",
+    "deleteConfirmMsg": "Are you sure you want to delete {{name}}? This action cannot be undone and will delete all their events, venues, and gate staff."
+    ,
+    "listSectionTitle": "Client list",
+    "listEmpty": "No clients yet. Create one to get started.",
+    "colName": "Client Name",
+    "colEmail": "Email",
+    "colPhone": "Phone",
+    "colStatus": "Status",
+    "colActions": "Actions"
+  },
+
   "seating": {
     "backToEvents": "Back to events",
     "eyebrow": "Seating Map",
@@ -202,6 +243,7 @@
     "forbidden": "You don't have permission to perform this action.",
     "notFound": "The requested resource could not be found.",
     "usernameTaken": "That username is already taken.",
+    "reservedUsername": "This username is reserved for the Super Admin account.",
     "conflict": "This action conflicts with existing data.",
     "invalidInput": "Some of the information provided is invalid.",
     "rateLimited": "Too many attempts. Please try again in {{seconds}}s.",

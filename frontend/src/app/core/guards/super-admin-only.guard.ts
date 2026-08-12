@@ -4,11 +4,9 @@ import { AuthService } from '../services/auth.service';
 import { RoleType } from '../models/auth.model';
 
 /**
- * Restricts a route to Admin only (SUPER_ADMIN or CLIENT_ADMIN). 
- * Gate Staff hitting an admin route gets redirected to their scanner
- * home rather than left on a blank/broken page.
+ * Restricts a route to Super Admin only.
  */
-export const adminOnlyGuard: CanActivateFn = () => {
+export const superAdminOnlyGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
@@ -17,10 +15,11 @@ export const adminOnlyGuard: CanActivateFn = () => {
     return false;
   }
 
-  if (auth.hasRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN, RoleType.ADMIN)) {
+  if (auth.hasRole(RoleType.SUPER_ADMIN)) {
     return true;
   }
 
-  router.navigate(['/scanner']);
+  // If not super admin but authenticated, redirect to default authenticated route
+  router.navigate(['/']);
   return false;
 };

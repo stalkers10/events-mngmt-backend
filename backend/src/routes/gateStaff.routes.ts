@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../middlewares/auth.middleware';
+import { requireAuth, requireRole, resolveClientId } from '../middlewares/auth.middleware';
 import { RoleType } from '../types/auth';
 import { GateStaffService } from '../services/gateStaff.service';
 
@@ -12,11 +12,12 @@ const createSchema = z.object({
   eventIds: z.array(z.string().uuid()).optional(),
 });
 
-// All Gate Staff management routes are Admin-only.
-router.use(requireAuth, requireRole(RoleType.ADMIN));
+// Gate Staff management routes are accessible by SUPER_ADMIN and CLIENT_ADMIN
+router.use(requireAuth, requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
 
-router.get('/', async (_req: Request, res: Response) => {
-  const staff = await GateStaffService.list();
+router.get('/', async (req: Request, res: Response) => {
+  const clientId = resolveClientId(req.user!);
+  const staff = await GateStaffService.list(clientId);
   res.json(staff);
 });
 
@@ -27,10 +28,12 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     return;
   }
   try {
+    const clientId = resolveClientId(req.user!);
     const user = await GateStaffService.create(
       parsed.data.username,
       parsed.data.password,
-      parsed.data.eventIds ?? []
+      parsed.data.eventIds ?? [],
+      clientId
     );
     res.status(201).json(user);
   } catch (err) {
@@ -39,21 +42,36 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 });
 
 router.delete('/:id', async (req: Request<{ id: string }>, res: Response) => {
-  await GateStaffService.deactivate(req.params.id);
-  res.status(204).send();
+  try {
+    const clientId = resolveClientId(req.user!);
+    await GateStaffService.deactivate(req.params.id, clientId);
+    res.status(204).send();
+  } catch (err: any) {
+    res.status(err.statusCode ?? 500).json({ error: err.message });
+  }
 });
 
 router.post('/:id/reactivate', async (req: Request<{ id: string }>, res: Response) => {
-  await GateStaffService.reactivate(req.params.id);
-  res.status(204).send();
+  try {
+    const clientId = resolveClientId(req.user!);
+    await GateStaffService.reactivate(req.params.id, clientId);
+    res.status(204).send();
+  } catch (err: any) {
+    res.status(err.statusCode ?? 500).json({ error: err.message });
+  }
 });
  
 // assign gate staff to an event
 router.post(
   '/:id/assignments/:eventId',
   async (req: Request<{ id: string; eventId: string }>, res: Response) => {
-    await GateStaffService.assignToEvent(req.params.id, req.params.eventId);
-    res.status(204).send();
+    try {
+      const clientId = resolveClientId(req.user!);
+      await GateStaffService.assignToEvent(req.params.id, req.params.eventId, clientId);
+      res.status(204).send();
+    } catch (err: any) {
+      res.status(err.statusCode ?? 500).json({ error: err.message });
+    }
   }
 );
 
@@ -61,17 +79,27 @@ router.post(
 router.delete(
   '/:id/assignments/:eventId',
   async (req: Request<{ id: string; eventId: string }>, res: Response) => {
-    await GateStaffService.removeFromEvent(req.params.id, req.params.eventId);
-    res.status(204).send();
+    try {
+      const clientId = resolveClientId(req.user!);
+      await GateStaffService.removeFromEvent(req.params.id, req.params.eventId, clientId);
+      res.status(204).send();
+    } catch (err: any) {
+      res.status(err.statusCode ?? 500).json({ error: err.message });
+    }
   }
 );
 
-// delete gate staff  user completely from the database (not just deactivate)
+// delete gate staff user completely from the database (not just deactivate)
 router.delete(
   '/:id/permanent',
   async (req: Request<{ id: string }>, res: Response) => {
-    await GateStaffService.deletePermanently(req.params.id);
-    res.status(204).send();
+    try {
+      const clientId = resolveClientId(req.user!);
+      await GateStaffService.deletePermanently(req.params.id, clientId);
+      res.status(204).send();
+    } catch (err: any) {
+      res.status(err.statusCode ?? 500).json({ error: err.message });
+    }
   }
 );
 export default router;

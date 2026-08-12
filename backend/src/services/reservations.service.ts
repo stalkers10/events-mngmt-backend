@@ -5,8 +5,6 @@ import { isEventExpired, normalizeRoomIds } from './events.service';
 
 /**
  * Decide which room a reservation belongs to.
- * - If a roomId is provided it must be part of the event, otherwise reject.
- * - If none is provided, fall back to the event's primary room.
  */
 export function resolveReservationRoom(
   eventRoomIds: string[],
@@ -20,8 +18,20 @@ export function resolveReservationRoom(
   return resolved;
 }
 
+class NotFoundOrForbiddenError extends Error {
+  statusCode = 403;
+  constructor(msg = 'Resource not found or access denied') {
+    super(msg);
+  }
+}
+
 export const ReservationsService = {
-  async getEventOccupancy(eventId: string): Promise<any> {
+  async getEventOccupancy(eventId: string, clientId?: string): Promise<any> {
+    if (clientId) {
+      const eventRes = await query(`SELECT id FROM events WHERE id = $1 AND client_id = $2`, [eventId, clientId]);
+      if (eventRes.rows.length === 0) throw new NotFoundOrForbiddenError('Event not found or access denied');
+    }
+
     const tablesRes = await query(`SELECT * FROM tables WHERE event_id = $1 ORDER BY table_number ASC`, [eventId]);
     const chairsRes = await query(
       `SELECT chairs.*, 
@@ -45,20 +55,27 @@ export const ReservationsService = {
     }));
     return { tables };
   },
+
   async createReservationAndTicket(
     eventId: string,
     tableId: string,
     chairId: string,
     invitee: { name: string, email?: string, phone?: string },
-    roomId?: string | null
+    roomId?: string | null,
+    clientId?: string
   ) {
     return await withTransaction(async (client) => {
-      const eventRes = await client.query<{ room_id: string, room_ids: any, end_time: Date }>(
-        `SELECT room_id, room_ids, end_time FROM events WHERE id = $1`,
-        [eventId]
-      );
+      let sql = `SELECT room_id, room_ids, end_time FROM events WHERE id = $1`;
+      const params: any[] = [eventId];
+      if (clientId) {
+        params.push(clientId);
+        sql += ` AND client_id = $${params.length}`;
+      }
+      
+      const eventRes = await client.query<{ room_id: string, room_ids: any, end_time: Date }>(sql, params);
+      
       if (eventRes.rows.length === 0) {
-        throw new Error('Event not found');
+        throw new NotFoundOrForbiddenError('Event not found or access denied');
       }
       const eventRow = eventRes.rows[0];
       if (isEventExpired(eventRow.end_time)) {
@@ -68,7 +85,6 @@ export const ReservationsService = {
       const eventRoomIds = normalizeRoomIds(eventRow.room_ids, eventRow.room_id);
       const resolvedRoomId = resolveReservationRoom(eventRoomIds, eventRow.room_id, roomId);
 
-      // The chair's table must physically belong to the room being reserved.
       const tableRes = await client.query<{ room_id: string }>(
         `SELECT room_id FROM tables WHERE id = $1`,
         [tableId]
@@ -81,10 +97,11 @@ export const ReservationsService = {
       }
 
       const inviteeRes = await client.query(
-        `INSERT INTO invitees (name, email, phone) VALUES ($1, $2, $3) RETURNING id`,
-        [invitee.name, invitee.email || null, invitee.phone || null]
+        `INSERT INTO invitees (name, email, phone, client_id) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [invitee.name, invitee.email || null, invitee.phone || null, clientId ?? null]
       );
       const inviteeId = inviteeRes.rows[0].id;
+      
       let reservationId;
       try {
         const resvRes = await client.query(
@@ -114,8 +131,21 @@ export const ReservationsService = {
       };
     });
   },
-  async cancelReservation(reservationId: string) {
+
+  async cancelReservation(reservationId: string, clientId?: string) {
     return await withTransaction(async (client) => {
+      if (clientId) {
+        const resvCheck = await client.query(
+          `SELECT r.id FROM reservations r
+           JOIN events e ON r.event_id = e.id
+           WHERE r.id = $1 AND e.client_id = $2`,
+          [reservationId, clientId]
+        );
+        if (resvCheck.rows.length === 0) {
+          throw new NotFoundOrForbiddenError('Reservation not found or access denied');
+        }
+      }
+
       await client.query(
         `UPDATE reservations SET status = 'CANCELLED', cancelled_at = NOW() WHERE id = $1`,
         [reservationId]

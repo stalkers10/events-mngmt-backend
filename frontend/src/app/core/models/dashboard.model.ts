@@ -14,10 +14,12 @@ export interface EventSummary {
   name: string;
   start_time: string;
   end_time: string;
+  client_id?: string | null;
   created_at: string;
 }
 export interface Building {
   id: string;
   name: string;
   address: string | null;
+  client_id?: string | null;
 }

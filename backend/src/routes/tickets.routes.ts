@@ -30,8 +30,8 @@ router.post('/scan', async (req: Request, res: Response) => {
   }
 });
 
-// PDF download is Admin only
-router.get('/:ticketId', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
+// PDF download is Admin only (super or client admins)
+router.get('/:ticketId', requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
   try {
     const details = await TicketsService.getDetailsById(req.params.ticketId);
     if (!details) {
@@ -45,7 +45,7 @@ router.get('/:ticketId', requireRole(RoleType.ADMIN), async (req: Request<{ tick
   }
 });
 
-router.get('/:ticketId/pdf', requireRole(RoleType.ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
+router.get('/:ticketId/pdf', requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN), async (req: Request<{ ticketId: string }>, res: Response) => {
   try {
     const pdfBuffer = await TicketsService.generatePdf(req.params.ticketId);
     

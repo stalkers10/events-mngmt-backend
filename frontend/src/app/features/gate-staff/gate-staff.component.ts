@@ -10,6 +10,7 @@ import { I18nextService } from '../../core/services/i18next.service';
 import { describeHttpError } from '../../core/utils/http-error.util';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ClientFilterService } from '../../core/services/client-filter.service';
 
 @Component({
   selector: 'app-gate-staff',
@@ -24,10 +25,11 @@ export class GateStaffComponent implements OnInit {
   staff = signal<GateStaffAccount[]>([]);
   searchQuery = signal('');
   filteredStaff = computed(() => {
+    let list = this.clientFilter.filterList(this.staff());
     const query = this.searchQuery().trim().toLowerCase();
-    if (!query) return this.staff();
+    if (!query) return list;
 
-    return this.staff().filter((account) =>
+    return list.filter((account) =>
       account.username.toLowerCase().includes(query) ||
       account.assignments?.some((assignment) => assignment.name.toLowerCase().includes(query))
     );
@@ -51,7 +53,8 @@ export class GateStaffComponent implements OnInit {
     private gateStaffService: GateStaffService,
     private dashboardService: DashboardService,
     private toast: ToastService,
-    public translation: I18nextService
+    public translation: I18nextService,
+    public clientFilter: ClientFilterService
   ) {
     this.form = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -176,7 +179,7 @@ export class GateStaffComponent implements OnInit {
 
   getAvailableEvents(account: GateStaffAccount): EventSummary[] {
     const assignedIds = new Set((account.assignments || []).map(a => a.id));
-    return this.events().filter(e => !assignedIds.has(e.id));
+    return this.clientFilter.filterList(this.events()).filter(e => !assignedIds.has(e.id));
   }
 
   assignEvent(): void {

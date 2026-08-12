@@ -1,0 +1,222 @@
+<div class="page-container">
+  <header class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">{{ 'clients.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'clients.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <span class="material-symbols-outlined">add</span>
+        {{ 'clients.create' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+      </div>
+    } @else {
+      <section class="card list-card">
+        <div class="list-header">
+          <h2 class="text-headline-sm section-title">{{ 'clients.listSectionTitle' | translate }}</h2>
+          <div class="search-field form-field">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input
+              type="text"
+              [value]="searchQuery()"
+              (input)="searchQuery.set($any($event.target).value)"
+              [placeholder]="'clients.searchPlaceholder' | translate"
+              class="search-input"
+            />
+            @if (searchQuery()) {
+              <button type="button" class="clear-btn" (click)="searchQuery.set('')">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (isLoading()) {
+          <p class="text-body-sm muted">{{ 'common.loading' | translate }}</p>
+        } @else if (filteredClients().length === 0) {
+          <p class="text-body-sm muted">{{ 'clients.listEmpty' | translate }}</p>
+        } @else {
+          <div class="table-responsive">
+            <table class="glass-table clients-table">
+              <thead>
+                <tr>
+                  <th class="text-label-caps">{{ 'clients.colName' | translate }}</th>
+                  <th class="text-label-caps">{{ 'clients.colEmail' | translate }}</th>
+                  <th class="text-label-caps">{{ 'clients.colPhone' | translate }}</th>
+                  <th class="text-label-caps">{{ 'clients.colStatus' | translate }}</th>
+                  <th class="text-label-caps actions-col">{{ 'clients.colActions' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (client of filteredClients(); track client.id) {
+                  <tr [class.processing]="processingId() === client.id">
+                    <td>
+                      <div class="client-name">{{ client.name }}</div>
+                    </td>
+                    <td>{{ client.email }}</td>
+                    <td>{{ client.phone || '—' }}</td>
+                    <td>
+                      @if (client.is_active) {
+                        <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
+                      } @else {
+                        <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
+                      }
+                    </td>
+                    <td class="actions-cell">
+                      @if (client.is_active) {
+                        <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="openEditModal(client)">
+                          {{ 'common.edit' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-secondary" [disabled]="processingId() === client.id" (click)="deactivate(client)">
+                          {{ (processingId() === client.id ? 'common.deactivating' : 'common.deactivate') | translate }}
+                        </button>
+                      } @else {
+                        <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="reactivate(client)">
+                          {{ (processingId() === client.id ? 'common.reactivating' : 'common.reactivate') | translate }}
+                        </button>
+                      }
+                      <button type="button" class="btn btn-secondary icon-btn delete-btn" [disabled]="processingId() === client.id" (click)="deletePermanently(client)" [attr.title]="'common.delete' | translate">
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile cards -->
+          <div class="client-cards">
+            @for (client of filteredClients(); track client.id) {
+              <div class="client-card">
+                <div class="client-card-top">
+                  <div class="client-identity">
+                    <span class="client-card-name">{{ client.name }}</span>
+                    @if (client.is_active) {
+                      <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
+                    } @else {
+                      <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
+                    }
+                  </div>
+                  <span class="client-card-meta text-body-sm muted">{{ client.created_at | date:'MMM d, y' }}</span>
+                </div>
+
+                <div class="client-card-body">
+                  <div>{{ client.email }}</div>
+                  <div class="muted">{{ client.phone || '—' }}</div>
+                </div>
+
+                <div class="client-card-actions">
+                  @if (client.is_active) {
+                    <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="openEditModal(client)">{{ 'common.edit' | translate }}</button>
+                    <button type="button" class="btn btn-secondary" [disabled]="processingId() === client.id" (click)="deactivate(client)">{{ 'common.deactivate' | translate }}</button>
+                  } @else {
+                    <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="reactivate(client)">{{ 'common.reactivate' | translate }}</button>
+                  }
+                  <button type="button" class="btn btn-secondary icon-btn" [disabled]="processingId() === client.id" (click)="deletePermanently(client)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>
+
+<!-- Form Modal -->
+@if (showFormModal()) {
+  <div class="modal-backdrop" (click)="closeFormModal()">
+    <section class="creation-modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <h2>{{ (editingClient() ? 'clients.edit' : 'clients.create') | translate }}</h2>
+        </div>
+        <button type="button" class="close-btn" (click)="closeFormModal()" aria-label="Close dialog">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submitForm()" class="client-form">
+        @if (!editingClient()) {
+          <div class="form-field">
+            <label>Username</label>
+            <input type="text" formControlName="username" placeholder="e.g. acme_admin" />
+          </div>
+
+          <div class="form-field">
+            <label>Password</label>
+            <input type="password" formControlName="password" placeholder="At least 8 characters" />
+          </div>
+        }
+
+        <div class="form-field">
+          <label>{{ 'clients.name' | translate }}</label>
+          <input type="text" formControlName="name" placeholder="e.g. Acme Corp" />
+        </div>
+
+        <div class="form-field">
+          <label>{{ 'clients.email' | translate }}</label>
+          <input type="email" formControlName="email" placeholder="contact@company.com" />
+          <small class="hint">{{ 'clients.emailHint' | translate }}</small>
+        </div>
+
+        <div class="form-field">
+          <label>{{ 'clients.phone' | translate }}</label>
+          <input type="text" formControlName="phone" placeholder="+1 234 567 8900" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeFormModal()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSubmitting()">
+            @if (isSubmitting()) {
+              <div class="spinner small"></div>
+              <span>{{ 'common.processing' | translate }}</span>
+            } @else {
+              {{ 'common.save' | translate }}
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+<!-- Deactivate Confirmation -->
+@if (showDeactivateConfirmation()) {
+  <app-confirmation-dialog
+    [open]="true"
+    [title]="'clients.deactivateConfirmTitle' | translate"
+    [message]="'clients.deactivateConfirmMsg' | translate: { name: pendingDeactivateClient()?.name }"
+    [confirmLabel]="'clients.deactivate' | translate"
+    [cancelLabel]="'common.cancel' | translate"
+    confirmButtonClass="btn-warning"
+    (confirm)="confirmDeactivate()"
+    (cancel)="closeDeactivateConfirmation()">
+  </app-confirmation-dialog>
+}
+
+<!-- Delete Confirmation -->
+@if (showDeleteConfirmation()) {
+  <app-confirmation-dialog
+    [open]="true"
+    [title]="'clients.deleteConfirmTitle' | translate"
+    [message]="'clients.deleteConfirmMsg' | translate: { name: pendingDeleteClient()?.name }"
+    [confirmLabel]="'common.delete' | translate"
+    [cancelLabel]="'common.cancel' | translate"
+    confirmButtonClass="btn-danger"
+    (confirm)="confirmDeletePermanently()"
+    (cancel)="closeDeleteConfirmation()">
+  </app-confirmation-dialog>
+}

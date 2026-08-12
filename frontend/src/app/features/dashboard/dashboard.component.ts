@@ -10,6 +10,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { getEventState, isEventVisible } from '../../core/utils/event-status';
+import { ClientFilterService } from '../../core/services/client-filter.service';
 
 type RoomStatus = 'available' | 'active' | 'reserved';
 
@@ -36,6 +37,7 @@ export class DashboardComponent implements OnInit {
     private toast: ToastService,
     private router: Router,
     public translation: I18nextService,
+    public clientFilter: ClientFilterService
   ) {}
 
   ngOnInit(): void {
@@ -121,11 +123,12 @@ export class DashboardComponent implements OnInit {
   }
 
   displayedRooms(): Room[] {
-    return [...this.rooms()].reverse().slice(0, 4);
+    const validBuildingIds = new Set(this.clientFilter.filterList(this.buildings()).map(b => b.id));
+    return [...this.rooms()].filter(r => validBuildingIds.has(r.building_id)).reverse().slice(0, 4);
   }
 
   displayedEvents(): EventSummary[] {
-    return this.events()
+    return this.clientFilter.filterList(this.events())
       .filter((event) => isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live')
       .slice(0, 4);
   }

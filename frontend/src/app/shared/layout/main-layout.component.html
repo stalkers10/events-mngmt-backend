@@ -5,6 +5,11 @@
       <span class="material-symbols-outlined brand-icon">confirmation_number</span>
       <span class="brand-name">{{ 'common.appName' | translate }}</span>
     </div>
+    
+    <div style="flex: 1"></div>
+    
+    <app-client-selector *ngIf="isSuperAdmin()"></app-client-selector>
+
     <button type="button" class="icon-btn" (click)="logout()" aria-label="Log out">
       <span class="material-symbols-outlined">logout</span>
     </button>
@@ -22,6 +27,10 @@
     @if (isAdmin()) {
       <a routerLink="/events/create" class="btn btn-primary new-event-btn">{{ 'nav.newEvent' | translate }}</a>
     }
+    
+    <div class="sidebar-selector" *ngIf="isSuperAdmin()" style="padding: 0 1rem; margin-bottom: 1rem;">
+      <app-client-selector></app-client-selector>
+    </div>
 
     <nav class="nav-list"> 
       @for (item of visibleNavItems(); track item.path) {

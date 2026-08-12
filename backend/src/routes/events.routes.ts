@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../middlewares/auth.middleware';
+import { requireAuth, requireRole, resolveClientId } from '../middlewares/auth.middleware';
 import { RoleType } from '../types/auth';
 import { EventsService } from '../services/events.service';
+
 const router = Router();
 
 router.use(requireAuth);
@@ -29,13 +30,14 @@ const eventSchema = z.object({
   }
 });
 
-// GET /events (Admins see all, Gate Staff see assigned)
+// GET /events (Admins see all/theirs, Gate Staff see assigned)
 router.get('/', async (req: Request, res: Response) => {
   try {
     const user = req.user!;
     let events;
-    if (user.role === RoleType.ADMIN) {
-      events = await EventsService.listAll();
+    if (user.role === RoleType.SUPER_ADMIN || user.role === RoleType.CLIENT_ADMIN) {
+      const clientId = resolveClientId(user);
+      events = await EventsService.list(clientId);
     } else {
       events = await EventsService.listForGateStaff(user.id);
     }
@@ -45,11 +47,13 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// The following routes are Admin-only
-router.use(requireRole(RoleType.ADMIN));
+// The following routes require admin privileges
+router.use(requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
+
 router.get('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
-    const event = await EventsService.getById(req.params.eventId);
+    const clientId = resolveClientId(req.user!);
+    const event = await EventsService.getById(req.params.eventId, clientId);
     if (!event) {
       res.status(404).json({ error: 'Event not found' });
       return;
@@ -67,17 +71,19 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const clientId = resolveClientId(req.user!);
     const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.create(
       roomIds,
       parsed.data.name,
       new Date(parsed.data.startTime),
       new Date(parsed.data.endTime),
-      parsed.data.tables
+      parsed.data.tables,
+      clientId
     );
     res.status(201).json(event);
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    res.status(err.statusCode ?? 409).json({ error: err.message });
   }
 });
 
@@ -88,26 +94,29 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
     return;
   }
   try {
+    const clientId = resolveClientId(req.user!);
     const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.update(
       req.params.eventId,
       roomIds,
       parsed.data.name,
       new Date(parsed.data.startTime),
-      new Date(parsed.data.endTime)
+      new Date(parsed.data.endTime),
+      clientId
     );
     res.status(200).json(event);
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    res.status(err.statusCode ?? 409).json({ error: err.message });
   }
 });
 
 router.delete('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
-    await EventsService.delete(req.params.eventId);
+    const clientId = resolveClientId(req.user!);
+    await EventsService.delete(req.params.eventId, clientId);
     res.status(204).send();
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    res.status(err.statusCode ?? 409).json({ error: err.message });
   }
 });
 
@@ -117,7 +126,22 @@ const tableSchema = z.object({
   position: z.string().optional(),
   roomId: z.string().uuid().optional(),
 });
-router.post('/:eventId/tables', async (req: Request<{ eventId: string }>, res: Response) => {
+
+// Helper for verifying event ownership before allowing table operations
+async function requireEventOwnership(req: Request<{ eventId: string }>, res: Response, next: import('express').NextFunction) {
+  try {
+    const clientId = resolveClientId(req.user!);
+    const event = await EventsService.getById(req.params.eventId, clientId);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found or access denied' });
+    }
+    return next();
+  } catch (err) {
+    return res.status(500).json({ error: 'Error checking ownership' });
+  }
+}
+
+router.post('/:eventId/tables', requireEventOwnership, async (req: Request<{ eventId: string }>, res: Response) => {
   const parsed = tableSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
@@ -134,7 +158,12 @@ router.post('/:eventId/tables', async (req: Request<{ eventId: string }>, res: R
 const chairsSchema = z.object({
   count: z.number().int().positive(),
 });
-router.post('/:eventId/tables/:tableId/chairs', async (req: Request<{ eventId: string; tableId: string }>, res: Response) => {
+
+// Since /tables/:tableId doesn't easily trace back to event ownership directly in this simple middleware,
+// we just assume if they have the tableId it's scoped, but for safety we can add a check in service.
+// (We skipped a strict check here for brevity, assuming UUID unguessability, but a real app should check).
+// Wait, the path has eventId, so we CAN use requireEventOwnership!
+router.post('/:eventId/tables/:tableId/chairs', requireEventOwnership, async (req: Request<{ eventId: string; tableId: string }>, res: Response) => {
   const parsed = chairsSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });

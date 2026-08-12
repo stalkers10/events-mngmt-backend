@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminOnlyGuard } from './core/guards/admin-only.guard';
+import { superAdminOnlyGuard } from './core/guards/super-admin-only.guard';
 import { homeRedirectGuard } from './core/guards/home-redirect.guard';
 
 export const routes: Routes = [
@@ -21,6 +22,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./shared/layout/main-layout.component').then((m) => m.MainLayoutComponent),
     children: [
+      // ---- Super Admin-only screens ----
+      {
+        path: 'clients',
+        canActivate: [superAdminOnlyGuard],
+        loadComponent: () =>
+          import('./features/clients/clients.component').then((m) => m.ClientsComponent),
+      },
+
       // ---- Admin-only screens ----
       {
         path: 'dashboard',

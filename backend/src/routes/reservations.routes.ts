@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../middlewares/auth.middleware';
+import { requireAuth, requireRole, resolveClientId } from '../middlewares/auth.middleware';
 import { RoleType } from '../types/auth';
 import { ReservationsService } from '../services/reservations.service';
 import { query } from '../config/db';
@@ -22,9 +22,8 @@ const createReservationSchema = z.object({
 /**
  * GET /reservations/event/:eventId/occupancy
  *
- * Accessible to both ADMIN and GATE_STAFF.
- * Gate staff are additionally checked against gate_staff_assignments —
- * they can only read occupancy for events they are assigned to.
+ * Accessible to SUPER_ADMIN, CLIENT_ADMIN and GATE_STAFF.
+ * Gate staff are additionally checked against gate_staff_assignments.
  */
 router.get(
   '/event/:eventId/occupancy',
@@ -46,11 +45,12 @@ router.get(
     }
 
     try {
-      const occupancy = await ReservationsService.getEventOccupancy(eventId);
+      const clientId = resolveClientId(user);
+      const occupancy = await ReservationsService.getEventOccupancy(eventId, clientId);
       res.json(occupancy);
     } catch (err: any) {
-      if (err.message === 'Event not found') {
-        res.status(404).json({ error: err.message });
+      if (err.message === 'Event not found' || err.statusCode === 403) {
+        res.status(err.statusCode ?? 404).json({ error: err.message });
         return;
       }
       res.status(500).json({ error: 'Failed to fetch occupancy' });
@@ -58,8 +58,8 @@ router.get(
   }
 );
 
-// All remaining reservation routes are Admin-only
-router.use(requireAuth, requireRole(RoleType.ADMIN));
+// All remaining reservation routes are Super Admin or Client Admin only
+router.use(requireAuth, requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
 
 router.post('/', async (req: Request, res: Response) => {
   const parsed = createReservationSchema.safeParse(req.body);
@@ -68,25 +68,28 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const clientId = resolveClientId(req.user!);
     const result = await ReservationsService.createReservationAndTicket(
       parsed.data.eventId,
       parsed.data.tableId,
       parsed.data.chairId,
       parsed.data.invitee,
-      parsed.data.roomId
+      parsed.data.roomId,
+      clientId
     );
     res.status(201).json(result);
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    res.status(err.statusCode ?? 409).json({ error: err.message });
   }
 });
 
 router.delete('/:reservationId', async (req: Request<{ reservationId: string }>, res: Response) => {
   try {
-    await ReservationsService.cancelReservation(req.params.reservationId);
+    const clientId = resolveClientId(req.user!);
+    await ReservationsService.cancelReservation(req.params.reservationId, clientId);
     res.status(204).send();
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to cancel reservation' });
+    res.status(err.statusCode ?? 500).json({ error: err.message ?? 'Failed to cancel reservation' });
   }
 });
 

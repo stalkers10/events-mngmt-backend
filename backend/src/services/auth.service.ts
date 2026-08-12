@@ -6,9 +6,7 @@ import { sendOtpEmail } from '../config/mailer';
 import { query } from '../config/db';
 import { RoleType, AuthenticatedUser } from '../types/auth';
 
-// NOTE: Gate Staff accounts live in the `users` table (see migrations/).
-// The Admin OTP flow above does not touch this table since Admin is a
-// single hardcoded account per the spec.
+// ─── OTP helpers ────────────────────────────────────────────────────────────
 
 interface PendingOtp {
   code: string;
@@ -16,8 +14,11 @@ interface PendingOtp {
   attemptsRemaining: number;
 }
 
-// Single pending OTP at a time is sufficient: only one hardcoded Admin account exists.
-let pendingAdminOtp: PendingOtp | null = null;
+/**
+ * Keyed by username so multiple Client Admins can have concurrent pending OTPs.
+ * The Super Admin slot uses env.adminUsername as its key.
+ */
+const pendingOtps = new Map<string, PendingOtp>();
 
 function generateOtpCode(length: number): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
@@ -28,71 +29,128 @@ function generateOtpCode(length: number): string {
   return code;
 }
 
+function storePendingOtp(username: string): string {
+  const code = generateOtpCode(env.otpLength);
+  pendingOtps.set(username, {
+    code,
+    expiresAt: Date.now() + env.otpExpiryMinutes * 60 * 1000,
+    attemptsRemaining: env.otpMaxAttempts,
+  });
+  return code;
+}
+
+function verifyPendingOtp(username: string, submitted: string): void {
+  const pending = pendingOtps.get(username);
+
+  if (!pending) {
+    throw new AuthError('No pending verification. Please log in again.', 400);
+  }
+  if (Date.now() > pending.expiresAt) {
+    pendingOtps.delete(username);
+    throw new AuthError('Invalid or expired code', 400);
+  }
+  if (pending.attemptsRemaining <= 0) {
+    pendingOtps.delete(username);
+    throw new AuthError('Too many failed attempts. Please log in again.', 429);
+  }
+  if (submitted.toUpperCase() !== pending.code) {
+    pending.attemptsRemaining -= 1;
+    throw new AuthError('Invalid or expired code', 400);
+  }
+
+  pendingOtps.delete(username);
+}
+
+// ─── JWT ─────────────────────────────────────────────────────────────────────
+
 function issueToken(user: AuthenticatedUser): string {
   const options: jwt.SignOptions = { expiresIn: env.jwtExpiresIn as jwt.SignOptions['expiresIn'] };
   return jwt.sign(user, env.jwtSecret, options);
 }
 
+// ─── Auth Service ─────────────────────────────────────────────────────────────
+
 export const AuthService = {
+  // ── Super Admin (hardcoded credentials, OTP to env email) ──────────────────
+
   /**
-   * Step 1 of Admin login: verify hardcoded credentials, then generate
-   * and email an OTP. Does NOT issue a JWT yet.
+   * Step 1 of Super Admin login: verify hardcoded credentials, generate and
+   * email an OTP to the configured admin address. Does NOT issue a JWT yet.
    */
-  async loginAdminStep1(username: string, password: string): Promise<{ otpSent: true }> {
+  async loginSuperAdminStep1(username: string, password: string): Promise<{ otpSent: true }> {
     if (username !== env.adminUsername || password !== env.adminPassword) {
       throw new AuthError('Invalid username or password', 401);
     }
 
-    const code = generateOtpCode(env.otpLength);
-    pendingAdminOtp = {
-      code,
-      expiresAt: Date.now() + env.otpExpiryMinutes * 60 * 1000,
-      attemptsRemaining: env.otpMaxAttempts,
-    };
-
-    await sendOtpEmail(code);
+    const code = storePendingOtp(username);
+    await sendOtpEmail(code, env.adminOtpEmail);
     return { otpSent: true };
   },
 
   /**
-   * Step 2 of Admin login: verify the OTP code and issue a JWT.
+   * Step 2 of Super Admin login: verify OTP, issue SUPER_ADMIN JWT.
    */
-  async verifyAdminOtp(code: string): Promise<{ token: string }> {
-    if (!pendingAdminOtp) {
-      throw new AuthError('No pending verification. Please log in again.', 400);
-    }
-
-    if (Date.now() > pendingAdminOtp.expiresAt) {
-      pendingAdminOtp = null;
-      throw new AuthError('Invalid or expired code', 400);
-    }
-
-    if (pendingAdminOtp.attemptsRemaining <= 0) {
-      pendingAdminOtp = null;
-      throw new AuthError('Too many failed attempts. Please log in again.', 429);
-    }
-
-    if (code.toUpperCase() !== pendingAdminOtp.code) {
-      pendingAdminOtp.attemptsRemaining -= 1;
-      throw new AuthError('Invalid or expired code', 400);
-    }
-
-    pendingAdminOtp = null;
+  async verifySuperAdminOtp(code: string): Promise<{ token: string; role: RoleType }> {
+    verifyPendingOtp(env.adminUsername, code);
 
     const user: AuthenticatedUser = {
-      id: 'admin', // single hardcoded admin; replace with real id if Admin ever moves to DB
+      id: 'super-admin',
       username: env.adminUsername,
-      role: RoleType.ADMIN,
+      role: RoleType.SUPER_ADMIN,
     };
-    return { token: issueToken(user) };
+    return { token: issueToken(user), role: RoleType.SUPER_ADMIN };
+  },
+
+  // ── Client Admin (DB-stored, OTP to their own email) ──────────────────────
+
+  /**
+   * Step 1 of Client Admin login: verify credentials against DB, generate and
+   * email an OTP to the client's registered email. Does NOT issue JWT yet.
+   */
+  async loginClientAdminStep1(username: string, password: string): Promise<{ otpSent: true }> {
+    const client = await findUserByUsernameAndRole(username, RoleType.CLIENT_ADMIN);
+    if (!client || !client.isActive) {
+      throw new AuthError('Invalid username or password', 401);
+    }
+
+    const passwordMatches = await bcrypt.compare(password, client.passwordHash);
+    if (!passwordMatches) {
+      throw new AuthError('Invalid username or password', 401);
+    }
+    if (!client.email) {
+      throw new AuthError('Account has no email address configured. Contact the Super Admin.', 400);
+    }
+
+    const code = storePendingOtp(username);
+    await sendOtpEmail(code, client.email, client.name ?? client.username);
+    return { otpSent: true };
   },
 
   /**
-   * Gate Staff login: no OTP step. Verifies against the User table
-   * (Prisma) once implemented; stubbed here pending the schema.
+   * Step 2 of Client Admin login: verify OTP, issue CLIENT_ADMIN JWT with
+   * clientId = the user's own id (tenant root).
    */
-  async loginGateStaff(username: string, password: string): Promise<{ token: string }> {
-    const staffUser = await findGateStaffByUsername(username);
+  async verifyClientAdminOtp(username: string, code: string): Promise<{ token: string; role: RoleType }> {
+    verifyPendingOtp(username, code);
+
+    const client = await findUserByUsernameAndRole(username, RoleType.CLIENT_ADMIN);
+    if (!client) {
+      throw new AuthError('Account not found', 404);
+    }
+
+    const user: AuthenticatedUser = {
+      id: client.id,
+      username: client.username,
+      role: RoleType.CLIENT_ADMIN,
+      clientId: client.id, // client admin IS the tenant root
+    };
+    return { token: issueToken(user), role: RoleType.CLIENT_ADMIN };
+  },
+
+  // ── Gate Staff (DB-stored, no OTP) ────────────────────────────────────────
+
+  async loginGateStaff(username: string, password: string): Promise<{ token: string; role: RoleType }> {
+    const staffUser = await findUserByUsernameAndRole(username, RoleType.GATE_STAFF);
     if (!staffUser || !staffUser.isActive) {
       throw new AuthError('Invalid username or password', 401);
     }
@@ -107,9 +165,11 @@ export const AuthService = {
       username: staffUser.username,
       role: RoleType.GATE_STAFF,
     };
-    return { token: issueToken(user) };
+    return { token: issueToken(user), role: RoleType.GATE_STAFF };
   },
 };
+
+// ─── AuthError ────────────────────────────────────────────────────────────────
 
 export class AuthError extends Error {
   statusCode: number;
@@ -119,37 +179,44 @@ export class AuthError extends Error {
   }
 }
 
-// ---- Real lookup against the users table ----
-interface GateStaffRow {
+// ─── DB helpers ───────────────────────────────────────────────────────────────
+
+interface UserRow {
   id: string;
   username: string;
   password_hash: string;
   is_active: boolean;
+  name: string | null;
+  email: string | null;
 }
 
-async function findGateStaffByUsername(username: string): Promise<{
+async function findUserByUsernameAndRole(
+  username: string,
+  role: RoleType,
+): Promise<{
   id: string;
   username: string;
   passwordHash: string;
   isActive: boolean;
+  name: string | null;
+  email: string | null;
 } | null> {
-  const result = await query<GateStaffRow>(
-    `SELECT id, username, password_hash, is_active
+  const result = await query<UserRow>(
+    `SELECT id, username, password_hash, is_active, name, email
      FROM users
-     WHERE username = $1 AND role = 'GATE_STAFF'
+     WHERE username = $1 AND role = $2
      LIMIT 1`,
-    [username]
+    [username, role],
   );
 
-  if (result.rows.length === 0) {
-    return null;
-  }
-
+  if (result.rows.length === 0) return null;
   const row = result.rows[0];
   return {
     id: row.id,
     username: row.username,
     passwordHash: row.password_hash,
     isActive: row.is_active,
+    name: row.name,
+    email: row.email,
   };
 }

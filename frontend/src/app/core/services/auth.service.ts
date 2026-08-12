@@ -14,11 +14,6 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  /**
-   * Step 1 of login. Backend decides internally whether this is the Admin
-   * (username matches hardcoded admin) or a Gate Staff account, and
-   * responds with otpRequired accordingly.
-   */
   login(username: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, {
       username,
@@ -33,7 +28,6 @@ export class AuthService {
     );
   }
 
-  /** Step 2 of login, Admin only. */
   verifyOtp(code: string): Observable<VerifyOtpResponse> {
     return this.http
       .post<VerifyOtpResponse>(`${environment.apiUrl}/auth/verify-otp`, { code })
@@ -59,6 +53,18 @@ export class AuthService {
     return !!user && roles.includes(user.role);
   }
 
+  isSuperAdmin(): boolean {
+    return this.hasRole(RoleType.SUPER_ADMIN);
+  }
+
+  isClientAdmin(): boolean {
+    return this.hasRole(RoleType.CLIENT_ADMIN);
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN, RoleType.ADMIN);
+  }
+
   private setToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
     this.currentUser.set(this.decodeToken(token));
@@ -69,10 +75,6 @@ export class AuthService {
     return token ? this.decodeToken(token) : null;
   }
 
-  /**
-   * Lightweight JWT payload decode (no verification — that's the backend's
-   * job; this is purely for reading role/username to drive the UI).
-   */
   private decodeToken(token: string): DecodedToken | null {
     try {
       const payload = token.split('.')[1];
