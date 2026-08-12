@@ -12,6 +12,9 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { EventSummary, Room } from '../../core/models/dashboard.model';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { getEventState, isEventVisible } from '../../core/utils/event-status';
+import { formatTableName } from '../../core/utils/table-name';
+
+const formatTableNameFn = formatTableName;
 
 export interface GuestRow {
   guestName: string;
@@ -38,6 +41,8 @@ export class GuestListComponent implements OnInit {
   readonly occupancy = signal<EventOccupancy | null>(null);
   readonly isLoadingEvents = signal(true);
   readonly isLoadingGuests = signal(false);
+
+  readonly formatTableName = formatTableNameFn;
 
   // Search / filter
   readonly searchQuery = signal('');

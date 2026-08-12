@@ -16,6 +16,7 @@
     "logout": "Log out",
     "actions": "Actions",
     "processing": "Processing...",
+    "saving": "Saving…",
     "allClients": "All Clients"
   },
   "nav": {
@@ -189,7 +190,12 @@
     },
     "nameRequired": "Event name is required.",
     "startTimeRequired": "Start date & time is required.",
-    "endTimeRequired": "End date & time is required."
+    "endTimeRequired": "End date & time is required.",
+    "tableName": "Table name",
+    "tableNamePlaceholder": "e.g. VIP Table",
+    "tableNameRequired": "Table name is required.",
+    "tableNameSaved": "Table name updated.",
+    "tableNameDuplicate": "A table with that name already exists."
   },
   "clients": {
     "title": "Clients",

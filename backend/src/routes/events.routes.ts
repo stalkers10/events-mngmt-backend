@@ -136,6 +136,11 @@ const tableSchema = z.object({
   roomId: z.string().uuid().optional(),
 });
 
+const tableUpdateSchema = z.object({
+  tableNumber: z.string().min(1),
+  position: z.string().optional(),
+});
+
 // Helper for verifying event ownership before allowing table operations
 async function requireEventOwnership(req: Request<{ eventId: string }>, res: Response, next: import('express').NextFunction) {
   try {
@@ -162,6 +167,20 @@ router.post('/:eventId/tables', requireEventOwnership, async (req: Request<{ eve
     res.status(201).json(table);
   } catch (err: any) {
     res.status(409).json({ error: err.message });
+  }
+});
+
+router.patch('/:eventId/tables/:tableId', requireEventOwnership, async (req: Request<{ eventId: string; tableId: string }>, res: Response) => {
+  const parsed = tableUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  try {
+    const table = await EventsService.updateTable(req.params.eventId, req.params.tableId, parsed.data.tableNumber, parsed.data.position ?? null);
+    res.status(200).json(table);
+  } catch (err: any) {
+    res.status(err.statusCode ?? 409).json({ error: err.message });
   }
 });
 

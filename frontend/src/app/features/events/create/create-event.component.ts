@@ -6,6 +6,7 @@ import { I18nextPipe } from '../../../core/pipes/i18next.pipe';
 import { I18nextService } from '../../../core/services/i18next.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { VenueService } from '../../../core/services/venue.service';
+import { tableCircleSize } from '../../../core/utils/table-size';
 
 interface TableItem {
   id: number;
@@ -13,6 +14,7 @@ interface TableItem {
   y: number;
   chairs: number;
   selected: boolean;
+  name: string;
 }
 
 @Component({
@@ -158,8 +160,8 @@ export class CreateEventComponent implements AfterViewInit {
     this.isResizing.set(true);
   }
 
-  getTableSize(chairs: number): number {
-    return 60 + (chairs * 2);
+  getTableSize(chairs: number, label?: string): number {
+    return tableCircleSize(chairs, label);
   }
 
   round(value: number): number {
@@ -189,7 +191,8 @@ export class CreateEventComponent implements AfterViewInit {
         x: startX + col * spacingX,
         y: startY + row * spacingY,
         chairs: this.chairsPerTable(),
-        selected: false
+        selected: false,
+        name: ''
       });
     }
     this.setCurrentTables(newTables);
@@ -231,6 +234,13 @@ export class CreateEventComponent implements AfterViewInit {
     if (this.selectedTable()) {
       this.updateCurrentTables(tabs => tabs.map(t => t.id === this.selectedTable()!.id ? { ...t, chairs } : t));
       this.selectedTable.update(t => t ? { ...t, chairs } : null);
+    }
+  }
+
+  updateName(name: string): void {
+    if (this.selectedTable()) {
+      this.updateCurrentTables(tabs => tabs.map(t => t.id === this.selectedTable()!.id ? { ...t, name } : t));
+      this.selectedTable.update(t => t ? { ...t, name } : null);
     }
   }
 
@@ -349,7 +359,7 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
     const allTables = selectedRoomIds.flatMap((roomId) =>
       (this.tablesByRoom()[roomId] ?? []).map((t) => ({
         roomId,
-        tableNumber: String(t.id),
+        tableNumber: (t.name && t.name.trim()) ? t.name.trim() : String(t.id),
         position: `${Math.round(t.x)},${Math.round(t.y)}`,
         numberOfChairs: t.chairs,
       }))

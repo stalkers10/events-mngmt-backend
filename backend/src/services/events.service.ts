@@ -256,6 +256,20 @@ export const EventsService = {
     );
     return result.rows[0];
   },
+
+  async updateTable(eventId: string, tableId: string, tableNumber: string, position: string | null): Promise<TableRecord> {
+    const result = await query<TableRecord>(
+      `UPDATE tables SET table_number = $1, position = COALESCE($3, position)
+       WHERE id = $2 AND event_id = $4 RETURNING *`,
+      [tableNumber, tableId, position, eventId]
+    );
+    if (result.rows.length === 0) {
+      const err = new Error('Table not found');
+      (err as any).statusCode = 404;
+      throw err;
+    }
+    return result.rows[0];
+  },
   
   async addChairs(tableId: string, count: number): Promise<ChairRecord[]> {
     const chairs: ChairRecord[] = [];

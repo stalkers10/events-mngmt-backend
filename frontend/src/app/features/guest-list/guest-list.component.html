@@ -174,7 +174,7 @@
                   <!-- Seat -->
                   <td>
                     <span class="seat-badge">
-                      T{{ row.tableNumber }} · C{{ row.chairNumber }}
+                      {{ formatTableName(row.tableNumber) }} · C{{ row.chairNumber }}
                     </span>
                   </td>
 
@@ -242,7 +242,7 @@
               }
             </div>
             <div class="mgc-bottom">
-              <span class="seat-badge">T{{ row.tableNumber }} · C{{ row.chairNumber }}</span>
+              <span class="seat-badge">{{ formatTableName(row.tableNumber) }} · C{{ row.chairNumber }}</span>
               <div class="actions-cell">
                 @if (row.ticketId) {
                   <button class="btn btn-sm btn-secondary" (click)="viewTicket(row.ticketId!)">

@@ -10,6 +10,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { isEventExpired } from '../../core/utils/event-status';
+import { formatTableName } from '../../core/utils/table-name';
+import { tableCircleSize } from '../../core/utils/table-size';
 
 @Component({
   selector: 'app-seating-map',
@@ -29,6 +31,10 @@ export class SeatingMapComponent implements OnInit {
   readonly selectedChair = signal<OccupancyChair | null>(null);
   readonly selectedTable = signal<OccupancyTable | null>(null);
   readonly selectedRoomId = signal('');
+
+  readonly tableNameDraft = signal('');
+  readonly isSavingTable = signal(false);
+  readonly formatTableName = formatTableName;
 
   readonly eventRooms = computed<Room[]>(() => {
     const activeEvent = this.event();
@@ -160,13 +166,20 @@ export class SeatingMapComponent implements OnInit {
           this.selectedRoomId.set(defaultRoomId);
         }
 
-        // If a chair was selected, refresh its reference from the updated occupancy data
-        const currentChair = this.selectedChair();
-        if (currentChair) {
-          const updatedTable = occupancy.tables.find((t) => t.id === this.selectedTable()?.id);
-          const updatedChair = updatedTable?.chairs.find((c) => c.id === currentChair.id);
-          if (updatedChair && updatedTable) {
-            this.selectedChair.set(updatedChair);
+        // Refresh the selected table reference from the updated occupancy data so
+        // renames persist after a reload (works with or without a selected chair).
+        const currentTable = this.selectedTable();
+        if (currentTable) {
+          const updatedTable = occupancy.tables.find((t) => t.id === currentTable.id);
+          if (updatedTable) {
+            if (this.selectedChair()) {
+              const updatedChair = updatedTable.chairs.find((c) => c.id === this.selectedChair()!.id);
+              if (updatedChair) {
+                this.selectedChair.set(updatedChair);
+              } else {
+                this.selectedChair.set(null);
+              }
+            }
             this.selectedTable.set(updatedTable);
           } else {
             this.closeSidebar();
@@ -215,6 +228,52 @@ export class SeatingMapComponent implements OnInit {
       // Keep the selected room aligned with the table being assigned.
       this.selectedRoomId.set(table.room_id || this.event()?.room_id || '');
     }
+  }
+
+  selectTable(table: OccupancyTable): void {
+    if (this.isEventExpired()) {
+      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      return;
+    }
+    if (this.selectedTable()?.id === table.id && !this.selectedChair()) {
+      this.closeSidebar();
+      return;
+    }
+    this.selectedTable.set(table);
+    this.selectedChair.set(null);
+    this.tableNameDraft.set(table.table_number ?? '');
+  }
+
+  saveTableName(): void {
+    const activeEvent = this.event();
+    const table = this.selectedTable();
+    if (!activeEvent || !table) return;
+
+    if (this.isEventExpired()) {
+      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      return;
+    }
+
+    const name = this.tableNameDraft().trim();
+    if (!name) {
+      this.toast.error(this.translation.t('events.tableNameRequired') || 'Table name is required.');
+      return;
+    }
+
+    this.isSavingTable.set(true);
+    this.venues.updateTable(activeEvent.id, table.id, { tableNumber: name }).subscribe({
+      next: () => {
+        this.isSavingTable.set(false);
+        this.toast.success(this.translation.t('events.tableNameSaved') || 'Table name updated.');
+        this.loadData();
+      },
+      error: (err: any) => {
+        this.isSavingTable.set(false);
+        const msg = err?.error?.error
+          || (this.translation.t('events.tableNameDuplicate') || 'A table with that name already exists.');
+        this.toast.error(msg);
+      },
+    });
   }
 
   roomLabel(roomId: string | null | undefined): string {
@@ -363,8 +422,8 @@ export class SeatingMapComponent implements OnInit {
     }
   }
 
-  getTableSize(chairs: number): number {
-    return 60 + chairs * 2;
+  getTableSize(chairs: number, label?: string | null): number {
+    return tableCircleSize(chairs, label);
   }
 
   getTableX(table: OccupancyTable): number {

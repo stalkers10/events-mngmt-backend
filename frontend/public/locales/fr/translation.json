@@ -12,7 +12,8 @@
     "reactivating": "Réactivation…",
     "active": "Actif",
     "deactivated": "Désactivé",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "saving": "Enregistrement…"
   },
   "nav": {
     "dashboard": "Accueil",
@@ -181,7 +182,12 @@
     "stage": "Scène",
     "nameRequired": "Le nom de l'événement est requis.",
     "startTimeRequired": "La date et l'heure de début sont requises.",
-    "endTimeRequired": "La date et l'heure de fin sont requises."
+    "endTimeRequired": "La date et l'heure de fin sont requises.",
+    "tableName": "Nom de la table",
+    "tableNamePlaceholder": "ex. Table VIP",
+    "tableNameRequired": "Le nom de la table est requis.",
+    "tableNameSaved": "Nom de la table mis à jour.",
+    "tableNameDuplicate": "Une table portant ce nom existe déjà."
   },
   "clients": {
     "title": "Clients",

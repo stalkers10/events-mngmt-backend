@@ -108,6 +108,16 @@
       <div class="table-editor" *ngIf="selectedTable()">
         <h3>{{ 'events.editTable' | translate }} {{ selectedTable()!.id }}</h3>
         <div class="form-field">
+          <label for="table-name">{{ 'events.tableName' | translate }}</label>
+          <input
+            id="table-name"
+            type="text"
+            [ngModel]="selectedTable()!.name"
+            (ngModelChange)="updateName($event)"
+            [placeholder]="'events.tableNamePlaceholder' | translate"
+          >
+        </div>
+        <div class="form-field">
           <label>{{ 'events.chairsForTable' | translate }} {{ selectedTable()!.id }}</label>
           <input type="number" [(ngModel)]="selectedTable()!.chairs" (ngModelChange)="updateChairs($event)" min="1" max="20">
         </div>
@@ -155,8 +165,8 @@
              [class.selected]="table.selected"
              [style.left.px]="table.x"
              [style.top.px]="table.y"
-             [style.width.px]="getTableSize(table.chairs)"
-             [style.height.px]="getTableSize(table.chairs)"
+              [style.width.px]="getTableSize(table.chairs, table.name)"
+              [style.height.px]="getTableSize(table.chairs, table.name)"
              (click)="onTableClick(table, $event)"
              (mousedown)="onTableMouseDown(table, $event)">
 
@@ -173,7 +183,7 @@
 
             <!-- Table surface -->
             <div class="table-surface">
-              <span class="table-number">T{{ table.id }}</span>
+              <span class="table-number">{{ table.name.trim() ? table.name.trim() : 'T' + table.id }}</span>
               <span class="chair-count">{{ table.chairs }}</span>
             </div>
           </div>

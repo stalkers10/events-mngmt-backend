@@ -13,8 +13,9 @@ const loginSchema = z.object({
 
 const otpSchema = z.object({
   code: z.string().length(8),
-  // Required for Client Admin OTP step to identify which account to verify
-  username: z.string().min(1).optional(),
+  // Required for Client Admin OTP step to identify which account to verify.
+  // Super Admin requests omit it entirely; allow null/undefined defensively.
+  username: z.string().min(1).optional().nullable(),
 });
 
 /**

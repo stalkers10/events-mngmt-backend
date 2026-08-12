@@ -35,14 +35,16 @@ export class AuthService {
   }
 
   verifyOtp(code: string): Observable<VerifyOtpResponse> {
-    // Retrieve the stored username from sessionStorage
+    // Retrieve the stored username from sessionStorage (only Client Admins have one;
+    // Super Admins log in without a username and must not send `null`).
     const username = sessionStorage.getItem(OTP_USERNAME_KEY);
+    const body: { code: string; username?: string } = { code };
+    if (username) {
+      body.username = username;
+    }
 
     return this.http
-      .post<VerifyOtpResponse>(`${environment.apiUrl}/auth/verify-otp`, {
-        code,
-        username  // Pass username for CLIENT_ADMIN OTP verification
-      })
+      .post<VerifyOtpResponse>(`${environment.apiUrl}/auth/verify-otp`, body)
       .pipe(
         tap((res) => {
           this.setToken(res.token);

@@ -34,6 +34,11 @@ export interface CreateTablePayload {
   position?: string;
 }
 
+export interface UpdateTablePayload {
+  tableNumber: string;
+  position?: string;
+}
+
 export interface CreateChairsPayload {
   count: number;
 }
@@ -84,6 +89,10 @@ export class VenueService {
   // Table management
   addTable(eventId: string, payload: CreateTablePayload): Observable<any> {
     return this.http.post(`${environment.apiUrl}/events/${eventId}/tables`, payload);
+  }
+
+  updateTable(eventId: string, tableId: string, payload: UpdateTablePayload): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/events/${eventId}/tables/${tableId}`, payload);
   }
 
   addChairs(eventId: string, tableId: string, payload: CreateChairsPayload): Observable<any> {

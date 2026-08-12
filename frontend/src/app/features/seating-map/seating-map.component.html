@@ -1,4 +1,4 @@
-<div class="seating-map-container" [class.sidebar-open]="selectedChair()">
+<div class="seating-map-container" [class.sidebar-open]="selectedTable()">
   <div class="seating-map-main">
     <a routerLink="/events" class="back-link">
       <span class="material-symbols-outlined">arrow_back</span>{{ 'seating.backToEvents' | translate }}
@@ -57,8 +57,8 @@
                   [class.selected]="selectedTable()?.id === table.id"
                   [style.left.px]="getTableX(table)"
                   [style.top.px]="getTableY(table)"
-                  [style.width.px]="getTableSize(table.chairs.length)"
-                  [style.height.px]="getTableSize(table.chairs.length)"
+                  [style.width.px]="getTableSize(table.chairs.length, table.table_number)"
+                  [style.height.px]="getTableSize(table.chairs.length, table.table_number)"
                 >
                   <!-- Chairs around table -->
                   <div class="chairs-ring">
@@ -88,8 +88,8 @@
                   </div>
 
                   <!-- Table surface -->
-                  <div class="table-surface" (click)="$event.stopPropagation()">
-                    <span class="table-number">T{{ table.table_number }}</span>
+                  <div class="table-surface" (click)="selectTable(table)">
+                    <span class="table-number">{{ formatTableName(table.table_number) }}</span>
                     <span class="chair-count">{{ tableReservedSeats(table) }}/{{ table.chairs.length }}</span>
                   </div>
                 </div>
@@ -106,12 +106,16 @@
     }
   </div>
 
-  <!-- Sidebar for assigning seat or viewing occupancy details -->
-  @if (selectedChair(); as chair) {
+  <!-- Sidebar for assigning seat, viewing occupancy, or renaming a table -->
+  @if (selectedTable(); as table) {
     <aside class="assignment-sidebar">
       <div class="sidebar-header">
         <h3 class="text-headline-sm">
-          {{ chair.reservation_id ? 'Seat Details' : 'Assign Seat' }}
+          @if (selectedChair()) {
+            {{ selectedChair()!.reservation_id ? 'Seat Details' : 'Assign Seat' }}
+          } @else {
+            {{ 'events.editTable' | translate }} · {{ formatTableName(table.table_number) }}
+          }
         </h3>
         <button type="button" class="close-btn" (click)="closeSidebar()" aria-label="Close sidebar">
           <span class="material-symbols-outlined">close</span>
@@ -119,6 +123,7 @@
       </div>
 
       <div class="sidebar-content">
+        @if (selectedChair(); as chair) {
         <!-- Selected Seat Status -->
         <div class="selected-seat-card">
           <div class="chair-indicator" [class.reserved]="chair.reservation_id">
@@ -126,7 +131,7 @@
           </div>
           <div>
             <div class="text-label-caps label">Selected Seat</div>
-            <div class="text-headline-sm seat-info">Table {{ selectedTable()?.table_number }}, Seat {{ chair.chair_number }}</div>
+            <div class="text-headline-sm seat-info">Table {{ formatTableName(selectedTable()?.table_number) }}, Seat {{ chair.chair_number }}</div>
             <div class="text-body-sm section-info">
               {{ selectedTable()?.position || 'Standard Section' }}
             </div>
@@ -239,6 +244,31 @@
               </button>
             </div>
           </form>
+        }
+        } @else {
+          <!-- Rename table -->
+          <div class="form-field">
+            <label for="edit-table-name">{{ 'events.tableName' | translate }}</label>
+            <input
+              id="edit-table-name"
+              type="text"
+              [ngModel]="tableNameDraft()"
+              (ngModelChange)="tableNameDraft.set($event)"
+              [placeholder]="'events.tableNamePlaceholder' | translate"
+            />
+          </div>
+          <div class="text-body-sm section-info">
+            {{ tableReservedSeats(table) }}/{{ table.chairs.length }} {{ 'seating.capacity' | translate }}
+          </div>
+          <div class="sidebar-actions">
+            <button type="button" class="btn btn-secondary action-btn" (click)="closeSidebar()">
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button type="button" class="btn btn-primary action-btn" (click)="saveTableName()" [disabled]="isSavingTable()">
+              <span class="material-symbols-outlined">save</span>
+              {{ isSavingTable() ? ('common.saving' | translate) : ('common.save' | translate) }}
+            </button>
+          </div>
         }
       </div>
     </aside>
