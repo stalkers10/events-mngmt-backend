@@ -37,6 +37,8 @@ export class GateStaffComponent implements OnInit {
   events = signal<EventSummary[]>([]);
   isLoadingList = signal(true);
   isSubmitting = signal(false);
+  showPassword = signal(false);
+  submitted = signal(false);
   processingId = signal<string | null>(null);
 
   activeAssignAccount = signal<GateStaffAccount | null>(null);
@@ -92,6 +94,7 @@ export class GateStaffComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) return;
 
+    this.submitted.set(true);
     this.isSubmitting.set(true);
 
     const { username, password } = this.form.getRawValue();

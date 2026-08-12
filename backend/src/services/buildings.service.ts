@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import { RoleType } from '../types/auth';
 
 export interface BuildingRecord {
   id: string;
@@ -15,23 +16,24 @@ class NotFoundOrForbiddenError extends Error {
 
 export const BuildingsService = {
   /**
-   * Create a building. clientId is set to the CLIENT_ADMIN's id,
-   * or NULL if created by the SUPER_ADMIN (platform-level building).
+   * Create a building. CLIENT_ADMIN: auto-stamps their client_id.
+   * SUPER_ADMIN: client_id stays null (platform-level building).
    */
-  async create(name: string, address?: string, clientId?: string): Promise<BuildingRecord> {
+  async create(name: string, address: string | undefined, userRole: RoleType, clientId?: string): Promise<BuildingRecord> {
+    const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
     const result = await query<BuildingRecord>(
       `INSERT INTO buildings (name, address, client_id) VALUES ($1, $2, $3) RETURNING *`,
-      [name, address ?? null, clientId ?? null],
+      [name, address ?? null, effectiveClientId],
     );
     return result.rows[0];
   },
 
   /**
-   * List buildings. Pass clientId to scope to a single tenant;
-   * omit (or pass undefined) to return all (SUPER_ADMIN view).
+   * List buildings. CLIENT_ADMIN: scoped to their tenant.
+   * SUPER_ADMIN: returns all buildings.
    */
-  async list(clientId?: string): Promise<BuildingRecord[]> {
-    if (clientId) {
+  async list(userRole: RoleType, clientId?: string): Promise<BuildingRecord[]> {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       const result = await query<BuildingRecord>(
         `SELECT * FROM buildings WHERE client_id = $1 ORDER BY created_at DESC`,
         [clientId],
@@ -45,18 +47,19 @@ export const BuildingsService = {
   },
 
   /**
-   * Delete a building. When clientId is provided the delete is scoped to
-   * that tenant so CLIENT_ADMIN cannot delete another client's building.
+   * Delete a building. CLIENT_ADMIN: scoped to their tenant.
+   * SUPER_ADMIN: can delete any building.
    */
-  async delete(id: string, clientId?: string): Promise<void> {
-    if (clientId) {
+  async delete(id: string, userRole: RoleType, clientId?: string): Promise<void> {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       const result = await query(
         `DELETE FROM buildings WHERE id = $1 AND client_id = $2`,
         [id, clientId],
       );
       if (result.rowCount === 0) throw new NotFoundOrForbiddenError();
     } else {
-      await query(`DELETE FROM buildings WHERE id = $1`, [id]);
+      const result = await query(`DELETE FROM buildings WHERE id = $1`, [id]);
+      if (result.rowCount === 0) throw new NotFoundOrForbiddenError();
     }
   },
 };

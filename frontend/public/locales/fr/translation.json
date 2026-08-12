@@ -14,7 +14,6 @@
     "deactivated": "Désactivé",
     "logout": "Se déconnecter"
   },
-
   "nav": {
     "dashboard": "Accueil",
     "venues": "Lieux",
@@ -55,9 +54,9 @@
     "upcoming": "À venir",
     "past": "Passé",
     "status": {
-        "available": "Disponible",
-        "active": "Occupée",
-        "reserved": "Réservée"
+      "available": "Disponible",
+      "active": "Occupée",
+      "reserved": "Réservée"
     }
   },
   "venues": {
@@ -104,7 +103,6 @@
     "confirmDeleteBuilding": "Êtes-vous sûr de vouloir supprimer ce bâtiment ? Cela supprimera également toutes les salles de ce bâtiment et cette action est irréversible.",
     "confirmDeleteBuildingTitle": "Confirmer la suppression",
     "buildingDeleted": "Bâtiment supprimé avec succès.",
-
     "roomDeleted": "Salle supprimée avec succès."
   },
   "events": {
@@ -121,7 +119,8 @@
     "room": "Salle",
     "roomPlaceholder": "Sélectionnez une salle",
     "floor": "Étage",
-    "start": "Début", "end": "Fin",
+    "start": "Début",
+    "end": "Fin",
     "dateTime": "Date et heure",
     "endNote": "Incluez le temps de nettoyage dans l'heure de fin.",
     "create": "Créer l'événement",
@@ -157,18 +156,17 @@
     "tableConfiguration": "Configuration des tables",
     "tableConfigurationHint": "Générez la configuration initiale pour cet événement.",
     "tableCount": "Nombre de tables",
-    "chairsPerTable": "Chaises par défaut",
+    "chairsPerTable": "Chaises par table",
     "preview": "Aperçu interactif",
     "roomPreviewName": "Disposition",
     "layoutPreviewHint": "Glissez les tables. Double-cliquez pour modifier le nombre de chaises.",
     "noTablesPreview": "Générez des tables pour l'aperçu.",
     "previewCaption": "{{count}} tables · {{chairs}} chaises par table",
-    "chairsForTable": "Chaises pour la table {{tableNumber}}",
+    "chairsForTable": "Chaises pour la table",
     "generateTables": "Générer la disposition",
     "createEvent": "Créer l'événement",
     "generatePreview": "Générer l'aperçu",
     "editTable": "Modifier la table",
-    "chairsForTable": "Chaises pour la table",
     "removeTable": "Supprimer la table",
     "position": "Position",
     "seatingPreview": "Aperçu du plan de salle",
@@ -178,12 +176,12 @@
     "noTables": "Aucune table configurée. Ajoutez des tables pour commencer.",
     "startTime": "Heure de début",
     "endTime": "Heure de fin",
-    "tableCount": "Nombre de tables",
-    "chairsPerTable": "Chaises par table",
     "selectRoom": "Sélectionner une salle",
     "selectRooms": "Sélectionner des salles",
-    "namePlaceholder": "ex: Dîner de Gala",
-    "stage": "Scène"
+    "stage": "Scène",
+    "nameRequired": "Le nom de l'événement est requis.",
+    "startTimeRequired": "La date et l'heure de début sont requises.",
+    "endTimeRequired": "La date et l'heure de fin sont requises."
   },
   "clients": {
     "title": "Clients",
@@ -217,7 +215,9 @@
     "colEmail": "Courriel",
     "colPhone": "Téléphone",
     "colStatus": "Statut",
-    "colActions": "Actions"
+    "colActions": "Actions",
+    "usernameRequired": "Le nom d'utilisateur est requis (min 3 caractères).",
+    "passwordRequired": "Le mot de passe doit contenir au moins 8 caractères."
   },
   "seating": {
     "backToEvents": "Retour aux événements",
@@ -229,7 +229,6 @@
     "reserved": "Réservé",
     "selected": "Sélectionné"
   },
-
   "auth": {
     "login": {
       "title": "Elite Events",
@@ -239,9 +238,10 @@
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez votre mot de passe",
       "submit": "Se connecter",
-      "submitting": "Connexion…"
+      "submitting": "Connexion…",
+      "usernameRequired": "Le nom d'utilisateur est requis.",
+      "passwordRequired": "Le mot de passe est requis."
     },
-
     "otp": {
       "title": "Vérifiez votre identité",
       "subtitle": "Entrez le code à 8 caractères envoyé à votre email",
@@ -249,7 +249,6 @@
       "submitting": "Vérification…"
     }
   },
-
   "gateStaff": {
     "pageTitle": "Personnel d’accueil",
     "pageSubtitle": "Créez et gérez les comptes du personnel chargé de scanner les billets à l’entrée.",
@@ -290,7 +289,6 @@
     "confirmDeletePermanentlyTitle": "Supprimer le compte",
     "deactivate": "Désactiver"
   },
-
   "guestList": {
     "eyebrow": "Gestion des invités",
     "title": "Liste des invités",
@@ -312,10 +310,12 @@
     "colActions": "Actions",
     "viewTicket": "Billet",
     "cancel": "Annuler",
-    "checkedIn": "Entrée validée", "ticketIssued": "Émis", "ticketCancelled": "Annulé",
-    "confirmCancel": "Annuler la réservation de {{name}} ?", "cancelledToast": "Réservation annulée avec succès."
+    "checkedIn": "Entrée validée",
+    "ticketIssued": "Émis",
+    "ticketCancelled": "Annulé",
+    "confirmCancel": "Annuler la réservation de {{name}} ?",
+    "cancelledToast": "Réservation annulée avec succès."
   },
-
   "errors": {
     "wrongCredentials": "Nom d’utilisateur ou mot de passe incorrect.",
     "wrongOtp": "Code invalide ou expiré. Veuillez réessayer.",
@@ -336,5 +336,6 @@
     "fillAllFields": "Veuillez remplir tous les champs obligatoires.",
     "roomNotConfigured": "Toutes les salles sélectionnées doivent être configurées avant de créer l'événement.",
     "startTimeInPast": "L'heure de début de l'événement ne peut pas être antérieure à l'heure actuelle.",
-    "createFailed": "Échec de la création de l'événement. Veuillez réessayer." }
+    "createFailed": "Échec de la création de l'événement. Veuillez réessayer."
+  }
 }

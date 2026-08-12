@@ -16,21 +16,41 @@
           type="text"
           formControlName="username"
           [placeholder]="'gateStaff.usernamePlaceholder' | translate"
+          [class.field-invalid]="submitted() && form.controls.username.invalid"
         />
-        @if (form.controls.username.touched && form.controls.username.invalid) {
+        @if (submitted() && form.controls.username.invalid) {
+          <p class="invalid-feedback">{{ 'gateStaff.usernameError' | translate }}</p>
+        }
+        @if (!submitted() && form.controls.username.touched && form.controls.username.invalid) {
           <p class="field-error">{{ 'gateStaff.usernameError' | translate }}</p>
         }
       </div>
 
       <div class="form-field">
         <label for="password">{{ 'gateStaff.password' | translate }}</label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          [placeholder]="'gateStaff.passwordPlaceholder' | translate"
-        />
-        @if (form.controls.password.touched && form.controls.password.invalid) {
+        <div class="password-input-wrapper">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            [placeholder]="'gateStaff.passwordPlaceholder' | translate"
+            [class.field-invalid]="submitted() && form.controls.password.invalid"
+          />
+          <button
+            type="button"
+            class="toggle-password-btn"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            <span class="material-symbols-outlined">
+              {{ showPassword() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </div>
+        @if (submitted() && form.controls.password.invalid) {
+          <p class="invalid-feedback">{{ 'gateStaff.passwordError' | translate }}</p>
+        }
+        @if (!submitted() && form.controls.password.touched && form.controls.password.invalid) {
           <p class="field-error">{{ 'gateStaff.passwordError' | translate }}</p>
         }
       </div>

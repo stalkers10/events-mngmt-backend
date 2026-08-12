@@ -11,7 +11,15 @@
 
       <div class="form-field" style="margin-bottom: 24px;">
         <label>{{ 'events.name' | translate }}</label>
-        <input type="text" [(ngModel)]="eventName" [placeholder]="'events.namePlaceholder' | translate">
+        <input
+          type="text"
+          [(ngModel)]="eventName"
+          [placeholder]="'events.namePlaceholder' | translate"
+          [class.field-invalid]="submitted() && !eventName()"
+        >
+        @if (submitted() && !eventName()) {
+          <p class="invalid-feedback">{{ 'events.nameRequired' | translate }}</p>
+        }
       </div>
 
       <div class="form-field" style="margin-bottom: 24px; position: relative;">
@@ -58,11 +66,27 @@
       <div class="form-row form-row--stacked">
         <div class="form-field" style="margin-bottom: 24px;">
           <label>{{ 'events.startTime' | translate }}</label>
-          <input type="datetime-local" [(ngModel)]="startTime" [min]="minStartTime()">
+          <input
+            type="datetime-local"
+            [(ngModel)]="startTime"
+            [min]="minStartTime()"
+            [class.field-invalid]="submitted() && !startTime()"
+          >
+          @if (submitted() && !startTime()) {
+            <p class="invalid-feedback">{{ 'events.startTimeRequired' | translate }}</p>
+          }
         </div>
         <div class="form-field" style="margin-bottom: 24px;">
           <label>{{ 'events.endTime' | translate }}</label>
-          <input type="datetime-local" [(ngModel)]="endTime" [min]="minEndTime()">
+          <input
+            type="datetime-local"
+            [(ngModel)]="endTime"
+            [min]="minEndTime()"
+            [class.field-invalid]="submitted() && !endTime()"
+          >
+          @if (submitted() && !endTime()) {
+            <p class="invalid-feedback">{{ 'events.endTimeRequired' | translate }}</p>
+          }
         </div>
       </div>
 

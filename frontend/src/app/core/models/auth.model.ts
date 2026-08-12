@@ -8,6 +8,7 @@ export enum RoleType {
 export interface LoginResponse {
   otpRequired: boolean;
   token?: string;
+  username?: string;  // For CLIENT_ADMIN OTP flow
 }
 
 export interface VerifyOtpResponse {

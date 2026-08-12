@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import { RoleType } from '../types/auth';
 
 export interface RoomRecord {
   id: string;
@@ -19,11 +20,12 @@ export const RoomsService = {
     buildingId: string,
     roomNumber: string,
     floorNumber: number,
-    capacity?: number,
+    capacity: number | undefined,
+    userRole: RoleType,
     clientId?: string
   ): Promise<RoomRecord> {
-    // If clientId is provided, verify the building belongs to this client
-    if (clientId) {
+    // CLIENT_ADMIN: verify the building belongs to their tenant
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       const buildingResult = await query(
         `SELECT id FROM buildings WHERE id = $1 AND client_id = $2`,
         [buildingId, clientId]
@@ -47,15 +49,15 @@ export const RoomsService = {
     }
   },
 
-  async listRooms(buildingId?: string, clientId?: string): Promise<RoomRecord[]> {
+  async listRooms(buildingId: string | undefined, userRole: RoleType, clientId?: string): Promise<RoomRecord[]> {
     let sql = `
       SELECT r.* FROM rooms r
-      ${clientId ? 'JOIN buildings b ON r.building_id = b.id' : ''}
+      ${userRole === RoleType.CLIENT_ADMIN && clientId ? 'JOIN buildings b ON r.building_id = b.id' : ''}
       WHERE 1=1
     `;
     const params: any[] = [];
     
-    if (clientId) {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       params.push(clientId);
       sql += ` AND b.client_id = $${params.length}`;
     }
@@ -70,15 +72,15 @@ export const RoomsService = {
     return result.rows;
   },
 
-  async getRoomDetails(roomId: string, clientId?: string): Promise<any> {
+  async getRoomDetails(roomId: string, userRole: RoleType, clientId?: string): Promise<any> {
     let sql = `
       SELECT r.* FROM rooms r
-      ${clientId ? 'JOIN buildings b ON r.building_id = b.id' : ''}
+      ${userRole === RoleType.CLIENT_ADMIN && clientId ? 'JOIN buildings b ON r.building_id = b.id' : ''}
       WHERE r.id = $1
     `;
     const params: any[] = [roomId];
     
-    if (clientId) {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       params.push(clientId);
       sql += ` AND b.client_id = $${params.length}`;
     }
@@ -88,8 +90,8 @@ export const RoomsService = {
     return roomResult.rows[0];
   },
 
-  async deleteRoom(roomId: string, clientId?: string): Promise<void> {
-    if (clientId) {
+  async deleteRoom(roomId: string, userRole: RoleType, clientId?: string): Promise<void> {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       const roomResult = await query(
         `SELECT r.id FROM rooms r
          JOIN buildings b ON r.building_id = b.id

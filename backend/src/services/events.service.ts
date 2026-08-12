@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import { RoleType } from '../types/auth';
 export const EVENT_GRACE_MINUTES = 30;
 
 export function isEventExpired(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
@@ -77,35 +78,44 @@ class NotFoundOrForbiddenError extends Error {
 }
 
 export const EventsService = {
-  async list(clientId?: string): Promise<EventRecord[]> {
+  async list(userRole: RoleType, clientId?: string): Promise<EventRecord[]> {
     let sql = `SELECT * FROM events WHERE end_time + interval '30 minutes' > NOW()`;
     const params: any[] = [];
-    if (clientId) {
+    
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       params.push(clientId);
       sql += ` AND client_id = $${params.length}`;
     }
+    
     sql += ` ORDER BY start_time ASC`;
     const result = await query<EventRecord>(sql, params);
     return result.rows.map((event) => normalizeEventRecord(event));
   },
   
-  async listForGateStaff(userId: string): Promise<EventRecord[]> {
-    const result = await query<EventRecord>(
-      `SELECT e.* 
-       FROM events e
-       JOIN gate_staff_assignments gsa ON e.id = gsa.event_id
-       WHERE gsa.user_id = $1
-         AND e.end_time + interval '30 minutes' > NOW()
-       ORDER BY e.start_time ASC`,
-      [userId]
-    );
+  async listForGateStaff(userId: string, userRole: RoleType, clientId?: string): Promise<EventRecord[]> {
+    let sql = `SELECT e.* 
+               FROM events e
+               JOIN gate_staff_assignments gsa ON e.id = gsa.event_id
+               WHERE gsa.user_id = $1
+                 AND e.end_time + interval '30 minutes' > NOW()`;
+    const params: any[] = [userId];
+    
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
+      params.push(clientId);
+      sql += ` AND e.client_id = $${params.length}`;
+    }
+    
+    sql += ` ORDER BY e.start_time ASC`;
+    
+    const result = await query<EventRecord>(sql, params);
     return result.rows.map((event) => normalizeEventRecord(event));
   },
   
-  async getById(eventId: string, clientId?: string): Promise<EventRecord | null> {
+  async getById(eventId: string, userRole: RoleType, clientId?: string): Promise<EventRecord | null> {
     let sql = `SELECT * FROM events WHERE id = $1`;
     const params: any[] = [eventId];
-    if (clientId) {
+    
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       params.push(clientId);
       sql += ` AND client_id = $${params.length}`;
     }
@@ -166,7 +176,7 @@ export const EventsService = {
     return parseInt(result.rows[0].count, 10) > 0;
   },
   
-  async create(roomIds: string[], name: string, startTime: Date, endTime: Date, tables?: { tableNumber: string; position?: string; numberOfChairs: number }[], clientId?: string): Promise<EventRecord> {
+  async create(roomIds: string[], name: string, startTime: Date, endTime: Date, tables?: { tableNumber: string; position?: string; numberOfChairs: number }[], userRole?: RoleType, clientId?: string): Promise<EventRecord> {
     if (startTime >= endTime) {
       throw new Error('Start time must be before end time');
     }
@@ -176,8 +186,8 @@ export const EventsService = {
       throw new Error('Select at least one room for this event');
     }
 
-    // Verify room ownership if clientId is present
-    if (clientId) {
+    // Verify room ownership if CLIENT_ADMIN
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       for (const roomId of uniqueRoomIds) {
         const roomResult = await query(
           `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
@@ -200,12 +210,15 @@ export const EventsService = {
 
     const primaryRoomId = uniqueRoomIds[0];
     const roomIdsPayload = JSON.stringify(uniqueRoomIds);
+    
+    // Auto-stamp client_id for CLIENT_ADMIN users, leave null for SUPER_ADMIN
+    const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
 
     if (!tables || tables.length === 0) {
       const result = await query<EventRecord>(
         `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [primaryRoomId, roomIdsPayload, name, startTime, endTime, clientId ?? null]
+        [primaryRoomId, roomIdsPayload, name, startTime, endTime, effectiveClientId]
       );
       return normalizeEventRecord(result.rows[0]);
     }
@@ -215,7 +228,7 @@ export const EventsService = {
       const result = await client.query(
         `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [primaryRoomId, roomIdsPayload, name, startTime, endTime, clientId ?? null]
+        [primaryRoomId, roomIdsPayload, name, startTime, endTime, effectiveClientId]
       );
       const event = result.rows[0];
 
@@ -256,11 +269,11 @@ export const EventsService = {
     return chairs;
   },
   
-  async update(eventId: string, roomIds: string[], name: string, startTime: Date, endTime: Date, clientId?: string): Promise<EventRecord> {
+  async update(eventId: string, roomIds: string[], name: string, startTime: Date, endTime: Date, userRole: RoleType, clientId?: string): Promise<EventRecord> {
     if (startTime >= endTime) {
       throw new Error('Start time must be before end time');
     }
-    const existingEvent = await this.getById(eventId, clientId);
+    const existingEvent = await this.getById(eventId, userRole, clientId);
     if (!existingEvent) {
       throw new NotFoundOrForbiddenError();
     }
@@ -270,7 +283,7 @@ export const EventsService = {
       throw new Error('Select at least one room for this event');
     }
 
-    if (clientId) {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       for (const roomId of uniqueRoomIds) {
         const roomResult = await query(
           `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
@@ -309,8 +322,8 @@ export const EventsService = {
     return normalizeEventRecord(result.rows[0]);
   },
   
-  async delete(eventId: string, clientId?: string): Promise<void> {
-    const existingEvent = await this.getById(eventId, clientId);
+  async delete(eventId: string, userRole: RoleType, clientId?: string): Promise<void> {
+    const existingEvent = await this.getById(eventId, userRole, clientId);
     if (!existingEvent) {
       throw new NotFoundOrForbiddenError();
     }

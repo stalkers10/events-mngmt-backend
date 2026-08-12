@@ -276,6 +276,68 @@ textarea {
   border-color: var(--color-primary-container);
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  input {
+    width: 100%;
+    padding-right: 44px !important;
+  }
+
+  .toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-surface-variant);
+    border-radius: var(--radius-full);
+    transition: color 0.15s ease, background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--color-surface-container);
+      color: var(--color-on-surface);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-container);
+      outline-offset: 1px;
+    }
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+  }
+}
+
+/* ---- Field Invalid State (shown when form submitted but invalid) ---- */
+.field-invalid {
+  border-color: var(--color-error) !important;
+  background-color: rgba(186, 26, 26, 0.06) !important;
+  padding-right: 12px !important;
+
+  &::placeholder {
+    color: var(--color-on-surface-variant) !important;
+  }
+}
+
+.invalid-feedback {
+  margin-top: var(--space-xs);
+  font-size: 12px;
+  color: var(--color-error);
+  display: block;
+  margin-bottom: 0;
+}
+
 @media (max-width: 767px) {
   .card {
     padding: var(--space-md);

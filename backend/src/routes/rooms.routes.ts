@@ -21,8 +21,9 @@ const createRoomSchema = z.object({
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const buildingId = req.query.buildingId as string | undefined;
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    const rooms = await RoomsService.listRooms(buildingId, clientId);
+    const rooms = await RoomsService.listRooms(buildingId, userRole, clientId);
     res.json(rooms);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch rooms' });
@@ -39,12 +40,14 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const room = await RoomsService.createRoom(
       parsed.data.buildingId,
       parsed.data.roomNumber,
       parsed.data.floorNumber,
       parsed.data.capacity,
+      userRole,
       clientId,
     );
     res.status(201).json(room);
@@ -55,8 +58,9 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.get('/:roomId', async (req: Request<{ roomId: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    const room = await RoomsService.getRoomDetails(req.params.roomId, clientId);
+    const room = await RoomsService.getRoomDetails(req.params.roomId, userRole, clientId);
     if (!room) {
       res.status(404).json({ error: 'Room not found' });
       return;
@@ -69,8 +73,9 @@ router.get('/:roomId', async (req: Request<{ roomId: string }>, res: Response) =
 
 router.delete('/:roomId', async (req: Request<{ roomId: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    await RoomsService.deleteRoom(req.params.roomId, clientId);
+    await RoomsService.deleteRoom(req.params.roomId, userRole, clientId);
     res.status(204).send();
   } catch (err: any) {
     if (err.code === '23503') {

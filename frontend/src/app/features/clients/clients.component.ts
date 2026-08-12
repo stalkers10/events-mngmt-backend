@@ -31,6 +31,8 @@ export class ClientsComponent implements OnInit {
 
   isLoading = signal(true);
   isSubmitting = signal(false);
+  showPassword = signal(false);
+  submitted = signal(false);
   processingId = signal<string | null>(null);
 
   showFormModal = signal(false);
@@ -80,6 +82,7 @@ export class ClientsComponent implements OnInit {
   openCreateModal(): void {
     this.editingClient.set(null);
     this.form.reset();
+    this.submitted.set(false);
     this.showFormModal.set(true);
   }
 
@@ -91,6 +94,7 @@ export class ClientsComponent implements OnInit {
       email: client.email,
       phone: client.phone || ''
     });
+    this.submitted.set(false);
     this.showFormModal.set(true);
   }
 
@@ -98,11 +102,13 @@ export class ClientsComponent implements OnInit {
     this.showFormModal.set(false);
     this.editingClient.set(null);
     this.form.reset();
+    this.submitted.set(false);
   }
 
   submitForm(): void {
     if (this.form.invalid) return;
 
+    this.submitted.set(true);
     this.isSubmitting.set(true);
     const { username, password, name, email, phone } = this.form.getRawValue();
     const editing = this.editingClient();

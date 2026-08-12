@@ -34,12 +34,15 @@ const eventSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const user = req.user!;
+    const userRole = user.role as RoleType;
     let events;
-    if (user.role === RoleType.SUPER_ADMIN || user.role === RoleType.CLIENT_ADMIN) {
+    
+    if (userRole === RoleType.SUPER_ADMIN || userRole === RoleType.CLIENT_ADMIN) {
       const clientId = resolveClientId(user);
-      events = await EventsService.list(clientId);
+      events = await EventsService.list(userRole, clientId);
     } else {
-      events = await EventsService.listForGateStaff(user.id);
+      const clientId = resolveClientId(user);
+      events = await EventsService.listForGateStaff(user.id, userRole, clientId);
     }
     res.json(events);
   } catch (err) {
@@ -52,8 +55,9 @@ router.use(requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
 
 router.get('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    const event = await EventsService.getById(req.params.eventId, clientId);
+    const event = await EventsService.getById(req.params.eventId, userRole, clientId);
     if (!event) {
       res.status(404).json({ error: 'Event not found' });
       return;
@@ -71,6 +75,7 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.create(
@@ -79,6 +84,7 @@ router.post('/', async (req: Request, res: Response) => {
       new Date(parsed.data.startTime),
       new Date(parsed.data.endTime),
       parsed.data.tables,
+      userRole,
       clientId
     );
     res.status(201).json(event);
@@ -94,6 +100,7 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
     return;
   }
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const roomIds = parsed.data.roomIds ?? (parsed.data.roomId ? [parsed.data.roomId] : []);
     const event = await EventsService.update(
@@ -102,6 +109,7 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
       parsed.data.name,
       new Date(parsed.data.startTime),
       new Date(parsed.data.endTime),
+      userRole,
       clientId
     );
     res.status(200).json(event);
@@ -112,8 +120,9 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
 
 router.delete('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    await EventsService.delete(req.params.eventId, clientId);
+    await EventsService.delete(req.params.eventId, userRole, clientId);
     res.status(204).send();
   } catch (err: any) {
     res.status(err.statusCode ?? 409).json({ error: err.message });
@@ -130,8 +139,9 @@ const tableSchema = z.object({
 // Helper for verifying event ownership before allowing table operations
 async function requireEventOwnership(req: Request<{ eventId: string }>, res: Response, next: import('express').NextFunction) {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    const event = await EventsService.getById(req.params.eventId, clientId);
+    const event = await EventsService.getById(req.params.eventId, userRole, clientId);
     if (!event) {
       return res.status(404).json({ error: 'Event not found or access denied' });
     }

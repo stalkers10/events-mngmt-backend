@@ -1,6 +1,7 @@
 import { query, withTransaction } from '../config/db';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
+import { RoleType } from '../types/auth';
 import { isEventExpired, normalizeRoomIds } from './events.service';
 
 /**
@@ -26,8 +27,8 @@ class NotFoundOrForbiddenError extends Error {
 }
 
 export const ReservationsService = {
-  async getEventOccupancy(eventId: string, clientId?: string): Promise<any> {
-    if (clientId) {
+  async getEventOccupancy(eventId: string, userRole: RoleType, clientId?: string): Promise<any> {
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       const eventRes = await query(`SELECT id FROM events WHERE id = $1 AND client_id = $2`, [eventId, clientId]);
       if (eventRes.rows.length === 0) throw new NotFoundOrForbiddenError('Event not found or access denied');
     }
@@ -62,12 +63,14 @@ export const ReservationsService = {
     chairId: string,
     invitee: { name: string, email?: string, phone?: string },
     roomId?: string | null,
+    userRole?: RoleType,
     clientId?: string
   ) {
     return await withTransaction(async (client) => {
       let sql = `SELECT room_id, room_ids, end_time FROM events WHERE id = $1`;
       const params: any[] = [eventId];
-      if (clientId) {
+      
+      if (userRole === RoleType.CLIENT_ADMIN && clientId) {
         params.push(clientId);
         sql += ` AND client_id = $${params.length}`;
       }
@@ -96,9 +99,12 @@ export const ReservationsService = {
         throw new Error('Selected room does not match the table\'s room');
       }
 
+      // Auto-stamp client_id for CLIENT_ADMIN users, leave null for SUPER_ADMIN
+      const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
+
       const inviteeRes = await client.query(
         `INSERT INTO invitees (name, email, phone, client_id) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [invitee.name, invitee.email || null, invitee.phone || null, clientId ?? null]
+        [invitee.name, invitee.email || null, invitee.phone || null, effectiveClientId]
       );
       const inviteeId = inviteeRes.rows[0].id;
       
@@ -132,9 +138,9 @@ export const ReservationsService = {
     });
   },
 
-  async cancelReservation(reservationId: string, clientId?: string) {
+  async cancelReservation(reservationId: string, userRole: RoleType, clientId?: string) {
     return await withTransaction(async (client) => {
-      if (clientId) {
+      if (userRole === RoleType.CLIENT_ADMIN && clientId) {
         const resvCheck = await client.query(
           `SELECT r.id FROM reservations r
            JOIN events e ON r.event_id = e.id

@@ -150,12 +150,40 @@
         @if (!editingClient()) {
           <div class="form-field">
             <label>Username</label>
-            <input type="text" formControlName="username" placeholder="e.g. acme_admin" />
+            <input
+              type="text"
+              formControlName="username"
+              placeholder="e.g. acme_admin"
+              [class.field-invalid]="submitted() && form.controls.username.invalid"
+            />
+            @if (submitted() && form.controls.username.invalid) {
+              <p class="invalid-feedback">{{ 'clients.usernameRequired' | translate }}</p>
+            }
           </div>
 
           <div class="form-field">
             <label>Password</label>
-            <input type="password" formControlName="password" placeholder="At least 8 characters" />
+            <div class="password-input-wrapper">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="At least 8 characters"
+                [class.field-invalid]="submitted() && form.controls.password.invalid"
+              />
+              <button
+                type="button"
+                class="toggle-password-btn"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+                <span class="material-symbols-outlined">
+                  {{ showPassword() ? 'visibility_off' : 'visibility' }}
+                </span>
+              </button>
+            </div>
+            @if (submitted() && form.controls.password.invalid) {
+              <p class="invalid-feedback">{{ 'clients.passwordRequired' | translate }}</p>
+            }
           </div>
         }
 

@@ -20,6 +20,8 @@ export class LoginComponent {
   form;
 
   isSubmitting = signal(false);
+  showPassword = signal(false);
+  submitted = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -32,11 +34,22 @@ export class LoginComponent {
       username: ['', Validators.required],
       password: ['', Validators.required],
     });
+
+    // If already authenticated, redirect to appropriate page
+    if (this.auth.isAuthenticated()) {
+      const user = this.auth.currentUser();
+      if (user?.role === 'GATE_STAFF') {
+        this.router.navigate(['/scanner']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
+    }
   }
 
   submit(): void {
     if (this.form.invalid) return;
 
+    this.submitted.set(true);
     this.isSubmitting.set(true);
 
     const { username, password } = this.form.getRawValue();

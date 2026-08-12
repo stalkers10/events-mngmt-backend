@@ -16,8 +16,9 @@ const createSchema = z.object({
 router.use(requireAuth, requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
 
 router.get('/', async (req: Request, res: Response) => {
+  const userRole = req.user!.role as RoleType;
   const clientId = resolveClientId(req.user!);
-  const staff = await GateStaffService.list(clientId);
+  const staff = await GateStaffService.list(userRole, clientId);
   res.json(staff);
 });
 
@@ -28,11 +29,13 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     return;
   }
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const user = await GateStaffService.create(
       parsed.data.username,
       parsed.data.password,
       parsed.data.eventIds ?? [],
+      userRole,
       clientId
     );
     res.status(201).json(user);
@@ -43,8 +46,9 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 
 router.delete('/:id', async (req: Request<{ id: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    await GateStaffService.deactivate(req.params.id, clientId);
+    await GateStaffService.deactivate(req.params.id,userRole, clientId);
     res.status(204).send();
   } catch (err: any) {
     res.status(err.statusCode ?? 500).json({ error: err.message });
@@ -53,8 +57,9 @@ router.delete('/:id', async (req: Request<{ id: string }>, res: Response) => {
 
 router.post('/:id/reactivate', async (req: Request<{ id: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    await GateStaffService.reactivate(req.params.id, clientId);
+    await GateStaffService.reactivate(req.params.id,userRole, clientId);
     res.status(204).send();
   } catch (err: any) {
     res.status(err.statusCode ?? 500).json({ error: err.message });
@@ -66,8 +71,9 @@ router.post(
   '/:id/assignments/:eventId',
   async (req: Request<{ id: string; eventId: string }>, res: Response) => {
     try {
+      const userRole = req.user!.role as RoleType;
       const clientId = resolveClientId(req.user!);
-      await GateStaffService.assignToEvent(req.params.id, req.params.eventId, clientId);
+      await GateStaffService.assignToEvent(req.params.id, req.params.eventId,userRole, clientId);
       res.status(204).send();
     } catch (err: any) {
       res.status(err.statusCode ?? 500).json({ error: err.message });
@@ -80,8 +86,9 @@ router.delete(
   '/:id/assignments/:eventId',
   async (req: Request<{ id: string; eventId: string }>, res: Response) => {
     try {
+      const userRole = req.user!.role as RoleType;
       const clientId = resolveClientId(req.user!);
-      await GateStaffService.removeFromEvent(req.params.id, req.params.eventId, clientId);
+      await GateStaffService.removeFromEvent(req.params.id, req.params.eventId,userRole, clientId);
       res.status(204).send();
     } catch (err: any) {
       res.status(err.statusCode ?? 500).json({ error: err.message });
@@ -94,8 +101,9 @@ router.delete(
   '/:id/permanent',
   async (req: Request<{ id: string }>, res: Response) => {
     try {
+      const userRole = req.user!.role as RoleType;
       const clientId = resolveClientId(req.user!);
-      await GateStaffService.deletePermanently(req.params.id, clientId);
+      await GateStaffService.deletePermanently(req.params.id, userRole, clientId);
       res.status(204).send();
     } catch (err: any) {
       res.status(err.statusCode ?? 500).json({ error: err.message });

@@ -45,8 +45,9 @@ router.get(
     }
 
     try {
+      const userRole = user.role as RoleType;
       const clientId = resolveClientId(user);
-      const occupancy = await ReservationsService.getEventOccupancy(eventId, clientId);
+      const occupancy = await ReservationsService.getEventOccupancy(eventId, userRole, clientId);
       res.json(occupancy);
     } catch (err: any) {
       if (err.message === 'Event not found' || err.statusCode === 403) {
@@ -68,6 +69,7 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const result = await ReservationsService.createReservationAndTicket(
       parsed.data.eventId,
@@ -75,6 +77,7 @@ router.post('/', async (req: Request, res: Response) => {
       parsed.data.chairId,
       parsed.data.invitee,
       parsed.data.roomId,
+      userRole,
       clientId
     );
     res.status(201).json(result);
@@ -85,8 +88,9 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.delete('/:reservationId', async (req: Request<{ reservationId: string }>, res: Response) => {
   try {
+    const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
-    await ReservationsService.cancelReservation(req.params.reservationId, clientId);
+    await ReservationsService.cancelReservation(req.params.reservationId, userRole, clientId);
     res.status(204).send();
   } catch (err: any) {
     res.status(err.statusCode ?? 500).json({ error: err.message ?? 'Failed to cancel reservation' });

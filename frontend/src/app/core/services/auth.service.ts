@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { LoginResponse, VerifyOtpResponse, DecodedToken, RoleType } from '../models/auth.model';
 
 const TOKEN_KEY = 'elite_events_token';
+const OTP_USERNAME_KEY = 'elite_events_otp_username';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -24,14 +25,31 @@ export class AuthService {
         if (!res.otpRequired && res.token) {
           this.setToken(res.token);
         }
+
+        // For CLIENT_ADMIN OTP flow: store username in sessionStorage
+        if (res.otpRequired && res.username) {
+          sessionStorage.setItem(OTP_USERNAME_KEY, res.username);
+        }
       })
     );
   }
 
   verifyOtp(code: string): Observable<VerifyOtpResponse> {
+    // Retrieve the stored username from sessionStorage
+    const username = sessionStorage.getItem(OTP_USERNAME_KEY);
+
     return this.http
-      .post<VerifyOtpResponse>(`${environment.apiUrl}/auth/verify-otp`, { code })
-      .pipe(tap((res) => this.setToken(res.token)));
+      .post<VerifyOtpResponse>(`${environment.apiUrl}/auth/verify-otp`, {
+        code,
+        username  // Pass username for CLIENT_ADMIN OTP verification
+      })
+      .pipe(
+        tap((res) => {
+          this.setToken(res.token);
+          // Clean up stored username after successful OTP verification
+          sessionStorage.removeItem(OTP_USERNAME_KEY);
+        })
+      );
   }
 
   logout(): void {

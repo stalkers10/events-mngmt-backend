@@ -47,6 +47,7 @@ export class CreateEventComponent implements AfterViewInit {
 
   rooms = signal<any[]>([]);
   selectedRoomIds = signal<string[]>([]);
+  submitted = signal(false);
 
   /** Tables being configured for the currently active room. */
   readonly currentTables = computed<TableItem[]>(
@@ -319,6 +320,7 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
   }
 
   async createEvent(): Promise<void> {
+    this.submitted.set(true);
     const selectedRoomIds = this.selectedRoomIds();
     if (!this.eventName() || !this.startTime() || !this.endTime() || selectedRoomIds.length === 0) {
       this.toast.error(this.i18n.t('errors.fillAllFields'));
