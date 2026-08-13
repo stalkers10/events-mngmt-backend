@@ -83,6 +83,7 @@ export class ClientsComponent implements OnInit {
     this.editingClient.set(null);
     this.form.reset();
     this.submitted.set(false);
+    this.showPassword.set(false);
     this.showFormModal.set(true);
   }
 
@@ -92,9 +93,11 @@ export class ClientsComponent implements OnInit {
       // username/password are only used when creating
       name: client.name,
       email: client.email,
-      phone: client.phone || ''
+      phone: client.phone || '',
+      password: ''
     });
     this.submitted.set(false);
+    this.showPassword.set(false);
     this.showFormModal.set(true);
   }
 
@@ -114,7 +117,7 @@ export class ClientsComponent implements OnInit {
     const editing = this.editingClient();
 
     if (editing) {
-      this.clientService.updateClient(editing.id, name!, email!, phone || undefined).subscribe({
+      this.clientService.updateClient(editing.id, name!, email!, phone || undefined, password || undefined).subscribe({
         next: () => {
           this.isSubmitting.set(false);
           this.toast.success(this.translation.t('clients.updatedToast', { name: name! }) || 'Client updated successfully');

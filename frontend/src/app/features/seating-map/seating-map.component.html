@@ -33,11 +33,13 @@
           @if (eventRooms().length > 1) {
             <div class="room-switcher form-field">
               <label>{{ 'events.previewRoom' | translate }}</label>
-              <select [ngModel]="selectedRoomId()" (ngModelChange)="changeSelectedRoom($event)">
-                @for (room of eventRooms(); track room.id) {
-                  <option [value]="room.id">{{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}</option>
-                }
-              </select>
+              <app-custom-select
+                [options]="roomOptions()"
+                [selected]="selectedRoomId()"
+                [placeholder]="'events.previewRoom' | translate"
+                [fullWidth]="true"
+                (selectedChange)="changeSelectedRoom($event)">
+              </app-custom-select>
             </div>
           }
 
@@ -51,18 +53,18 @@
               <div class="grid-background"></div>
               <div class="stage-label">{{ 'events.stage' | translate }}</div>
 
-              @for (table of selectedRoomTables(); track table.id) {
+              @for (item of relaxedTables(); track item.table.id) {
                 <div
                   class="table-group"
-                  [class.selected]="selectedTable()?.id === table.id"
-                  [style.left.px]="getTableX(table)"
-                  [style.top.px]="getTableY(table)"
-                  [style.width.px]="getTableSize(table.chairs.length, table.table_number)"
-                  [style.height.px]="getTableSize(table.chairs.length, table.table_number)"
+                  [class.selected]="selectedTable()?.id === item.table.id"
+                  [style.left.px]="item.x"
+                  [style.top.px]="item.y"
+                  [style.width.px]="getTableSize(item.table.chairs.length, item.table.table_number)"
+                  [style.height.px]="getTableSize(item.table.chairs.length, item.table.table_number)"
                 >
                   <!-- Chairs around table -->
                   <div class="chairs-ring">
-                    @for (pos of getChairPositions(table); track pos.chair.id) {
+                    @for (pos of getChairPositions(item.table); track pos.chair.id) {
                       <div
                         class="chair-wrapper"
                         [style.transform]="'translate(-50%, -50%) rotate(' + pos.angle + 'deg)'"
@@ -75,7 +77,7 @@
                           [class.reserved]="pos.chair.reservation_id"
                           [class.selected]="selectedChair()?.id === pos.chair.id"
                           [title]="pos.chair.invitee_name || ('seating.available' | translate)"
-                          (click)="selectChair(table, pos.chair)"
+                          (click)="selectChair(item.table, pos.chair)"
                         >
                           @if (pos.chair.reservation_id) {
                             <span class="material-symbols-outlined chair-icon">person</span>
@@ -88,9 +90,9 @@
                   </div>
 
                   <!-- Table surface -->
-                  <div class="table-surface" (click)="selectTable(table)">
-                    <span class="table-number">{{ formatTableName(table.table_number) }}</span>
-                    <span class="chair-count">{{ tableReservedSeats(table) }}/{{ table.chairs.length }}</span>
+                  <div class="table-surface" (click)="selectTable(item.table)">
+                    <span class="table-number">{{ formatTableName(item.table.table_number) }}</span>
+                    <span class="chair-count">{{ tableReservedSeats(item.table) }}/{{ item.table.chairs.length }}</span>
                   </div>
                 </div>
               }

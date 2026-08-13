@@ -21,6 +21,7 @@ const updateSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email(),
   phone: z.string().max(50).optional(),
+  password: z.string().min(8).optional(),
 });
 
 /** GET /clients — list all client admins */
@@ -67,6 +68,7 @@ router.put('/:id', async (req: Request<{ id: string }>, res: Response) => {
       parsed.data.name,
       parsed.data.email,
       parsed.data.phone,
+      parsed.data.password,
     );
     res.json(client);
   } catch (err) {

@@ -10,6 +10,60 @@ export interface ErrorDescription {
 }
 
 /**
+ * Flattens an unknown backend error payload into a list of human-readable
+ * messages. Handles Zod's `.flatten()` shape ({ formErrors, fieldErrors }) as
+ * well as `{ error: string }` / `{ message: string }` / plain string bodies.
+ */
+function collectErrorMessages(value: unknown, acc: string[]): void {
+  if (!value || typeof value !== 'object') {
+    if (typeof value === 'string') acc.push(value);
+    return;
+  }
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj['error'] === 'string') {
+    acc.push(obj['error']);
+    return;
+  }
+  if (typeof obj['message'] === 'string') {
+    acc.push(obj['message']);
+    return;
+  }
+  if (Array.isArray(obj['formErrors'])) {
+    for (const e of obj['formErrors']) {
+      if (typeof e === 'string') acc.push(e);
+    }
+  }
+  const fieldErrors = obj['fieldErrors'];
+  if (fieldErrors && typeof fieldErrors === 'object') {
+    for (const messages of Object.values(fieldErrors)) {
+      if (Array.isArray(messages)) {
+        for (const m of messages) {
+          if (typeof m === 'string') acc.push(m);
+        }
+      }
+    }
+  }
+}
+
+/** Converts any backend error payload into a single user-facing string. */
+function toErrorMessage(value: unknown): string {
+  const messages: string[] = [];
+  collectErrorMessages(value, messages);
+  if (messages.length > 0) {
+    return messages.join(' ');
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return 'Unexpected error';
+  }
+}
+
+/**
  * Turns a raw HTTP error (or network failure) into a specific translation
  * key + params, rather than a hardcoded string, so the resulting message
  * respects whichever language is currently selected. The caller passes
@@ -45,7 +99,7 @@ export function describeHttpError(err: unknown, context: ErrorContext = 'generic
 
     case 422:
       return err.error?.error
-        ? { key: '__raw__', params: { raw: err.error.error } }
+        ? { key: '__raw__', params: { raw: toErrorMessage(err.error.error) } }
         : { key: 'errors.invalidInput' };
 
     case 429: {
@@ -62,8 +116,8 @@ export function describeHttpError(err: unknown, context: ErrorContext = 'generic
       return { key: 'errors.serverError' };
 
     default:
-      return err.error?.error
-        ? { key: '__raw__', params: { raw: err.error.error } }
+      return err.error?.error || err.error
+        ? { key: '__raw__', params: { raw: toErrorMessage(err.error?.error ?? err.error) } }
         : { key: 'errors.generic' };
   }
 }

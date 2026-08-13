@@ -6,7 +6,9 @@ import { I18nextPipe } from '../../../core/pipes/i18next.pipe';
 import { I18nextService } from '../../../core/services/i18next.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { VenueService } from '../../../core/services/venue.service';
+import { CustomSelectComponent, SelectOption } from '../../../shared/components/custom-select/custom-select.component';
 import { tableCircleSize } from '../../../core/utils/table-size';
+import { relaxTableLayout } from '../../../core/utils/table-layout';
 
 interface TableItem {
   id: number;
@@ -20,7 +22,7 @@ interface TableItem {
 @Component({
   selector: 'app-create-event',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, I18nextPipe],
+  imports: [CommonModule, FormsModule, RouterLink, I18nextPipe, CustomSelectComponent],
   templateUrl: './create-event.component.html',
   styleUrls: ['./create-event.component.scss']
 })
@@ -60,6 +62,16 @@ export class CreateEventComponent implements AfterViewInit {
   readonly selectedRooms = computed<any[]>(() =>
     this.rooms().filter((r) => this.selectedRoomIds().includes(r.id))
   );
+
+  /** Options for the single-select "preview room" dropdown. */
+  readonly previewRoomOptions = computed<SelectOption[]>(() => {
+    const floor = this.i18n.t('events.floor');
+    const tablesLabel = this.i18n.t('events.tablesLabel');
+    return this.selectedRooms().map((room) => ({
+      value: room.id,
+      label: `${room.room_number} · ${floor} ${room.floor_number} (${this.roomTableCount(room.id)} ${tablesLabel})`,
+    }));
+  });
 
   private setCurrentTables(next: TableItem[]): void {
     const roomId = this.activeRoomId();
@@ -196,6 +208,35 @@ export class CreateEventComponent implements AfterViewInit {
       });
     }
     this.setCurrentTables(newTables);
+    this.relayoutActiveRoom();
+  }
+
+  /**
+   * Recomputes overlap-free positions for the active room's tables, pushing
+   * neighbors apart when one grows. Pure in spirit: it only updates the stored
+   * x/y so the canvas and the final saved layout stay collision-free.
+   */
+  relayoutActiveRoom(): void {
+    const tables = this.currentTables();
+    if (tables.length === 0) return;
+
+    const relaxed = relaxTableLayout(
+      tables.map((t) => ({
+        id: String(t.id),
+        chairs: t.chairs,
+        label: t.name,
+        x: t.x,
+        y: t.y,
+      })),
+    );
+    const byId = new Map(relaxed.map((r) => [r.id, r]));
+
+    this.updateCurrentTables((tabs) =>
+      tabs.map((t) => {
+        const r = byId.get(String(t.id));
+        return r ? { ...t, x: r.x, y: r.y } : t;
+      }),
+    );
   }
 
   onTableClick(table: TableItem, event: MouseEvent): void {
@@ -241,6 +282,7 @@ export class CreateEventComponent implements AfterViewInit {
     if (this.selectedTable()) {
       this.updateCurrentTables(tabs => tabs.map(t => t.id === this.selectedTable()!.id ? { ...t, name } : t));
       this.selectedTable.update(t => t ? { ...t, name } : null);
+      this.relayoutActiveRoom();
     }
   }
 

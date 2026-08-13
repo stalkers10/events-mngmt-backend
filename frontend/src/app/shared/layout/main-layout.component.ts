@@ -43,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
 export class MainLayoutComponent {
   currentUser;
   visibleNavItems;
+  bottomNavItems;
   isAdmin;
   isSuperAdmin;
 
@@ -57,6 +58,10 @@ export class MainLayoutComponent {
 
     this.isAdmin = computed(() => this.auth.isAdmin());
     this.isSuperAdmin = computed(() => this.auth.isSuperAdmin());
+
+    this.bottomNavItems = computed(() =>
+      this.visibleNavItems().filter((item) => item.path !== '/clients')
+    );
   }
 
   logout(): void {

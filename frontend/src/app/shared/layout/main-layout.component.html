@@ -1,19 +1,27 @@
 <div class="app-shell">
   <!-- ---- Mobile top bar (modern-app style: brand left, logout right) ---- -->
-  <header class="mobile-topbar">
-    <div class="brand-compact">
-      <span class="material-symbols-outlined brand-icon">confirmation_number</span>
-      <span class="brand-name">{{ 'common.appName' | translate }}</span>
-    </div>
-    
-    <div style="flex: 1"></div>
-    
-    <app-client-selector *ngIf="isSuperAdmin()"></app-client-selector>
+    <header class="mobile-topbar">
+      <div class="brand-compact">
+        <span class="material-symbols-outlined brand-icon">confirmation_number</span>
+        <span class="brand-name">{{ 'common.appName' | translate }}</span>
+      </div>
 
-    <button type="button" class="icon-btn" (click)="logout()" aria-label="Log out">
-      <span class="material-symbols-outlined">logout</span>
-    </button>
-  </header>
+      <div class="topbar-spacer"></div>
+
+      @if (isSuperAdmin()) {
+        <a class="icon-btn topbar-nav-btn" [routerLink]="'/clients'" routerLinkActive="active" aria-label="Clients">
+          <span class="material-symbols-outlined">corporate_fare</span>
+        </a>
+      }
+
+      <button type="button" class="icon-btn" (click)="logout()" aria-label="Log out">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+
+      <div class="topbar-filter" *ngIf="isSuperAdmin()">
+        <app-client-selector [fullWidth]="true"></app-client-selector>
+      </div>
+    </header>
 
   <!-- ---- Desktop sidebar ---- -->
   <aside class="sidebar">
@@ -28,8 +36,8 @@
       <a routerLink="/events/create" class="btn btn-primary new-event-btn">{{ 'nav.newEvent' | translate }}</a>
     }
     
-    <div class="sidebar-selector" *ngIf="isSuperAdmin()" style="padding: 0 1rem; margin-bottom: 1rem;">
-      <app-client-selector></app-client-selector>
+    <div class="sidebar-selector" *ngIf="isSuperAdmin()" style="margin-bottom: 1rem;">
+      <app-client-selector [fullWidth]="true"></app-client-selector>
     </div>
 
     <nav class="nav-list"> 
@@ -61,7 +69,7 @@
 
   <!-- ---- Mobile bottom nav ---- -->
   <nav class="bottom-nav">
-    @for (item of visibleNavItems(); track item.path) {
+    @for (item of bottomNavItems(); track item.path) {
       <a [routerLink]="item.path" routerLinkActive="active" #mobileNavItem="routerLinkActive" class="bottom-nav-item">
         <span class="material-symbols-outlined nav-icon" [class.icon-filled]="mobileNavItem.isActive">{{ item.icon }}</span>
         <span class="text-label-caps">{{ item.labelKey | translate }}</span>

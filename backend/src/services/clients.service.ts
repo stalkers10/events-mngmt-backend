@@ -102,13 +102,29 @@ export const ClientsService = {
     );
   },
 
-  /** Super Admin: update a client's profile details */
+  /** Super Admin: update a client's profile details (optionally reset password) */
   async update(
     clientId: string,
     name: string,
     email: string,
     phone?: string,
+    password?: string,
   ): Promise<ClientRecord> {
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+      const result = await query<ClientRecord>(
+        `UPDATE users
+         SET name = $1, email = $2, phone = $3, password_hash = $4
+         WHERE id = $5 AND role = 'CLIENT_ADMIN'
+         RETURNING id, username, name, email, phone, is_active, created_at`,
+        [name, email, phone ?? null, passwordHash, clientId],
+      );
+      if (result.rows.length === 0) {
+        throw new Error('Client not found');
+      }
+      return result.rows[0];
+    }
+
     const result = await query<ClientRecord>(
       `UPDATE users
        SET name = $1, email = $2, phone = $3

@@ -1,0 +1,30 @@
+<div class="custom-select" [class.open]="open()">
+  <button type="button" class="cs-trigger" (click)="toggle()">
+    @if (selectedOption?.icon) {
+      <span class="material-symbols-outlined cs-trigger-icon">{{ selectedOption?.icon }}</span>
+    }
+    <span class="cs-value" [class.placeholder]="isPlaceholder">{{ displayLabel }}</span>
+    <span class="material-symbols-outlined cs-chevron">expand_more</span>
+  </button>
+
+  @if (open()) {
+    <div class="cs-panel">
+      @for (opt of options; track opt.value) {
+        <button
+          type="button"
+          class="cs-option"
+          [class.selected]="opt.value === selected"
+          (click)="select(opt)"
+        >
+          @if (opt.icon) {
+            <span class="material-symbols-outlined cs-option-icon">{{ opt.icon }}</span>
+          }
+          <span class="cs-option-label">{{ opt.label }}</span>
+          @if (opt.value === selected) {
+            <span class="material-symbols-outlined cs-check">check</span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

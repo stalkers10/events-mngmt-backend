@@ -3,7 +3,7 @@
   <!-- ═══════════════════════════════════════════════════════
        VIEW 1: Event Picker
   ════════════════════════════════════════════════════════ -->
-  @if (!selectedEvent()) {
+  @if (!selectedEvent() && !viewAll()) {
     <header class="page-header">
       <div>
         <p class="eyebrow">{{ 'guestList.eyebrow' | translate }}</p>
@@ -12,19 +12,30 @@
       </div>
     </header>
 
+    @if (isClientFilterActive()) {
+      <button type="button" class="view-all-card" (click)="viewAllGuests()">
+        <span class="material-symbols-outlined">groups</span>
+        <div class="view-all-text">
+          <h3 class="text-headline-sm">{{ 'guestList.viewAllForClient' | translate }}</h3>
+          <p class="text-body-sm">{{ selectedClientName() }}</p>
+        </div>
+        <span class="material-symbols-outlined view-all-arrow">arrow_forward</span>
+      </button>
+    }
+
     @if (isLoadingEvents()) {
       <div class="state-card">
         <span class="material-symbols-outlined spin">progress_activity</span>
         <p>{{ 'common.loading' | translate }}</p>
       </div>
-    } @else if (events().length === 0) {
+    } @else if (filteredEvents().length === 0) {
       <div class="state-card empty">
         <span class="material-symbols-outlined">event_busy</span>
         <p>{{ 'guestList.noEvents' | translate }}</p>
       </div>
     } @else {
       <div class="event-picker-grid">
-        @for (event of events(); track event.id;) {
+        @for (event of filteredEvents(); track event.id;) {
           <button class="event-picker-card" (click)="selectEvent(event)">
             <!-- State badge -->
             <span class="state-pill"
@@ -62,7 +73,7 @@
   <!-- ═══════════════════════════════════════════════════════
        VIEW 2: Guest List for Selected Event
   ════════════════════════════════════════════════════════ -->
-  @if (selectedEvent(); as activeEvent) {
+  @if (selectedEvent() || viewAll()) {
     <!-- Back header -->
     <div class="guest-view-header">
       <button class="back-btn" (click)="goBack()">
@@ -72,19 +83,29 @@
 
       <div class="event-title-block">
         <p class="eyebrow">{{ 'guestList.eyebrow' | translate }}</p>
-        <h1 class="text-display-lg">{{ activeEvent.name }}</h1>
-        <div class="event-meta-row">
-          <span class="meta-item">
-            <span class="material-symbols-outlined">location_on</span>
-            {{ roomFor(activeEvent)?.room_number ?? '—' }}
-          </span>
-          <span class="meta-item">
-            <span class="material-symbols-outlined">schedule</span>
-            {{ activeEvent.start_time | date: 'MMM d, y · h:mm a' }}
-            &ndash;
-            {{ activeEvent.end_time | date: 'h:mm a' }}
-          </span>
-        </div>
+        @if (selectedEvent(); as activeEvent) {
+          <h1 class="text-display-lg">{{ activeEvent.name }}</h1>
+          <div class="event-meta-row">
+            <span class="meta-item">
+              <span class="material-symbols-outlined">location_on</span>
+              {{ roomFor(activeEvent)?.room_number ?? '—' }}
+            </span>
+            <span class="meta-item">
+              <span class="material-symbols-outlined">schedule</span>
+              {{ activeEvent.start_time | date: 'MMM d, y · h:mm a' }}
+              &ndash;
+              {{ activeEvent.end_time | date: 'h:mm a' }}
+            </span>
+          </div>
+        } @else {
+          <h1 class="text-display-lg">{{ 'guestList.allGuestsTitle' | translate }}</h1>
+          <div class="event-meta-row">
+            <span class="meta-item">
+              <span class="material-symbols-outlined">groups</span>
+              {{ selectedClientName() }}
+            </span>
+          </div>
+        }
       </div>
 
       <!-- Stats chips -->
@@ -145,6 +166,9 @@
             <tr>
               <th>{{ 'guestList.colGuest' | translate }}</th>
               <th>{{ 'guestList.colContact' | translate }}</th>
+              @if (viewAll()) {
+                <th>{{ 'guestList.colEvent' | translate }}</th>
+              }
               <th>{{ 'guestList.colSeat' | translate }}</th>
               <th>{{ 'guestList.colTicket' | translate }}</th>
               <th>{{ 'guestList.colActions' | translate }}</th>
@@ -153,7 +177,7 @@
           <tbody>
             @if (filteredGuests().length === 0) {
               <tr>
-                <td colspan="5" class="no-results">{{ 'guestList.noResults' | translate }}</td>
+                <td [attr.colspan]="viewAll() ? 6 : 5" class="no-results">{{ 'guestList.noResults' | translate }}</td>
               </tr>
             } @else {
               @for (row of filteredGuests(); track row.reservationId;) {
@@ -170,6 +194,10 @@
                   <td class="contact-cell">
                     {{ row.guestEmail || '—' }}
                   </td>
+
+                  @if (viewAll()) {
+                    <td class="event-cell">{{ row.eventName }}</td>
+                  }
 
                   <!-- Seat -->
                   <td>
@@ -222,14 +250,17 @@
       <div class="mobile-guest-cards">
         @for (row of filteredGuests(); track row.reservationId) {
           <div class="mobile-guest-card card">
-            <div class="mgc-top">
-              <div class="guest-cell">
-                <div class="avatar">{{ row.guestName.charAt(0).toUpperCase() }}</div>
-                <div>
-                  <p class="guest-name">{{ row.guestName }}</p>
-                  <p class="contact-cell">{{ row.guestEmail || '—' }}</p>
-                </div>
-              </div>
+             <div class="mgc-top">
+               <div class="guest-cell">
+                 <div class="avatar">{{ row.guestName.charAt(0).toUpperCase() }}</div>
+                 <div>
+                   <p class="guest-name">{{ row.guestName }}</p>
+                   <p class="contact-cell">{{ row.guestEmail || '—' }}</p>
+                   @if (viewAll()) {
+                     <p class="event-cell text-body-sm">{{ row.eventName }}</p>
+                   }
+                 </div>
+               </div>
               @if (row.ticketId) {
                 <span class="ticket-status"
                       [class.status-issued]="row.ticketStatus === 'ISSUED'"

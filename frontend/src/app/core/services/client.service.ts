@@ -26,8 +26,10 @@ export class ClientService {
     return this.http.post<ClientRecord>(`${environment.apiUrl}/clients`, { username, password, name, email, phone });
   }
 
-  updateClient(id: string, name: string, email: string, phone?: string): Observable<ClientRecord> {
-    return this.http.put<ClientRecord>(`${environment.apiUrl}/clients/${id}`, { name, email, phone });
+  updateClient(id: string, name: string, email: string, phone?: string, password?: string): Observable<ClientRecord> {
+    const body: { name: string; email: string; phone?: string; password?: string } = { name, email, phone };
+    if (password) body.password = password;
+    return this.http.put<ClientRecord>(`${environment.apiUrl}/clients/${id}`, body);
   }
 
   deactivateClient(id: string): Observable<void> {

@@ -122,9 +122,13 @@ export class DashboardComponent implements OnInit {
     return 'available';
   }
 
-  displayedRooms(): Room[] {
+  filteredRooms(): Room[] {
     const validBuildingIds = new Set(this.clientFilter.filterList(this.buildings()).map(b => b.id));
-    return [...this.rooms()].filter(r => validBuildingIds.has(r.building_id)).reverse().slice(0, 4);
+    return this.rooms().filter(r => validBuildingIds.has(r.building_id));
+  }
+
+  displayedRooms(): Room[] {
+    return [...this.filteredRooms()].reverse().slice(0, 4);
   }
 
   displayedEvents(): EventSummary[] {

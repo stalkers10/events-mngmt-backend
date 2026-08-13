@@ -97,7 +97,7 @@
             @for (client of filteredClients(); track client.id) {
               <div class="client-card">
                 <div class="client-card-top">
-                  <div class="client-identity">
+                  <div class="client-card-identity">
                     <span class="client-card-name">{{ client.name }}</span>
                     @if (client.is_active) {
                       <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
@@ -105,7 +105,7 @@
                       <span class="chip chip-inactive">{{ 'common.deactivated' | translate }}</span>
                     }
                   </div>
-                  <span class="client-card-meta text-body-sm muted">{{ client.created_at | date:'MMM d, y' }}</span>
+                  <span class="client-card-date text-body-sm muted">{{ client.created_at | date:'MMM d, y' }}</span>
                 </div>
 
                 <div class="client-card-body">
@@ -183,6 +183,34 @@
             </div>
             @if (submitted() && form.controls.password.invalid) {
               <p class="invalid-feedback">{{ 'clients.passwordRequired' | translate }}</p>
+            }
+          </div>
+        }
+
+        @if (editingClient()) {
+          <div class="form-field">
+            <label>{{ 'clients.newPassword' | translate }}</label>
+            <div class="password-input-wrapper">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="At least 8 characters"
+                [class.field-invalid]="form.controls.password.invalid"
+              />
+              <button
+                type="button"
+                class="toggle-password-btn"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+                <span class="material-symbols-outlined">
+                  {{ showPassword() ? 'visibility_off' : 'visibility' }}
+                </span>
+              </button>
+            </div>
+            <small class="hint">{{ 'clients.newPasswordHint' | translate }}</small>
+            @if (form.controls.password.invalid) {
+              <p class="invalid-feedback">{{ 'clients.passwordMinLength' | translate }}</p>
             }
           </div>
         }

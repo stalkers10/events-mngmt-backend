@@ -9,14 +9,16 @@ import { EventOccupancy, OccupancyTable, OccupancyChair, VenueService } from '..
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { CustomSelectComponent, SelectOption } from '../../shared/components/custom-select/custom-select.component';
 import { isEventExpired } from '../../core/utils/event-status';
 import { formatTableName } from '../../core/utils/table-name';
 import { tableCircleSize } from '../../core/utils/table-size';
+import { relaxTableLayout } from '../../core/utils/table-layout';
 
 @Component({
   selector: 'app-seating-map',
   standalone: true,
-  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule, ConfirmationDialogComponent],
+  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule, ConfirmationDialogComponent, CustomSelectComponent],
   templateUrl: './seating-map.component.html',
   styleUrl: './seating-map.component.scss',
 })
@@ -50,6 +52,34 @@ export class SeatingMapComponent implements OnInit {
   readonly selectedRoomTables = computed<OccupancyTable[]>(() => {
     const selectedRoomId = this.selectedRoomId();
     return (this.occupancy()?.tables ?? []).filter((table) => table.room_id === selectedRoomId);
+  });
+
+  readonly roomOptions = computed<SelectOption[]>(() => {
+    const floor = this.translation.t('events.floor');
+    return this.eventRooms().map((room) => ({
+      value: room.id,
+      label: `${room.room_number} · ${floor} ${room.floor_number}`,
+    }));
+  });
+
+  // Relaxed, overlap-free positions for the currently displayed room. Purely a
+  // display transform — the stored `table.position` is never modified.
+  readonly relaxedTables = computed<{ table: OccupancyTable; x: number; y: number }[]>(() => {
+    const tables = this.selectedRoomTables();
+    const relaxed = relaxTableLayout(
+      tables.map((t) => ({
+        id: t.id,
+        chairs: t.chairs.length,
+        label: t.table_number,
+        x: this.getTableX(t),
+        y: this.getTableY(t),
+      })),
+    );
+    const byId = new Map(relaxed.map((r) => [r.id, r]));
+    return tables.map((t) => {
+      const r = byId.get(t.id)!;
+      return { table: t, x: r.x, y: r.y };
+    });
   });
 
   readonly isEventExpired = computed(() => {

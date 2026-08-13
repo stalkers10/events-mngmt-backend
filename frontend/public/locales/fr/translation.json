@@ -223,7 +223,10 @@
     "colStatus": "Statut",
     "colActions": "Actions",
     "usernameRequired": "Le nom d'utilisateur est requis (min 3 caractères).",
-    "passwordRequired": "Le mot de passe doit contenir au moins 8 caractères."
+    "passwordRequired": "Le mot de passe doit contenir au moins 8 caractères.",
+    "newPassword": "Nouveau mot de passe",
+    "newPasswordHint": "Laisser vide pour conserver le mot de passe actuel.",
+    "passwordMinLength": "Le mot de passe doit comporter au moins 8 caractères."
   },
   "seating": {
     "backToEvents": "Retour aux événements",
@@ -320,7 +323,10 @@
     "ticketIssued": "Émis",
     "ticketCancelled": "Annulé",
     "confirmCancel": "Annuler la réservation de {{name}} ?",
-    "cancelledToast": "Réservation annulée avec succès."
+    "cancelledToast": "Réservation annulée avec succès.",
+    "viewAllForClient": "Voir tous les invités de ce client",
+    "allGuestsTitle": "Tous les invités",
+    "colEvent": "Événement"
   },
   "errors": {
     "wrongCredentials": "Nom d’utilisateur ou mot de passe incorrect.",

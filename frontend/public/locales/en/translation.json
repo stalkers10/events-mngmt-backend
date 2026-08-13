@@ -231,7 +231,10 @@
     "colStatus": "Status",
     "colActions": "Actions",
     "usernameRequired": "Username is required (min 3 characters).",
-    "passwordRequired": "Password must be at least 8 characters."
+    "passwordRequired": "Password must be at least 8 characters.",
+    "newPassword": "New password",
+    "newPasswordHint": "Leave blank to keep the current password.",
+    "passwordMinLength": "Password must be at least 8 characters."
   },
   "seating": {
     "backToEvents": "Back to events",
@@ -327,7 +330,10 @@
     "ticketIssued": "Issued",
     "ticketCancelled": "Cancelled",
     "confirmCancel": "Cancel reservation for {{name}}?",
-    "cancelledToast": "Reservation cancelled successfully."
+    "cancelledToast": "Reservation cancelled successfully.",
+    "viewAllForClient": "View all guests for this client",
+    "allGuestsTitle": "All Guests",
+    "colEvent": "Event"
   },
   "errors": {
     "wrongCredentials": "Incorrect username or password.",

@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { RoleType } from '../../core/models/auth.model';
 import { VenueService, EventOccupancy, OccupancyTable, OccupancyChair } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { ClientFilterService } from '../../core/services/client-filter.service';
 import { EventSummary, Room } from '../../core/models/dashboard.model';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { getEventState, isEventVisible } from '../../core/utils/event-status';
@@ -24,6 +25,8 @@ export interface GuestRow {
   reservationId: string;
   tableNumber: string;
   chairNumber: string;
+  eventId?: string;
+  eventName?: string;
 }
 
 @Component({
@@ -42,6 +45,11 @@ export class GuestListComponent implements OnInit {
   readonly isLoadingEvents = signal(true);
   readonly isLoadingGuests = signal(false);
 
+  // Client-scoped "view all guests" mode (super admin with a client filter active)
+  readonly viewAll = signal(false);
+  readonly aggregatedGuests = signal<GuestRow[]>([]);
+  readonly aggregatedTotalSeats = signal(0);
+
   readonly formatTableName = formatTableNameFn;
 
   // Search / filter
@@ -51,6 +59,7 @@ export class GuestListComponent implements OnInit {
   readonly pendingCancelReservation = signal<GuestRow | null>(null);
 
   readonly guests = computed<GuestRow[]>(() => {
+    if (this.viewAll()) return this.aggregatedGuests();
     const occ = this.occupancy();
     if (!occ) return [];
     const rows: GuestRow[] = [];
@@ -83,21 +92,40 @@ export class GuestListComponent implements OnInit {
     );
   });
 
-  readonly totalSeats = computed(() =>
-    this.occupancy()?.tables.reduce((n, t) => n + t.chairs.length, 0) ?? 0
-  );
+  readonly totalSeats = computed(() => {
+    if (this.viewAll()) return this.aggregatedTotalSeats();
+    return this.occupancy()?.tables.reduce((n, t) => n + t.chairs.length, 0) ?? 0;
+  });
 
   readonly reservedSeats = computed(() => this.guests().length);
 
   readonly isAdmin = computed(() => this.auth.hasRole(RoleType.ADMIN));
+
+  readonly isClientFilterActive = computed(
+    () => this.auth.isSuperAdmin() && !!this.clientFilter.selectedClientId()
+  );
+
+  readonly selectedClientName = computed(() => {
+    const id = this.clientFilter.selectedClientId();
+    return this.clientFilter.clients().find((c) => c.id === id)?.name ?? '';
+  });
+
+  readonly filteredEvents = computed(() => this.clientFilter.filterList(this.events()));
 
   constructor(
     private venues: VenueService,
     private dashboard: DashboardService,
     private toast: ToastService,
     public i18n: I18nextService,
-    private auth: AuthService
-  ) {}
+    private auth: AuthService,
+    public clientFilter: ClientFilterService
+  ) {
+    // Reset the view whenever the super admin changes the client filter
+    effect(() => {
+      this.clientFilter.selectedClientId();
+      this.resetView();
+    });
+  }
 
   ngOnInit(): void {
     this.loadEvents();
@@ -122,9 +150,61 @@ export class GuestListComponent implements OnInit {
   }
 
   selectEvent(event: EventSummary): void {
+    this.viewAll.set(false);
     this.selectedEvent.set(event);
     this.searchQuery.set('');
     this.loadGuests(event.id);
+  }
+
+  viewAllGuests(): void {
+    const eventsForClient = this.filteredEvents();
+    this.viewAll.set(true);
+    this.selectedEvent.set(null);
+    this.searchQuery.set('');
+
+    if (eventsForClient.length === 0) {
+      this.aggregatedGuests.set([]);
+      this.aggregatedTotalSeats.set(0);
+      return;
+    }
+
+    this.isLoadingGuests.set(true);
+    const requests = eventsForClient.map((e) =>
+      this.venues.occupancy(e.id).pipe(map((occ) => ({ event: e, occ })))
+    );
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        const rows: GuestRow[] = [];
+        let totalSeats = 0;
+        for (const { event, occ } of results) {
+          for (const table of occ.tables) {
+            totalSeats += table.chairs.length;
+            for (const chair of table.chairs) {
+              if (chair.reservation_id && chair.invitee_name) {
+                rows.push({
+                  guestName: chair.invitee_name,
+                  guestEmail: chair.invitee_email,
+                  ticketId: chair.ticket_id,
+                  ticketStatus: chair.ticket_status,
+                  reservationId: chair.reservation_id,
+                  tableNumber: table.table_number,
+                  chairNumber: chair.chair_number,
+                  eventId: event.id,
+                  eventName: event.name,
+                });
+              }
+            }
+          }
+        }
+        this.aggregatedGuests.set(rows);
+        this.aggregatedTotalSeats.set(totalSeats);
+        this.isLoadingGuests.set(false);
+      },
+      error: () => {
+        this.isLoadingGuests.set(false);
+        this.toast.error(this.i18n.t('errors.loadFailed'));
+      },
+    });
   }
 
   loadGuests(eventId: string): void {
@@ -142,8 +222,15 @@ export class GuestListComponent implements OnInit {
   }
 
   goBack(): void {
+    this.resetView();
+  }
+
+  private resetView(): void {
     this.selectedEvent.set(null);
+    this.viewAll.set(false);
     this.occupancy.set(null);
+    this.aggregatedGuests.set([]);
+    this.aggregatedTotalSeats.set(0);
   }
 
   roomFor(event: EventSummary): Room | undefined {
@@ -175,8 +262,12 @@ export class GuestListComponent implements OnInit {
     this.venues.cancelReservation(reservation.reservationId).subscribe({
       next: () => {
         this.toast.success(this.i18n.t('guestList.cancelledToast') || 'Reservation cancelled.');
-        const ev = this.selectedEvent();
-        if (ev) this.loadGuests(ev.id);
+        if (this.viewAll()) {
+          this.viewAllGuests();
+        } else {
+          const ev = this.selectedEvent();
+          if (ev) this.loadGuests(ev.id);
+        }
       },
       error: () => this.toast.error(this.i18n.t('errors.generic')),
     });

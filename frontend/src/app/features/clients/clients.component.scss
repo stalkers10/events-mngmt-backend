@@ -220,6 +220,11 @@ tr.processing {
   gap: 0.75rem;
   justify-content: flex-end;
   margin-top: var(--space-md);
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 /* ---- List card & table (match gate-staff layout exactly) ---- */
@@ -245,28 +250,39 @@ tr.processing {
   position: relative;
   display: flex;
   align-items: center;
+  max-width: 420px;
+  width: 100%;
+}
+
+.search-icon {
+  position: relative;
+  left: 70px;
+  font-size: 20px;
+  color: var(--color-on-surface-variant);
+  pointer-events: none;
+  margin-right: 50px;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 44px 12px 56px;
+  padding: 12px 48px 12px 56px;
   min-height: 44px;
   border: 1px solid var(--color-input-border);
   border-radius: 16px;
   background: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
-  font-size: 15px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.search-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-container);
+  box-shadow: 0 0 0 3px rgba(87, 0, 19, 0.12);
+}
+
+.search-input::placeholder {
   color: var(--color-on-surface-variant);
-  pointer-events: none;
-  z-index: 2;
 }
 
 .clear-btn {
@@ -334,12 +350,23 @@ tr.processing {
   .table-responsive, .clients-table { display: none; }
   .client-cards { display: flex; flex-direction: column; gap: 0; }
 
+  .page-title { font-size: 1.4rem; }
+  .page-subtitle { font-size: 0.85rem; }
+  .section-title { font-size: 1rem; }
+
   .client-card { display:flex; flex-direction:column; gap: var(--space-sm); padding: var(--space-md) 0; border-bottom:1px solid var(--color-input-border); }
+  .client-card:last-child { border-bottom: none; }
+
   .client-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap: var(--space-sm); }
   .client-card-identity { display:flex; flex-direction:column; gap:6px; min-width:0; }
-  .client-card-name { font-size:15px; font-weight:700; color: var(--color-on-surface); word-break:break-all; }
-  .client-card-date { flex-shrink:0; font-size:12px; color:var(--color-on-surface-variant); padding-top:2px; }
+  .client-card-name { font-size:14px; font-weight:700; color: var(--color-on-surface); word-break:break-all; }
+  .client-card-date { flex-shrink:0; font-size:11px; color:var(--color-on-surface-variant); padding-top:2px; }
+
+  .client-card-body { display:flex; flex-direction:column; gap:4px; font-size:15px; color: var(--color-on-surface-variant); }
+  .client-card-body .muted { font-size:12px; }
 
   .client-card-actions { display:flex; flex-wrap:wrap; gap: var(--space-sm); margin-top:4px; }
-  .client-card-actions .btn { flex:1 1 calc(50% - var(--space-sm)); min-width:110px; font-size:13px; padding:8px 12px; text-align:center; justify-content:center; }
+  .client-card-actions .btn { flex:1 1 calc(50% - var(--space-sm)); min-width:110px; font-size:14px; padding:7px 10px; text-align:center; justify-content:center; }
+
+  .search-input { font-size: 14px; }
 }

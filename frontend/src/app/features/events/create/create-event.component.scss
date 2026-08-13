@@ -156,72 +156,90 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid #d8d8d8;
-  border-radius: 14px;
-  background: #ffffff;
-  color: var(--text-primary);
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   text-align: left;
   min-height: 50px;
   font-weight: 500;
-}
+  font-size: 0.9rem;
 
-.room-dropdown-toggle:hover {
-  border-color: rgba(123, 97, 255, 0.25);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
+  &:hover {
+    border-color: var(--color-outline-variant);
+  }
 
-.room-dropdown-toggle .material-symbols-outlined {
-  font-size: 24px;
-  color: var(--text-secondary);
+  &.open {
+    border-color: var(--color-primary-container);
+    box-shadow: 0 0 0 3px rgba(87, 0, 19, 0.12);
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.3rem;
+    color: var(--color-on-surface-variant);
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  &.open .material-symbols-outlined {
+    transform: rotate(180deg);
+  }
 }
 
 .room-dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
   z-index: 20;
-  max-height: 260px;
+  max-height: 280px;
   overflow: auto;
-  padding: 8px 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.08);
+  padding: 0.35rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--color-surface-container-lowest);
+  box-shadow: var(--shadow-level-2, 0 6px 24px rgba(128, 0, 32, 0.08));
+  animation: room-pop 0.16s ease;
+}
+
+@keyframes room-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .room-dropdown-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 0.7rem 0.75rem;
   cursor: pointer;
-  color: var(--text-primary);
-  font-size: 14px;
+  color: var(--color-on-surface);
+  font-size: 0.9rem;
+  border-radius: var(--radius-sm, 0.25rem);
   transition: background 0.15s ease;
-}
 
-.room-dropdown-item:hover {
-  background: rgba(123, 97, 255, 0.06);
-}
+  &:hover {
+    background: var(--color-surface-container);
+  }
 
-.room-dropdown-item input {
-  margin: 0;
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-primary-container);
+  input {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+  }
 }
 
 .room-dropdown-chip {
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(123, 97, 255, 0.12);
-  color: var(--color-primary-container);
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
   font-size: 12px;
   white-space: nowrap;
 }

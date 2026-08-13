@@ -131,13 +131,31 @@
   .mobile-topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
     position: sticky;
     top: 0;
     z-index: 20;
     background-color: var(--color-background);
     border-bottom: 1px solid var(--color-input-border);
     padding: 12px var(--space-md);
+  }
+
+  .topbar-spacer {
+    flex: 1;
+  }
+
+  .topbar-filter {
+    flex-basis: 100%;
+    margin-top: 10px;
+  }
+
+  .topbar-nav-btn {
+    text-decoration: none;
+  }
+
+  .topbar-nav-btn.active {
+    background-color: var(--color-surface-container-low);
+    color: var(--color-primary-container);
   }
 
   .brand-compact {
