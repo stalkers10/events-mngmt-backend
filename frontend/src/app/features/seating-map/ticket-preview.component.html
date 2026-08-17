@@ -49,9 +49,19 @@
               <span class="text-label-caps label">Venue</span>
               <span class="text-body-sm value">Room {{ details.room_number }} (Floor {{ details.floor_number }})</span>
             </div>
+            @if (details.reservation_type === 'COUPLE') {
+              <div class="detail-item">
+                <span class="text-label-caps label">Type</span>
+                <span class="text-body-sm value couple-type-value">{{ 'ticket.coupleLabel' | translate }}</span>
+              </div>
+            }
             <div class="detail-item">
               <span class="text-label-caps label">Seating</span>
-              <span class="text-body-sm value">Table {{ details.table_number }}, Chair {{ details.chair_number }}</span>
+              <span class="text-body-sm value">@if (details.reservation_type === 'COUPLE') {
+                Table {{ details.table_number }}, Chairs {{ details.chair_number }} & {{ details.paired_chair_number }}
+              } @else {
+                Table {{ details.table_number }}, Chair {{ details.chair_number }}
+              }</span>
             </div>
           </div>
 

@@ -33,6 +33,7 @@ export class SeatingMapComponent implements OnInit {
   readonly selectedChair = signal<OccupancyChair | null>(null);
   readonly selectedTable = signal<OccupancyTable | null>(null);
   readonly selectedRoomId = signal('');
+  readonly reservationType = signal<'SINGLE' | 'COUPLE'>('SINGLE');
 
   readonly tableNameDraft = signal('');
   readonly isSavingTable = signal(false);
@@ -60,6 +61,21 @@ export class SeatingMapComponent implements OnInit {
       value: room.id,
       label: `${room.room_number} · ${floor} ${room.floor_number}`,
     }));
+  });
+
+  // When a couple reservation is being built, highlight the "next" chair that
+  // will be auto-reserved for the partner. No wrap: the last chair has no
+  // neighbor, so the couple toggle will surface an error on assign instead.
+  readonly partnerPreviewChairId = computed<string | null>(() => {
+    if (this.reservationType() !== 'COUPLE') return null;
+    const chair = this.selectedChair();
+    const table = this.selectedTable();
+    if (!chair || !table || chair.reservation_id) return null;
+    const idx = table.chairs.findIndex((c) => c.id === chair.id);
+    if (idx < 0 || idx + 1 >= table.chairs.length) return null;
+    const neighbor = table.chairs[idx + 1];
+    if (neighbor.reservation_id) return null;
+    return neighbor.id;
   });
 
   // Relaxed, overlap-free positions for the currently displayed room. Purely a
@@ -250,6 +266,7 @@ export class SeatingMapComponent implements OnInit {
     }
     this.selectedTable.set(table);
     this.selectedChair.set(chair);
+    this.reservationType.set('SINGLE');
 
     if (!chair.reservation_id) {
       this.inviteeName = '';
@@ -340,11 +357,32 @@ export class SeatingMapComponent implements OnInit {
     }
 
     this.isAssigning = true;
+
+    const type = this.reservationType();
+    let pairedChairId: string | undefined;
+    if (type === 'COUPLE') {
+      const idx = table.chairs.findIndex((c) => c.id === chair.id);
+      if (idx < 0 || idx + 1 >= table.chairs.length) {
+        this.isAssigning = false;
+        this.toast.error(this.translation.t('seating.coupleNoAdjacent') || 'Cannot reserve a couple: no adjacent seat available.');
+        return;
+      }
+      const neighbor = table.chairs[idx + 1];
+      if (neighbor.reservation_id) {
+        this.isAssigning = false;
+        this.toast.error(this.translation.t('seating.chairUnavailableForCouple') || 'Cannot reserve a couple: the adjacent seat is already taken.');
+        return;
+      }
+      pairedChairId = neighbor.id;
+    }
+
     const payload = {
       eventId: activeEvent.id,
       tableId: table.id,
       chairId: chair.id,
+      pairedChairId,
       roomId: this.selectedRoomId() || undefined,
+      type,
       invitee: {
         name: this.inviteeName.trim(),
         email: this.inviteeEmail.trim() || undefined,
@@ -355,7 +393,11 @@ export class SeatingMapComponent implements OnInit {
     this.venues.createReservation(payload).subscribe({
       next: (res) => {
         this.isAssigning = false;
-        this.toast.success('Seat assigned successfully.');
+        this.toast.success(
+          type === 'COUPLE'
+            ? (this.translation.t('seating.coupleAssigned') || 'Couple seats assigned successfully.')
+            : 'Seat assigned successfully.'
+        );
         this.closeSidebar();
         this.router.navigate(['/tickets', res.ticketId]);
       },

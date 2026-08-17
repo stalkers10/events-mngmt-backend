@@ -76,6 +76,7 @@
                           class="chair"
                           [class.reserved]="pos.chair.reservation_id"
                           [class.selected]="selectedChair()?.id === pos.chair.id"
+                          [class.couple-partner]="partnerPreviewChairId() === pos.chair.id"
                           [title]="pos.chair.invitee_name || ('seating.available' | translate)"
                           (click)="selectChair(item.table, pos.chair)"
                         >
@@ -186,6 +187,21 @@
         } @else {
           <!-- Form to Assign Seat -->
           <form (submit)="assignSeat()" class="assignment-form">
+            <div class="reservation-type-toggle">
+              <span class="text-label-caps field-label">{{ 'seating.reservationType' | translate }}</span>
+              <div class="toggle-group">
+                <button type="button" class="toggle-option" [class.active]="reservationType() === 'SINGLE'" (click)="reservationType.set('SINGLE')">
+                  {{ 'seating.single' | translate }}
+                </button>
+                <button type="button" class="toggle-option" [class.active]="reservationType() === 'COUPLE'" (click)="reservationType.set('COUPLE')">
+                  {{ 'seating.couple' | translate }}
+                </button>
+              </div>
+              @if (reservationType() === 'COUPLE') {
+                <p class="couple-hint text-body-sm">{{ 'seating.coupleHint' | translate }}</p>
+              }
+            </div>
+
             @if (eventRooms().length > 1) {
               <div class="form-field">
                 <label for="guest-room">Room *</label>

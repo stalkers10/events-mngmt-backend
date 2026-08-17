@@ -262,6 +262,14 @@
     box-shadow: 0 0 0 3px rgba(0, 44, 81, 0.2);
     transform: scale(1.2);
   }
+
+  &.couple-partner {
+    border-color: #c98a00;
+    background: #fff7e6;
+    color: #8a5a00;
+    box-shadow: 0 0 0 3px rgba(201, 138, 0, 0.25);
+    transform: scale(1.12);
+  }
 }
 
 .table-surface {
@@ -517,6 +525,57 @@
         box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.1);
       }
     }
+  }
+}
+
+.reservation-type-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .toggle-option {
+    flex: 1 1 0;
+    min-height: 42px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-default);
+    background: var(--color-surface-container-lowest);
+    color: var(--color-on-surface-variant);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: var(--color-primary-container);
+    }
+
+    &.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+      box-shadow: var(--shadow-level-1);
+    }
+  }
+
+  .couple-hint {
+    margin: 0;
+    color: var(--color-on-surface-variant);
+    font-size: 12px;
+    line-height: 1.4;
   }
 }
 

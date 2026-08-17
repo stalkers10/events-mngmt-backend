@@ -21,6 +21,9 @@ export interface TicketDetails {
   reservation_room_id: string | null;
   table_number: string;
   chair_number: string;
+  reservation_type: string;
+  paired_table_number: string | null;
+  paired_chair_number: string | null;
 }
 
 export interface ScanResult {
@@ -34,9 +37,12 @@ export const TicketsService = {
       `SELECT t.*, 
               e.id as event_id, e.name as event_name, e.start_time, 
               i.name as invitee_name, 
-              rm.room_number, rm.floor_number, r.room_id as reservation_room_id, 
+              rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
-              ch.chair_number
+              ch.chair_number,
+              r.reservation_type,
+              (SELECT tb2.table_number FROM reservations r2 JOIN tables tb2 ON r2.table_id = tb2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_table_number,
+              (SELECT ch2.chair_number FROM reservations r2 JOIN chairs ch2 ON r2.chair_id = ch2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_chair_number
         FROM tickets t
         JOIN reservations r ON t.reservation_id = r.id
         JOIN events e ON r.event_id = e.id
@@ -57,7 +63,10 @@ export const TicketsService = {
               i.name as invitee_name, 
               rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
-              ch.chair_number
+              ch.chair_number,
+              r.reservation_type,
+              (SELECT tb2.table_number FROM reservations r2 JOIN tables tb2 ON r2.table_id = tb2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_table_number,
+              (SELECT ch2.chair_number FROM reservations r2 JOIN chairs ch2 ON r2.chair_id = ch2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_chair_number
         FROM tickets t
         JOIN reservations r ON t.reservation_id = r.id
         JOIN events e ON r.event_id = e.id
@@ -120,11 +129,21 @@ export const TicketsService = {
           width: textWidth,
           align: 'left',
         });
-        doc.font('Helvetica').fontSize(11).text(`Room ${details.room_number} · Floor ${details.floor_number} · Table ${details.table_number} · Chair ${details.chair_number}`, bannerX + 18, y + 70, {
+        const isCouple = details.reservation_type === 'COUPLE';
+        const seatText = isCouple
+          ? `Table ${details.table_number} · Chairs ${details.chair_number} & ${details.paired_chair_number}`
+          : `Table ${details.table_number} · Chair ${details.chair_number}`;
+        doc.font('Helvetica').fontSize(11).text(`Room ${details.room_number} · Floor ${details.floor_number} · ${seatText}`, bannerX + 18, y + 70, {
           width: textWidth,
           align: 'left',
           lineGap: 4,
         });
+        if (isCouple) {
+          doc.fillColor(brandColor).font('Helvetica-Bold').fontSize(11).text('Couple reservation', bannerX + 18, y + 92, {
+            width: textWidth,
+            align: 'left',
+          });
+        }
 
         const qrX = bannerX + bannerWidth - qrSize - 18;
         const qrY = y + 24;
@@ -193,7 +212,10 @@ export const TicketsService = {
               i.name as invitee_name, 
               rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
-              ch.chair_number
+              ch.chair_number,
+              r.reservation_type,
+              (SELECT tb2.table_number FROM reservations r2 JOIN tables tb2 ON r2.table_id = tb2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_table_number,
+              (SELECT ch2.chair_number FROM reservations r2 JOIN chairs ch2 ON r2.chair_id = ch2.id WHERE r2.couple_group_id = r.couple_group_id AND r2.id <> r.id LIMIT 1) as paired_chair_number
         FROM tickets t
         JOIN reservations r ON t.reservation_id = r.id
         JOIN events e ON r.event_id = e.id

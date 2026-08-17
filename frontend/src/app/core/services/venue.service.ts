@@ -103,7 +103,9 @@ export class VenueService {
     eventId: string;
     tableId: string;
     chairId: string;
+    pairedChairId?: string;
     roomId?: string;
+    type?: 'SINGLE' | 'COUPLE';
     invitee: { name: string; email?: string; phone?: string };
   }): Observable<any> {
     return this.http.post(`${environment.apiUrl}/reservations`, payload);

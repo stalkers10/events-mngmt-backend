@@ -5,11 +5,12 @@ import { VenueService } from '../../core/services/venue.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 
 @Component({
   selector: 'app-ticket-preview',
   standalone: true,
-  imports: [CommonModule, ConfirmationDialogComponent],
+  imports: [CommonModule, ConfirmationDialogComponent, I18nextPipe],
   templateUrl: './ticket-preview.component.html',
   styleUrl: './ticket-preview.component.scss'
 })

@@ -244,7 +244,17 @@
     "filled": "filled",
     "available": "Available",
     "reserved": "Reserved",
-    "selected": "Selected"
+    "selected": "Selected",
+    "reservationType": "Reservation Type",
+    "single": "Single",
+    "couple": "Couple",
+    "coupleHint": "The next seat will be reserved automatically for your partner.",
+    "coupleAssigned": "Couple seats assigned successfully.",
+    "coupleNoAdjacent": "Cannot reserve a couple: no adjacent seat available.",
+    "chairUnavailableForCouple": "Cannot reserve a couple: the adjacent seat is already taken."
+  },
+  "ticket": {
+    "coupleLabel": "Couple reservation"
   },
   "auth": {
     "login": {

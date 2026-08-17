@@ -236,7 +236,17 @@
     "filled": "occupées",
     "available": "Dispo",
     "reserved": "Réservé",
-    "selected": "Sélectionné"
+    "selected": "Sélectionné",
+    "reservationType": "Type de réservation",
+    "single": "Simple",
+    "couple": "Couple",
+    "coupleHint": "Le siège suivant sera réservé automatiquement pour votre partenaire.",
+    "coupleAssigned": "Places de couple réservées avec succès.",
+    "coupleNoAdjacent": "Impossible de réserver en couple : aucun siège adjacent disponible.",
+    "chairUnavailableForCouple": "Impossible de réserver en couple : le siège adjacent est déjà pris."
+  },
+  "ticket": {
+    "coupleLabel": "Réservation en couple"
   },
   "auth": {
     "login": {

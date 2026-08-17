@@ -11,7 +11,9 @@ const createReservationSchema = z.object({
   eventId: z.string().uuid(),
   tableId: z.string().uuid(),
   chairId: z.string().uuid(),
+  pairedChairId: z.string().uuid().optional(),
   roomId: z.string().uuid().optional(),
+  type: z.enum(['SINGLE', 'COUPLE']).default('SINGLE'),
   invitee: z.object({
     name: z.string().min(1),
     email: z.string().email().optional(),
@@ -78,7 +80,9 @@ router.post('/', async (req: Request, res: Response) => {
       parsed.data.invitee,
       parsed.data.roomId,
       userRole,
-      clientId
+      clientId,
+      parsed.data.type,
+      parsed.data.pairedChairId
     );
     res.status(201).json(result);
   } catch (err: any) {

@@ -64,19 +64,21 @@ export const ReservationsService = {
     invitee: { name: string, email?: string, phone?: string },
     roomId?: string | null,
     userRole?: RoleType,
-    clientId?: string
+    clientId?: string,
+    type: 'SINGLE' | 'COUPLE' = 'SINGLE',
+    pairedChairId?: string
   ) {
     return await withTransaction(async (client) => {
       let sql = `SELECT room_id, room_ids, end_time FROM events WHERE id = $1`;
       const params: any[] = [eventId];
-      
+       
       if (userRole === RoleType.CLIENT_ADMIN && clientId) {
         params.push(clientId);
         sql += ` AND client_id = $${params.length}`;
       }
-      
+       
       const eventRes = await client.query<{ room_id: string, room_ids: any, end_time: Date }>(sql, params);
-      
+       
       if (eventRes.rows.length === 0) {
         throw new NotFoundOrForbiddenError('Event not found or access denied');
       }
@@ -99,6 +101,31 @@ export const ReservationsService = {
         throw new Error('Selected room does not match the table\'s room');
       }
 
+      // --- Couple validation: a partner seat must exist, be on the same
+      // table, differ from the selected seat, and be free. ---
+      if (type === 'COUPLE') {
+        if (!pairedChairId) {
+          throw new Error('A partner seat is required for a couple reservation.');
+        }
+        if (pairedChairId === chairId) {
+          throw new Error('The partner seat must be different from the selected seat.');
+        }
+        const partnerRes = await client.query<{ id: string }>(
+          `SELECT id FROM chairs WHERE id = $1 AND table_id = $2`,
+          [pairedChairId, tableId]
+        );
+        if (partnerRes.rows.length === 0) {
+          throw new Error('The partner seat is not valid for this table.');
+        }
+        const takenRes = await client.query<{ id: string }>(
+          `SELECT id FROM reservations WHERE chair_id = $1 AND event_id = $2 AND status = 'ACTIVE'`,
+          [pairedChairId, eventId]
+        );
+        if (takenRes.rows.length > 0) {
+          throw new Error('The adjacent seat is already taken.');
+        }
+      }
+
       // Auto-stamp client_id for CLIENT_ADMIN users, leave null for SUPER_ADMIN
       const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
 
@@ -107,15 +134,24 @@ export const ReservationsService = {
         [invitee.name, invitee.email || null, invitee.phone || null, effectiveClientId]
       );
       const inviteeId = inviteeRes.rows[0].id;
-      
+
+      const coupleGroupId = type === 'COUPLE' ? crypto.randomUUID() : null;
+
+      const insertReservation = async (cid: string): Promise<string> => {
+        const resvRes = await client.query<{ id: string }>(
+          `INSERT INTO reservations (event_id, table_id, chair_id, invitee_id, room_id, reservation_type, couple_group_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+          [eventId, tableId, cid, inviteeId, resolvedRoomId, type, coupleGroupId]
+        );
+        return resvRes.rows[0].id;
+      };
+
       let reservationId;
       try {
-        const resvRes = await client.query(
-          `INSERT INTO reservations (event_id, table_id, chair_id, invitee_id, room_id) 
-           VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-          [eventId, tableId, chairId, inviteeId, resolvedRoomId]
-        );
-        reservationId = resvRes.rows[0].id;
+        reservationId = await insertReservation(chairId);
+        if (type === 'COUPLE' && pairedChairId) {
+          await insertReservation(pairedChairId);
+        }
       } catch (err: any) {
         if (err.code === '23505') {
           throw new Error('This chair is already reserved for this event.');
@@ -140,25 +176,42 @@ export const ReservationsService = {
 
   async cancelReservation(reservationId: string, userRole: RoleType, clientId?: string) {
     return await withTransaction(async (client) => {
+      const resvCheck = await client.query<{ id: string; couple_group_id: string | null }>(
+        `SELECT r.id, r.couple_group_id FROM reservations r
+         JOIN events e ON r.event_id = e.id
+         WHERE r.id = $1`,
+        [reservationId]
+      );
+      if (resvCheck.rows.length === 0) {
+        throw new NotFoundOrForbiddenError('Reservation not found or access denied');
+      }
       if (userRole === RoleType.CLIENT_ADMIN && clientId) {
-        const resvCheck = await client.query(
-          `SELECT r.id FROM reservations r
+        const owned = await client.query(
+          `SELECT 1 FROM reservations r
            JOIN events e ON r.event_id = e.id
            WHERE r.id = $1 AND e.client_id = $2`,
           [reservationId, clientId]
         );
-        if (resvCheck.rows.length === 0) {
+        if (owned.rows.length === 0) {
           throw new NotFoundOrForbiddenError('Reservation not found or access denied');
         }
       }
 
+      const groupId = resvCheck.rows[0].couple_group_id;
+      const scopeSql =
+        groupId !== null
+          ? `id = $1 OR (couple_group_id = $2 AND couple_group_id IS NOT NULL)`
+          : `id = $1`;
+
       await client.query(
-        `UPDATE reservations SET status = 'CANCELLED', cancelled_at = NOW() WHERE id = $1`,
-        [reservationId]
+        `UPDATE reservations SET status = 'CANCELLED', cancelled_at = NOW() WHERE ${scopeSql}`,
+        groupId !== null ? [reservationId, groupId] : [reservationId]
       );
       await client.query(
-        `UPDATE tickets SET status = 'CANCELLED' WHERE reservation_id = $1`,
-        [reservationId]
+        `UPDATE tickets SET status = 'CANCELLED' WHERE reservation_id IN (
+           SELECT id FROM reservations WHERE ${scopeSql}
+         )`,
+        groupId !== null ? [reservationId, groupId] : [reservationId]
       );
     });
   }

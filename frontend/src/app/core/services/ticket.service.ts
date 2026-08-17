@@ -18,6 +18,9 @@ export interface TicketDetails {
   floor_number: number;
   table_number: string;
   chair_number: string;
+  reservation_type: string;
+  paired_table_number: string | null;
+  paired_chair_number: string | null;
 }
 
 export interface TicketScanResult {
