@@ -45,8 +45,8 @@ export const ReservationsService = {
        LEFT JOIN reservations r ON r.chair_id = chairs.id AND r.event_id = $1 AND r.status = 'ACTIVE'
        LEFT JOIN invitees i ON r.invitee_id = i.id
        LEFT JOIN tickets t ON t.reservation_id = r.id
-       WHERE tables.event_id = $1
-       ORDER BY chairs.chair_number ASC`,
+        WHERE tables.event_id = $1
+        ORDER BY COALESCE(NULLIF(chairs.chair_number, '')::integer, 999999), chairs.chair_number ASC`,
       [eventId]
     );
     const chairs = chairsRes.rows;

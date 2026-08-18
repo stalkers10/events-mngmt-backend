@@ -332,6 +332,7 @@
     "checkedIn": "Entrée validée",
     "ticketIssued": "Émis",
     "ticketCancelled": "Annulé",
+    "confirmCancelTitle":"Annuler Réservation",
     "confirmCancel": "Annuler la réservation de {{name}} ?",
     "cancelledToast": "Réservation annulée avec succès.",
     "viewAllForClient": "Voir tous les invités de ce client",

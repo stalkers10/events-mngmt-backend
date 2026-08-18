@@ -12,7 +12,7 @@
     </div>
 
     <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" (click)="close()">{{ cancelLabel }}</button>
+      <button *ngIf="showCancel" type="button" class="btn btn-secondary" (click)="close()">{{ cancelLabel }}</button>
       <button type="button" class="btn" [ngClass]="confirmButtonClass" (click)="confirmAction()">{{ confirmLabel }}</button>
     </div>
   </section>

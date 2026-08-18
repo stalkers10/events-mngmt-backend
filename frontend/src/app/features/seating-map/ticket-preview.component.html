@@ -103,6 +103,7 @@
     [confirmLabel]="i18n.t('guestList.cancel') || 'Cancel'"
     [cancelLabel]="i18n.t('common.cancel') || 'Close'"
     confirmButtonClass="btn-danger"
+    [showCancel]="false"
     (confirm)="confirmCancelTicket()"
     (cancel)="closeCancelTicketConfirmation()"
   ></app-confirmation-dialog>

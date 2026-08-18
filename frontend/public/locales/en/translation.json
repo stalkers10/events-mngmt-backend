@@ -339,6 +339,7 @@
     "checkedIn": "Checked In",
     "ticketIssued": "Issued",
     "ticketCancelled": "Cancelled",
+    "confirmCancelTitle":"Cancel Reactivation",
     "confirmCancel": "Cancel reservation for {{name}}?",
     "cancelledToast": "Reservation cancelled successfully.",
     "viewAllForClient": "View all guests for this client",

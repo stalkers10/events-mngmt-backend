@@ -47,7 +47,7 @@ function collectErrorMessages(value: unknown, acc: string[]): void {
 }
 
 /** Converts any backend error payload into a single user-facing string. */
-function toErrorMessage(value: unknown): string {
+export function toErrorMessage(value: unknown): string {
   const messages: string[] = [];
   collectErrorMessages(value, messages);
   if (messages.length > 0) {

@@ -15,6 +15,7 @@ export class ConfirmationDialogComponent {
   @Input() confirmLabel = 'Confirm';
   @Input() cancelLabel = 'Cancel';
   @Input() confirmButtonClass = 'btn-primary';
+  @Input() showCancel = true;
 
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();

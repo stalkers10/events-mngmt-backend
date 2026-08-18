@@ -11,6 +11,7 @@ import { I18nextService } from '../../core/services/i18next.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { CustomSelectComponent, SelectOption } from '../../shared/components/custom-select/custom-select.component';
 import { isEventExpired } from '../../core/utils/event-status';
+import { toErrorMessage } from '../../core/utils/http-error.util';
 import { formatTableName } from '../../core/utils/table-name';
 import { tableCircleSize } from '../../core/utils/table-size';
 import { relaxTableLayout } from '../../core/utils/table-layout';
@@ -403,7 +404,7 @@ export class SeatingMapComponent implements OnInit {
       },
       error: (err) => {
         this.isAssigning = false;
-        const msg = err.error?.error || 'Failed to assign seat.';
+        const msg = toErrorMessage(err.error?.error ?? err.error) || 'Failed to assign seat.';
         this.toast.error(msg);
       },
     });

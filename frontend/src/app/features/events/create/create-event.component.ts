@@ -9,6 +9,7 @@ import { VenueService } from '../../../core/services/venue.service';
 import { CustomSelectComponent, SelectOption } from '../../../shared/components/custom-select/custom-select.component';
 import { tableCircleSize } from '../../../core/utils/table-size';
 import { relaxTableLayout } from '../../../core/utils/table-layout';
+import { toErrorMessage } from '../../../core/utils/http-error.util';
 
 interface TableItem {
   id: number;
@@ -338,9 +339,13 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
   }
 
   setActiveRoom(roomId: string): void {
-    if (this.selectedRoomIds().includes(roomId)) {
-      this.activeRoomId.set(roomId);
-    }
+    if (!this.selectedRoomIds().includes(roomId)) return;
+    this.activeRoomId.set(roomId);
+    // Keep the table-count / chairs-per-table fields in sync with the room
+    // whose preview is now shown on the right, so "Generate" reflects it.
+    const tables = this.tablesByRoom()[roomId] ?? [];
+    this.tableCount.set(tables.length);
+    this.chairsPerTable.set(tables.length > 0 ? tables[0].chairs : this.chairsPerTable());
   }
 
   roomTableCount(roomId: string): number {
@@ -428,13 +433,13 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
         this.router.navigate(['/events']);
       },
       error: (err) => {
-        const serverError = err.error?.error;
-        if (serverError === 'Event start time cannot be in the past') {
+        const msg = toErrorMessage(err.error?.error ?? err.error);
+        if (msg === 'Event start time cannot be in the past') {
           this.toast.error(this.i18n.t('errors.startTimeInPast'));
-        } else if (serverError === 'Start time must be before end time') {
+        } else if (msg === 'Start time must be before end time') {
           this.toast.error(this.i18n.t('events.endBeforeStart'));
         } else {
-          this.toast.error(serverError || this.i18n.t('errors.createFailed'));
+          this.toast.error(msg || this.i18n.t('errors.createFailed'));
         }
       }
     });

@@ -137,7 +137,7 @@ export const EventsService = {
     const tablesWithChairs: (TableRecord & { chairs: ChairRecord[] })[] = [];
     for (const table of tables) {
       const result = await query<ChairRecord>(
-        `SELECT * FROM chairs WHERE table_id = $1 ORDER BY chair_number`,
+        `SELECT * FROM chairs WHERE table_id = $1 ORDER BY COALESCE(NULLIF(chair_number, '')::integer, 999999), chair_number`,
         [table.id]
       );
       tablesWithChairs.push({ ...table, chairs: result.rows });

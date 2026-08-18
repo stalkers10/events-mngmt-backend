@@ -202,22 +202,6 @@
               }
             </div>
 
-            @if (eventRooms().length > 1) {
-              <div class="form-field">
-                <label for="guest-room">Room *</label>
-                <select
-                  id="guest-room"
-                  name="selectedRoomId"
-                  [(ngModel)]="selectedRoomId"
-                  required
-                >
-                  @for (room of eventRooms(); track room.id) {
-                    <option [value]="room.id">{{ room.room_number }} · Floor {{ room.floor_number }}</option>
-                  }
-                </select>
-              </div>
-            }
-
             <div class="form-field">
               <label for="guest-name">Guest Name *</label>
               <input
@@ -299,6 +283,7 @@
     [confirmLabel]="translation.t('guestList.cancel') || 'Cancel'"
     [cancelLabel]="translation.t('common.cancel') || 'Close'"
     confirmButtonClass="btn-danger"
+    [showCancel]="false"
     (confirm)="confirmCancelReservation()"
     (cancel)="closeCancelReservationConfirmation()"
   ></app-confirmation-dialog>
