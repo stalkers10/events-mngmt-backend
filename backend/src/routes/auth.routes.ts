@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { AuthService, AuthError } from '../services/auth.service';
+import { ClientsService } from '../services/clients.service';
 import { env } from '../config/env';
 import { rateLimit } from '../middlewares/rateLimit.middleware';
 
@@ -10,6 +11,53 @@ const loginSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
 });
+
+/**
+ * POST /auth/register  (public, self-service onboarding)
+ *
+ * Organizations create their own Client Admin account on the Free plan. Super
+ * Admin provisioning (assisted onboarding) remains available separately.
+ */
+const registerSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(50)
+    .regex(/^[a-zA-Z0-9_.-]+$/, 'Username may only contain letters, numbers, dots, hyphens and underscores'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: z.string().min(1, 'Organization name is required').max(120),
+  email: z.string().email('A valid email is required'),
+  phone: z.string().max(30).optional(),
+});
+
+router.post(
+  '/register',
+  rateLimit({ windowMs: 60 * 60 * 1000, max: 5 }),
+  async (req: Request, res: Response) => {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid registration data' });
+    }
+
+    const { username, password, name, email, phone } = parsed.data;
+
+    try {
+      const client = await ClientsService.create(username, password, name, email, phone);
+      return res.status(201).json({
+        id: client.id,
+        username: client.username,
+        name: client.name,
+        email: client.email,
+        plan: 'FREE',
+      });
+    } catch (err: any) {
+      const message = err?.message ?? 'Failed to create account';
+      // Reserved username / duplicate username / duplicate email
+      const status = err?.statusCode === 409 || /reserved|already (taken|exists)/i.test(message) ? 409 : 400;
+      return res.status(status).json({ error: message });
+    }
+  },
+);
 
 const otpSchema = z.object({
   code: z.string().length(8),

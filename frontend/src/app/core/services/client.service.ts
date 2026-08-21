@@ -10,6 +10,8 @@ export interface ClientRecord {
   phone: string | null;
   is_active: boolean;
   created_at: Date;
+  plan_code?: string;
+  subscription_status?: string;
 }
 
 @Injectable({

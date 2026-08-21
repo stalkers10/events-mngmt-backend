@@ -89,7 +89,11 @@ router.post('/', async (req: Request, res: Response) => {
     );
     res.status(201).json(event);
   } catch (err: any) {
-    res.status(err.statusCode ?? 409).json({ error: err.message });
+    const meta = err.code === 'PLAN_LIMIT_REACHED' ? err.details : undefined;
+    res.status(err.statusCode ?? 409).json({
+      error: err.message,
+      ...(meta ? { code: err.code, feature: meta.feature, limit: meta.limit, used: meta.used, remaining: meta.remaining } : {}),
+    });
   }
 });
 
@@ -163,10 +167,23 @@ router.post('/:eventId/tables', requireEventOwnership, async (req: Request<{ eve
     return;
   }
   try {
-    const table = await EventsService.addTable(req.params.eventId, parsed.data.tableNumber, parsed.data.position || null, parsed.data.roomId);
+    const userRole = req.user!.role as RoleType;
+    const clientId = resolveClientId(req.user!);
+    const table = await EventsService.addTable(
+      req.params.eventId,
+      parsed.data.tableNumber,
+      parsed.data.position || null,
+      parsed.data.roomId,
+      userRole,
+      clientId,
+    );
     res.status(201).json(table);
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    const meta = err.code === 'PLAN_LIMIT_REACHED' ? err.details : undefined;
+    res.status(err.statusCode ?? 409).json({
+      error: err.message,
+      ...(meta ? { code: err.code, feature: meta.feature, limit: meta.limit, used: meta.used, remaining: meta.remaining } : {}),
+    });
   }
 });
 

@@ -11,6 +11,8 @@ import ticketRoutes from './routes/tickets.routes';
 import gateStaffRoutes from './routes/gateStaff.routes';
 import buildingRoutes from './routes/buildings.routes';
 import clientsRoutes from './routes/clients.routes';
+import subscriptionRoutes, { adminSubscriptionRouter } from './routes/subscriptions.routes';
+import paymentRoutes, { campayWebhookRouter, adminPaymentRouter } from './routes/payments.routes';
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use('/webhooks', campayWebhookRouter);
 
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
@@ -36,6 +39,10 @@ app.use('/tickets', ticketRoutes);
 app.use('/gate-staff', gateStaffRoutes);
 app.use('/buildings', buildingRoutes);
 app.use('/clients', clientsRoutes);
+app.use('/billing', adminSubscriptionRouter);
+app.use('/billing', adminPaymentRouter);
+app.use('/billing', subscriptionRoutes);
+app.use('/billing', paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {

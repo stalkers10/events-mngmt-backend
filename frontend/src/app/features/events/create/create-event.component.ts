@@ -10,6 +10,8 @@ import { CustomSelectComponent, SelectOption } from '../../../shared/components/
 import { tableCircleSize } from '../../../core/utils/table-size';
 import { relaxTableLayout } from '../../../core/utils/table-layout';
 import { toErrorMessage } from '../../../core/utils/http-error.util';
+import { planLimitFromError } from '../../../core/utils/plan-limit.util';
+import { UpgradeService } from '../../../core/services/upgrade.service';
 
 interface TableItem {
   id: number;
@@ -93,7 +95,8 @@ export class CreateEventComponent implements AfterViewInit {
     private router: Router,
     private venues: VenueService,
     private toast: ToastService,
-    private i18n: I18nextService
+    private i18n: I18nextService,
+    private upgrade: UpgradeService
   ) {}
 
   selectedRoomLabel(): string {
@@ -433,6 +436,11 @@ getChairPositions(table: TableItem): { left: number; top: number; angle: number 
         this.router.navigate(['/events']);
       },
       error: (err) => {
+        const limit = planLimitFromError(err);
+        if (limit) {
+          this.upgrade.show(limit);
+          return;
+        }
         const msg = toErrorMessage(err.error?.error ?? err.error);
         if (msg === 'Event start time cannot be in the past') {
           this.toast.error(this.i18n.t('errors.startTimeInPast'));

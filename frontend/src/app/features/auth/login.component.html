@@ -4,7 +4,7 @@
   </div>
 
   <div class="login-card card">
-    <span class="material-symbols-outlined brand-icon">confirmation_number</span>
+    <img class="brand-logo" src="logo.svg" alt="{{ 'common.appName' | translate }}" />
     <h1 class="text-headline-md brand-title">{{ 'auth.login.title' | translate }}</h1>
     <p class="text-body-sm subtitle">{{ 'auth.login.subtitle' | translate }}</p>
 
@@ -57,5 +57,10 @@
         {{ (isSubmitting() ? 'auth.login.submitting' : 'auth.login.submit') | translate }}
       </button>
     </form>
+
+    <p class="alt-action">
+      {{ 'auth.login.noAccount' | translate }}
+      <a routerLink="/signup">{{ 'auth.login.createAccount' | translate }}</a>
+    </p>
   </div>
 </div>

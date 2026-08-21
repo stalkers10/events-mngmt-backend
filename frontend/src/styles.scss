@@ -342,4 +342,60 @@ textarea {
   .card {
     padding: var(--space-md);
   }
+
+  // ---- Mobile text rendering (mirrors the events page treatment) ----
+  // Slightly smaller font sizes so text fits the narrow viewport, with more
+  // generous line-height so rows of text no longer feel cramped.
+  .text-headline-md {
+    font-size: 21px;
+    line-height: 32px;
+  }
+  .text-headline-sm {
+    font-size: 18px;
+    line-height: 28px;
+  }
+  .text-body-lg {
+    font-size: 15px;
+    line-height: 24px;
+  }
+  .text-body-sm {
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .text-body-xs {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .text-label-caps {
+    line-height: 18px;
+  }
+
+  // Shared page heading classes — keep them compact and airy on phones.
+  .page-title {
+    font-size: 1.5rem;
+    line-height: 1.35;
+  }
+  .page-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .section-title {
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+
+  // More breathing room between general text rows.
+  p,
+  li {
+    line-height: 1.6;
+  }
+}
+
+/* ---- App logo (extracted mark from event-project-logo.avif -> logo.svg) ---- */
+.brand-logo {
+  display: inline-block;
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 }

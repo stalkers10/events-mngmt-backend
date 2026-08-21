@@ -15,6 +15,22 @@ export interface VerifyOtpResponse {
   token: string;
 }
 
+export interface RegisterPayload {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
+export interface RegisterResponse {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  plan: string;
+}
+
 export interface DecodedToken {
   id: string;
   username: string;

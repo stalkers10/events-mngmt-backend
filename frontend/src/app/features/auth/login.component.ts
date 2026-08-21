@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
@@ -12,7 +12,7 @@ import { LanguageSwitcherComponent } from '../../shared/language-switcher/langua
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, I18nextPipe, LanguageSwitcherComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, I18nextPipe, LanguageSwitcherComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

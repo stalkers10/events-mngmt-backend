@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminOnlyGuard } from './core/guards/admin-only.guard';
 import { superAdminOnlyGuard } from './core/guards/super-admin-only.guard';
 import { homeRedirectGuard } from './core/guards/home-redirect.guard';
+import { clientAdminOnlyGuard } from './core/guards/client-admin-only.guard';
 
 export const routes: Routes = [
   {
@@ -14,6 +15,20 @@ export const routes: Routes = [
     path: 'verify-otp',
     loadComponent: () =>
       import('./features/auth/verify-otp.component').then((m) => m.VerifyOtpComponent),
+  },
+
+  // Public landing page (self-service onboarding entry point)
+  {
+    path: 'welcome',
+    loadComponent: () =>
+      import('./features/welcome/welcome.component').then((m) => m.WelcomeComponent),
+  },
+
+  // Public self-service signup (Free plan)
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./features/auth/signup.component').then((m) => m.SignupComponent),
   },
 
   {
@@ -73,6 +88,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/gate-staff/gate-staff.component').then((m) => m.GateStaffComponent),
       },
+      {
+        path: 'billing',
+        canActivate: [clientAdminOnlyGuard],
+        loadComponent: () =>
+          import('./features/billing/billing.component').then((m) => m.BillingComponent),
+      },
 
       // ---- Shared between Admin and Gate Staff ----
       {
@@ -98,5 +119,5 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: 'welcome' },
 ];

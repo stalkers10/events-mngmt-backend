@@ -39,8 +39,12 @@ router.post('/', async (req: Request, res: Response) => {
     const clientId = resolveClientId(req.user!);
     const building = await BuildingsService.create(parsed.data.name, parsed.data.address, userRole, clientId);
     res.status(201).json(building);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to create building' });
+  } catch (err: any) {
+    const meta = err.code === 'PLAN_LIMIT_REACHED' ? err.details : undefined;
+    res.status(err.statusCode ?? 500).json({
+      error: err.message ?? 'Failed to create building',
+      ...(meta ? { code: err.code, feature: meta.feature, limit: meta.limit, used: meta.used, remaining: meta.remaining } : {}),
+    });
   }
 });
 

@@ -1,0 +1,117 @@
+<div class="signup-page">
+  <div class="lang-switcher-wrap">
+    <app-language-switcher />
+  </div>
+
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+  </div>
+
+  <div class="signup-card card reveal">
+    <img class="brand-logo" src="logo.svg" alt="{{ 'common.appName' | translate }}" />
+    <h1 class="text-headline-md brand-title">{{ 'auth.signup.title' | translate }}</h1>
+    <p class="text-body-sm subtitle">{{ 'auth.signup.subtitle' | translate }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="signup-form">
+      <div class="form-field">
+        <label for="name">{{ 'auth.signup.name' | translate }}</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          [placeholder]="'auth.signup.namePlaceholder' | translate"
+          [class.field-invalid]="submitted() && form.controls.name.invalid"
+        />
+        @if (submitted() && form.controls.name.invalid) {
+          <p class="invalid-feedback">{{ 'auth.signup.nameRequired' | translate }}</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="email">{{ 'auth.signup.email' | translate }}</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [placeholder]="'auth.signup.emailPlaceholder' | translate"
+          [class.field-invalid]="submitted() && form.controls.email.invalid"
+        />
+        @if (submitted() && form.controls.email.invalid) {
+          <p class="invalid-feedback">
+            {{ form.controls.email.errors?.['email'] ? ('auth.signup.emailInvalid' | translate) : ('auth.signup.emailRequired' | translate) }}
+          </p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="username">{{ 'auth.signup.username' | translate }}</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          [placeholder]="'auth.signup.usernamePlaceholder' | translate"
+          [class.field-invalid]="submitted() && form.controls.username.invalid"
+        />
+        @if (submitted() && form.controls.username.invalid) {
+          <p class="invalid-feedback">{{ 'auth.signup.usernameRequired' | translate }}</p>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="password">{{ 'auth.signup.password' | translate }}</label>
+          <div class="password-input-wrapper">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              [placeholder]="'auth.signup.passwordPlaceholder' | translate"
+              [class.field-invalid]="submitted() && form.controls.password.invalid"
+            />
+            <button type="button" class="toggle-password-btn" (click)="showPassword.set(!showPassword())">
+              <span class="material-symbols-outlined">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          @if (submitted() && form.controls.password.invalid) {
+            <p class="invalid-feedback">{{ 'auth.signup.passwordMin' | translate }}</p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="confirmPassword">{{ 'auth.signup.confirmPassword' | translate }}</label>
+          <div class="password-input-wrapper">
+            <input
+              id="confirmPassword"
+              [type]="showConfirm() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              [placeholder]="'auth.signup.confirmPasswordPlaceholder' | translate"
+            />
+            <button type="button" class="toggle-password-btn" (click)="showConfirm.set(!showConfirm())">
+              <span class="material-symbols-outlined">{{ showConfirm() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="phone">{{ 'auth.signup.phone' | translate }}</label>
+        <input
+          id="phone"
+          type="text"
+          formControlName="phone"
+          [placeholder]="'auth.signup.phonePlaceholder' | translate"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary submit-btn" [disabled]="form.invalid || isSubmitting()">
+        {{ (isSubmitting() ? 'auth.signup.submitting' : 'auth.signup.submit') | translate }}
+      </button>
+    </form>
+
+    <p class="alt-action">
+      {{ 'auth.signup.hasAccount' | translate }}
+      <a routerLink="/login">{{ 'auth.signup.loginLink' | translate }}</a>
+    </p>
+  </div>
+</div>

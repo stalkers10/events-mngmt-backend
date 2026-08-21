@@ -1,0 +1,43 @@
+@if (state(); as info) {
+  <div class="modal-backdrop" (click)="close()">
+    <section class="upgrade-modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div class="upgrade-icon">
+          <span class="material-symbols-outlined">loyalty</span>
+        </div>
+        <div>
+          <h2>{{ titleKey() | translate }}</h2>
+        </div>
+        <button type="button" class="close-btn" (click)="close()" aria-label="Close dialog">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <div class="upgrade-body">
+        <p class="upgrade-reason">{{ info.reason }}</p>
+
+        <div class="upgrade-allowance">
+          <div class="allowance-stat">
+            <span class="allowance-label">{{ 'upgrade.remaining' | translate }}</span>
+            <span class="allowance-value">{{ info.remaining }} / {{ info.limit }}</span>
+          </div>
+          <div class="allowance-stat">
+            <span class="allowance-label">{{ 'upgrade.used' | translate }}</span>
+            <span class="allowance-value">{{ info.used }} / {{ info.limit }}</span>
+          </div>
+        </div>
+
+        <p class="upgrade-hint">{{ 'upgrade.hint' | translate }}</p>
+      </div>
+
+      <footer class="upgrade-actions">
+        <button type="button" class="btn btn-secondary" (click)="close()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="goToBilling()">
+          {{ 'upgrade.goToBilling' | translate }}
+        </button>
+      </footer>
+    </section>
+  </div>
+}

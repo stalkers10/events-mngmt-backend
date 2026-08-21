@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { RoleType } from '../../core/models/auth.model';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { ClientSelectorComponent } from '../components/client-selector/client-selector.component';
+import { UpgradeModalComponent } from '../components/upgrade-modal/upgrade-modal.component';
 
 interface NavItem {
   labelKey: string;
@@ -18,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { labelKey: 'nav.venues', path: '/venues', icon: 'apartment', roles: [RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN, RoleType.ADMIN] },
   { labelKey: 'nav.events', path: '/events', icon: 'calendar_month', roles: [RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN, RoleType.ADMIN] },
   { labelKey: 'nav.gateStaff', path: '/gate-staff', icon: 'manage_accounts', roles: [RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN, RoleType.ADMIN] },
+  { labelKey: 'nav.billing', path: '/billing', icon: 'credit_card', roles: [RoleType.CLIENT_ADMIN] },
   { labelKey: 'nav.clients', path: '/clients', icon: 'corporate_fare', roles: [RoleType.SUPER_ADMIN] },
   {
     labelKey: 'nav.guestList',
@@ -36,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
 @Component({
   selector: 'app-main-layout',
   standalone: true, 
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, I18nextPipe, ClientSelectorComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, I18nextPipe, ClientSelectorComponent, UpgradeModalComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })

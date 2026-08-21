@@ -1,17 +1,21 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { ClientService, ClientRecord } from '../../core/services/client.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { I18nextPipe } from '../../core/pipes/i18next.pipe';
 import { describeHttpError } from '../../core/utils/http-error.util';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { CustomSelectComponent, SelectOption } from '../../shared/components/custom-select/custom-select.component';
+import { SubscriptionSummary, SubscriptionUsage, SubscriptionPlanCode } from '../../core/models/subscription.model';
 
 @Component({
   selector: 'app-clients',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, I18nextPipe, ConfirmationDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, I18nextPipe, ConfirmationDialogComponent, CustomSelectComponent],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
 })
@@ -45,9 +49,22 @@ export class ClientsComponent implements OnInit {
   showDeleteConfirmation = signal(false);
   pendingDeleteClient = signal<ClientRecord | null>(null);
 
+  // ---- Subscription management (Super Admin) ----
+  showSubscriptionModal = signal(false);
+  selectedSubClient = signal<ClientRecord | null>(null);
+  subLoading = signal(false);
+  subSummary = signal<SubscriptionSummary | null>(null);
+  subUsage = signal<SubscriptionUsage | null>(null);
+  payments = signal<any[]>([]);
+  planOptions = signal<SelectOption[]>([]);
+  grantPlanCode = signal<SubscriptionPlanCode>('GO');
+  grantMonths = signal(1);
+  isGranting = signal(false);
+
   constructor(
     private fb: FormBuilder,
     private clientService: ClientService,
+    private subscriptionService: SubscriptionService,
     private toast: ToastService,
     public translation: I18nextService
   ) {
@@ -233,6 +250,126 @@ export class ClientsComponent implements OnInit {
       },
       error: (err) => {
         this.processingId.set(null);
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.translation.t(description.key, description.params));
+      },
+    });
+  }
+
+  // ---- Subscription management (Super Admin) ----
+  planLabel(code?: string): string {
+    switch (code) {
+      case 'GO': return this.translation.t('clients.planGo') || 'Go';
+      case 'PRO': return this.translation.t('clients.planPro') || 'Pro';
+      default: return this.translation.t('clients.planFree') || 'Free';
+    }
+  }
+
+  statusLabel(status?: string): string {
+    return this.translation.t('clients.status' + (status || 'FREE')) || status || 'Free';
+  }
+
+  paymentStatusLabel(status?: string) {
+    return this.translation.t('clients.pay' + (status || 'PENDING')) || status || status;
+  }
+
+  planBadgeClass(code?: string): string {
+    return 'plan-badge plan-' + (code || 'FREE').toLowerCase();
+  }
+
+  paymentStatusClass(status?: string): string {
+    const s = (status || '').toUpperCase();
+    if (s === 'FAILED') return 'pay-badge pay-failed';
+    if (s === 'PENDING') return 'pay-badge pay-pending';
+    if (s === 'SUCCESSFUL') return 'pay-badge pay-successful';
+    return 'pay-badge';
+  }
+
+  openSubscriptionModal(client: ClientRecord): void {
+    this.selectedSubClient.set(client);
+    this.showSubscriptionModal.set(true);
+    this.loadSubscriptionData(client);
+  }
+
+  closeSubscriptionModal(): void {
+    this.showSubscriptionModal.set(false);
+    this.selectedSubClient.set(null);
+    this.subSummary.set(null);
+    this.subUsage.set(null);
+    this.payments.set([]);
+  }
+
+  loadSubscriptionData(client: ClientRecord): void {
+    this.subLoading.set(true);
+    forkJoin({
+      summary: this.subscriptionService.adminSubscription(client.id),
+      usage: this.subscriptionService.adminUsage(client.id),
+      payments: this.subscriptionService.adminPayments(client.id),
+      plans: this.subscriptionService.plans(),
+    }).subscribe({
+      next: ({ summary, usage, payments, plans }) => {
+        this.subSummary.set(summary);
+        this.subUsage.set(usage);
+        this.payments.set(payments);
+        this.planOptions.set(plans.map((p) => ({ value: p.code, label: p.name })));
+        this.grantPlanCode.set(summary.plan.code);
+        this.subLoading.set(false);
+      },
+      error: (err) => {
+        this.subLoading.set(false);
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.translation.t(description.key, description.params));
+      },
+    });
+  }
+
+  grantSubscription(): void {
+    const client = this.selectedSubClient();
+    if (!client) return;
+    this.isGranting.set(true);
+    const code = this.grantPlanCode();
+    this.subscriptionService.adminGrant(client.id, code, code === 'FREE' ? undefined : this.grantMonths())
+      .subscribe({
+        next: () => {
+          this.isGranting.set(false);
+          this.toast.success(this.translation.t('clients.subscriptionUpdatedToast', { name: client.name }) || 'Subscription updated');
+          this.loadSubscriptionData(client);
+          this.loadClients();
+        },
+        error: (err) => {
+          this.isGranting.set(false);
+          const description = describeHttpError(err, 'generic');
+          this.toast.error(this.translation.t(description.key, description.params));
+        },
+      });
+  }
+
+  adminCancel(): void {
+    const client = this.selectedSubClient();
+    if (!client) return;
+    this.subscriptionService.adminCancel(client.id).subscribe({
+      next: () => {
+        this.toast.success(this.translation.t('clients.subscriptionUpdatedToast', { name: client.name }) || 'Subscription updated');
+        this.loadSubscriptionData(client);
+        this.loadClients();
+      },
+      error: (err) => {
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.translation.t(description.key, description.params));
+      },
+    });
+  }
+
+  adminResume(): void {
+    const client = this.selectedSubClient();
+    if (!client) return;
+    this.subscriptionService.adminResume(client.id).subscribe({
+      next: () => {
+        this.toast.success(this.translation.t('clients.subscriptionUpdatedToast', { name: client.name }) || 'Subscription updated');
+        this.loadSubscriptionData(client);
+        this.loadClients();
+      },
+      error: (err) => {
         const description = describeHttpError(err, 'generic');
         this.toast.error(this.translation.t(description.key, description.params));
       },

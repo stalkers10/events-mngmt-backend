@@ -1,0 +1,30 @@
+@import '../../../styles.scss';
+
+.billing-page { max-width: var(--max-width-desktop); margin: 0 auto; padding: var(--space-xl); }
+.page-header { margin-bottom: var(--space-xl); }
+.eyebrow { margin: 0 0 var(--space-xs); color: var(--color-primary-container); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.subtitle, .period, .section-heading p { color: var(--color-on-surface-variant); margin: var(--space-xs) 0 0; }
+.overview-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-xl); }
+.plan-heading, .usage-title { display: flex; justify-content: space-between; gap: var(--space-md); align-items: center; }
+.plan-heading h2 { margin: var(--space-xs) 0; font-size: 28px; }
+.price { margin: 0; color: var(--color-primary-container); font-size: 18px; font-weight: 700; }
+.status-chip, .current-badge { padding: 4px 10px; border-radius: var(--radius-full); background: var(--color-success-container); color: var(--color-on-success-container); font-size: 12px; font-weight: 700; }
+.renewal-button { margin-top: var(--space-md); border: 0; padding: 0; background: transparent; color: var(--color-primary-container); cursor: pointer; font-weight: 700; }
+.usage-card { display: flex; flex-direction: column; justify-content: center; gap: var(--space-md); }
+.progress { height: 9px; overflow: hidden; border-radius: var(--radius-full); background: var(--color-surface-container-high); }
+.progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary-container); }
+.plans-section { margin-top: var(--space-xl); }
+.plans-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); margin-top: var(--space-md); }
+.plan-card { position: relative; display: flex; flex-direction: column; border: 1px solid transparent; }
+.plan-card.current { border: 2px solid var(--color-primary-container); }
+.plan-card h3 { margin: var(--space-xs) 0 var(--space-md); font-size: 20px; }
+.plan-card .current-badge { position: absolute; right: var(--space-md); top: var(--space-md); }
+.plan-card ul { flex: 1; margin: 0 0 var(--space-lg); padding-left: 20px; color: var(--color-on-surface-variant); }
+.plan-card li { margin-bottom: var(--space-sm); }
+.loading { display: flex; align-items: center; justify-content: center; gap: var(--space-sm); min-height: 180px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 800px) { .billing-page { padding: var(--space-md); } .overview-grid, .plans-grid { grid-template-columns: 1fr; } }
+.modal-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: var(--space-md); background: rgba(37,24,25,.45); }
+.checkout-modal { position: relative; width: min(100%, 440px); } .checkout-modal h2 { margin-top: 0; } .checkout-modal label { display: grid; gap: var(--space-sm); font-weight: 600; }
+.checkout-modal input { border: 1px solid var(--color-outline-variant); border-radius: var(--radius-default); padding: 12px; } .checkout-modal .btn { width: 100%; margin-top: var(--space-lg); }.close { position:absolute;right:12px;top:10px;border:0;background:transparent;font-size:25px;cursor:pointer;}.payment-message{color:var(--color-primary-container);font-weight:600;}

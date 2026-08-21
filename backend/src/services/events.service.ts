@@ -1,5 +1,6 @@
 import { query } from '../config/db';
 import { RoleType } from '../types/auth';
+import { EntitlementsService } from './entitlements.service';
 export const EVENT_GRACE_MINUTES = 30;
 
 export function isEventExpired(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
@@ -214,17 +215,11 @@ export const EventsService = {
     // Auto-stamp client_id for CLIENT_ADMIN users, leave null for SUPER_ADMIN
     const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
 
-    if (!tables || tables.length === 0) {
-      const result = await query<EventRecord>(
-        `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [primaryRoomId, roomIdsPayload, name, startTime, endTime, effectiveClientId]
-      );
-      return normalizeEventRecord(result.rows[0]);
-    }
-
     const { withTransaction } = await import('../config/db');
     return await withTransaction(async (client) => {
+      const subscription = effectiveClientId
+        ? await EntitlementsService.assertCanCreateEvent(client, effectiveClientId)
+        : undefined;
       const result = await client.query(
         `INSERT INTO events (room_id, room_ids, name, start_time, end_time, client_id) 
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -232,7 +227,11 @@ export const EventsService = {
       );
       const event = result.rows[0];
 
-      for (const tableData of tables) {
+      if (effectiveClientId && tables && tables.length > 0) {
+        await EntitlementsService.assertCanAddTables(client, effectiveClientId, event.id, tables.length);
+      }
+
+      for (const tableData of tables ?? []) {
         const tableRes = await client.query(
           `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
           [event.id, tableData.tableNumber, tableData.position || null]
@@ -245,16 +244,31 @@ export const EventsService = {
           );
         }
       }
+      if (effectiveClientId && subscription) {
+        await EntitlementsService.recordEventCreation(client, effectiveClientId, event.id, subscription);
+      }
       return normalizeEventRecord(event);
     });
   },
   
-  async addTable(eventId: string, tableNumber: string, position: string | null, _roomId?: string): Promise<TableRecord> {
-    const result = await query<TableRecord>(
-      `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
-      [eventId, tableNumber, position]
-    );
-    return result.rows[0];
+  async addTable(eventId: string, tableNumber: string, position: string | null, _roomId: string | undefined, userRole: RoleType, clientId?: string): Promise<TableRecord> {
+    if (userRole !== RoleType.CLIENT_ADMIN || !clientId) {
+      const result = await query<TableRecord>(
+        `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
+        [eventId, tableNumber, position]
+      );
+      return result.rows[0];
+    }
+
+    const { withTransaction } = await import('../config/db');
+    return withTransaction(async (client) => {
+      await EntitlementsService.assertCanAddTables(client, clientId, eventId, 1);
+      const result = await client.query<TableRecord>(
+        `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
+        [eventId, tableNumber, position]
+      );
+      return result.rows[0];
+    });
   },
 
   async updateTable(eventId: string, tableId: string, tableNumber: string, position: string | null): Promise<TableRecord> {

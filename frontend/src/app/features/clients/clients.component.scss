@@ -342,6 +342,219 @@ tr.processing {
 
 .client-cards { display: none; }
 
+// ---- Plan badge (beside client name) ----
+.plan-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.plan-free {
+  background: rgba(148, 163, 184, 0.18);
+  color: #94a3b8;
+}
+
+.plan-go {
+  background: rgba(56, 132, 255, 0.16);
+  color: #4f9dff;
+}
+
+.plan-pro {
+  background: rgba(216, 178, 92, 0.18);
+  color: #d8b25c;
+}
+
+// ---- Subscription management modal ----
+.subscription-modal {
+  max-width: 640px;
+}
+
+.sub-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) 0;
+  color: var(--color-on-surface-variant);
+}
+
+.sub-section {
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--color-input-border);
+
+  h3 {
+    margin: 0 0 var(--space-sm);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.sub-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) var(--space-md);
+}
+
+.sub-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sub-stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+}
+
+.sub-stat-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.sub-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.sub-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+}
+
+.sub-usage-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.sub-note {
+  margin: var(--space-sm) 0 0;
+  font-size: 0.85rem;
+
+  &.warn {
+    color: #e0a23c;
+  }
+}
+
+.sub-grant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: flex-end;
+}
+
+.sub-grant-row .form-field.inline {
+  flex: 1 1 200px;
+  margin: 0;
+  min-width: 180px;
+}
+
+.months-field {
+  flex: 0 1 130px;
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 4px;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-container-low);
+    color: var(--color-on-surface);
+    font-size: 0.95rem;
+  }
+}
+
+.sub-grant-actions {
+  margin-top: var(--space-sm);
+}
+
+.pay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pay-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+}
+
+.pay-amount {
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.pay-plan {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+}
+
+.pay-date {
+  font-size: 0.8rem;
+}
+
+.pay-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  &.pay-successful {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+
+  &.pay-pending {
+    background: rgba(234, 179, 8, 0.16);
+    color: #eab308;
+  }
+
+  &.pay-failed {
+    background: rgba(239, 68, 68, 0.16);
+    color: #ef4444;
+  }
+}
+
+@media (max-width: 767px) {
+  .sub-plan-grid, .sub-usage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pay-row {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-xs) var(--space-sm);
+  }
+}
+
 @media (max-width: 1024px) {
   .table-responsive { overflow-x: auto; }
 }

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginResponse, VerifyOtpResponse, DecodedToken, RoleType } from '../models/auth.model';
+import { LoginResponse, VerifyOtpResponse, DecodedToken, RoleType, RegisterPayload, RegisterResponse } from '../models/auth.model';
 
 const TOKEN_KEY = 'elite_events_token';
 const OTP_USERNAME_KEY = 'elite_events_otp_username';
@@ -52,6 +52,10 @@ export class AuthService {
           sessionStorage.removeItem(OTP_USERNAME_KEY);
         })
       );
+  }
+
+  register(payload: RegisterPayload): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register`, payload);
   }
 
   logout(): void {

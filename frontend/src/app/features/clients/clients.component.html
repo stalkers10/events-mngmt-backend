@@ -57,9 +57,13 @@
               <tbody>
                 @for (client of filteredClients(); track client.id) {
                   <tr [class.processing]="processingId() === client.id">
-                    <td>
-                      <div class="client-name">{{ client.name }}</div>
-                    </td>
+        <td>
+          <div class="client-name">
+            {{ client.name }}
+            <span [ngClass]="planBadgeClass(client.plan_code)" class="plan-badge-inline">{{ planLabel(client.plan_code) }}</span>
+          </div>
+          
+        </td>
                     <td>{{ client.email }}</td>
                     <td>{{ client.phone || '—' }}</td>
                     <td>
@@ -74,14 +78,17 @@
                         <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="openEditModal(client)">
                           {{ 'common.edit' | translate }}
                         </button>
-                        <button type="button" class="btn btn-secondary" [disabled]="processingId() === client.id" (click)="deactivate(client)">
-                          {{ (processingId() === client.id ? 'common.deactivating' : 'common.deactivate') | translate }}
+                        <button type="button" class="btn btn-secondary icon-btn" [class.danger]="client.is_active" [class.success]="!client.is_active" [title]="(client.is_active ? 'common.deactivate' : 'common.reactivate') | translate" [disabled]="processingId() === client.id" (click)="deactivate(client)">
+                          <span class="material-symbols-outlined">{{ client.is_active ? 'block' : 'check_circle' }}</span>
                         </button>
                       } @else {
                         <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="reactivate(client)">
                           {{ (processingId() === client.id ? 'common.reactivating' : 'common.reactivate') | translate }}
                         </button>
                       }
+                      <button type="button" class="btn btn-secondary" (click)="openSubscriptionModal(client)">
+                        {{ 'clients.manageSubscription' | translate }}
+                      </button>
                       <button type="button" class="btn btn-secondary icon-btn delete-btn" [disabled]="processingId() === client.id" (click)="deletePermanently(client)" [attr.title]="'common.delete' | translate">
                         <span class="material-symbols-outlined">delete</span>
                       </button>
@@ -99,6 +106,7 @@
                 <div class="client-card-top">
                   <div class="client-card-identity">
                     <span class="client-card-name">{{ client.name }}</span>
+                    <span [ngClass]="planBadgeClass(client.plan_code)" class="plan-badge-inline">{{ planLabel(client.plan_code) }}</span>
                     @if (client.is_active) {
                       <span class="chip chip-outline">{{ 'common.active' | translate }}</span>
                     } @else {
@@ -120,6 +128,7 @@
                   } @else {
                     <button type="button" class="btn btn-primary" [disabled]="processingId() === client.id" (click)="reactivate(client)">{{ 'common.reactivate' | translate }}</button>
                   }
+                  <button type="button" class="btn btn-secondary" (click)="openSubscriptionModal(client)">{{ 'clients.manageSubscription' | translate }}</button>
                   <button type="button" class="btn btn-secondary icon-btn" [disabled]="processingId() === client.id" (click)="deletePermanently(client)">
                     <span class="material-symbols-outlined">delete</span>
                   </button>
@@ -275,4 +284,119 @@
     (confirm)="confirmDeletePermanently()"
     (cancel)="closeDeleteConfirmation()">
   </app-confirmation-dialog>
+}
+
+<!-- Subscription Management (Super Admin) -->
+@if (showSubscriptionModal()) {
+  <div class="modal-backdrop" (click)="closeSubscriptionModal()">
+    <section class="creation-modal card subscription-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <h2>{{ 'clients.subscriptionTitle' | translate: { name: selectedSubClient()?.name } }}</h2>
+          @if (selectedSubClient(); as c) {
+            <span [ngClass]="planBadgeClass(c.plan_code)" class="plan-badge-inline">{{ planLabel(c.plan_code) }}</span>
+            <span class="muted text-body-sm">{{ statusLabel(c.subscription_status) }}</span>
+          }
+        </div>
+        <button type="button" class="close-btn" (click)="closeSubscriptionModal()" aria-label="Close dialog">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      @if (subLoading()) {
+        <div class="sub-loading"><div class="spinner"></div><span>{{ 'common.loading' | translate }}</span></div>
+      } @else {
+        @if (subSummary(); as s) {
+          <div class="sub-section">
+            <h3>{{ 'clients.currentPlan' | translate }}</h3>
+            <div class="sub-plan-grid">
+              <div class="sub-stat">
+                <span class="sub-stat-label">{{ 'clients.plan' | translate }}</span>
+                <span class="sub-stat-value">{{ s.plan.name }}</span>
+              </div>
+              <div class="sub-stat">
+                <span class="sub-stat-label">{{ 'clients.status' | translate }}</span>
+                <span class="sub-stat-value">{{ statusLabel(s.status) }}</span>
+              </div>
+              <div class="sub-stat">
+                <span class="sub-stat-label">{{ 'clients.periodStart' | translate }}</span>
+                <span class="sub-stat-value">{{ s.currentPeriodStart | date:'mediumDate' }}</span>
+              </div>
+              <div class="sub-stat">
+                <span class="sub-stat-label">{{ 'clients.periodEnd' | translate }}</span>
+                <span class="sub-stat-value">{{ s.currentPeriodEnd | date:'mediumDate' }}</span>
+              </div>
+            </div>
+              @if (s.cancelAtPeriodEnd) {
+                <p class="sub-note warn">{{ 'clients.cancelsAtPeriodEnd' | translate }}</p>
+              }
+          </div>
+
+          @if (subUsage(); as u) {
+            <div class="sub-section">
+              <h3>{{ 'clients.usage' | translate }}</h3>
+              <div class="sub-usage-grid">
+                <div class="sub-usage">
+                  <span class="sub-stat-label">{{ 'clients.buildingsUsed' | translate }}</span>
+                  <span class="sub-usage-value">{{ u.buildings.used }} / {{ u.buildings.limit === null ? ('clients.unlimited' | translate) : u.buildings.limit }}</span>
+                </div>
+                <div class="sub-usage">
+                  <span class="sub-stat-label">{{ 'clients.eventsUsed' | translate }}</span>
+                  <span class="sub-usage-value">{{ u.eventCreations.used }} / {{ u.eventCreations.limit === null ? ('clients.unlimited' | translate) : u.eventCreations.limit }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="sub-section">
+            <h3>{{ 'clients.grantHeading' | translate }}</h3>
+            <div class="sub-grant-row">
+              <div class="form-field inline">
+                <app-custom-select
+                  [options]="planOptions()"
+                  [selected]="grantPlanCode()"
+                  (selectedChange)="grantPlanCode.set($event)"
+                  [placeholder]="'clients.plan' | translate"></app-custom-select>
+              </div>
+              @if (grantPlanCode() !== 'FREE') {
+                <div class="form-field inline months-field">
+                  <label>{{ 'clients.grantMonths' | translate }}</label>
+                  <input type="number" min="1" max="600" [ngModel]="grantMonths()" (ngModelChange)="grantMonths.set($event)" />
+                </div>
+              }
+              <button type="button" class="btn btn-primary" [disabled]="isGranting()" (click)="grantSubscription()">
+                @if (isGranting()) { <div class="spinner small"></div> }
+                {{ 'clients.applyGrant' | translate }}
+              </button>
+            </div>
+            <div class="sub-grant-actions">
+              @if (s.cancelAtPeriodEnd) {
+                <button type="button" class="btn btn-secondary" (click)="adminResume()">{{ 'clients.resumeRenewal' | translate }}</button>
+              } @else {
+                <button type="button" class="btn btn-secondary" [disabled]="s.plan.code === 'FREE'" (click)="adminCancel()">{{ 'clients.cancelRenewal' | translate }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="sub-section">
+          <h3>{{ 'clients.paymentHistory' | translate }}</h3>
+          @if (payments().length === 0) {
+            <p class="muted text-body-sm">{{ 'clients.noPayments' | translate }}</p>
+          } @else {
+            <div class="pay-list">
+              @for (p of payments(); track p.id) {
+                <div class="pay-row">
+                  <span class="pay-amount">{{ p.amount_xaf | number }} {{ p.currency }}</span>
+                  <span class="pay-plan">{{ p.intended_plan_code }}</span>
+                  <span [ngClass]="paymentStatusClass(p.status)" class="pay-badge">{{ paymentStatusLabel(p.status) }}</span>
+                  <span class="pay-date muted text-body-sm">{{ p.created_at | date:'mediumDate' }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </div>
 }

@@ -36,17 +36,11 @@
   }
 }
 
-.brand-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary-container);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.brand-logo {
+  display: block;
+  height: 56px;
+  width: auto;
   margin: 0 auto var(--space-md);
-  font-size: 30px;
-  color: var(--color-on-primary);
 }
 
 .brand-title {
@@ -74,4 +68,21 @@ form {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.alt-action {
+  margin: var(--space-md) 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--color-on-surface-variant);
+
+  a {
+    color: var(--color-primary, #570013);
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

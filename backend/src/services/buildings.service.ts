@@ -1,5 +1,6 @@
-import { query } from '../config/db';
+import { query, withTransaction } from '../config/db';
 import { RoleType } from '../types/auth';
+import { EntitlementsService } from './entitlements.service';
 
 export interface BuildingRecord {
   id: string;
@@ -21,11 +22,22 @@ export const BuildingsService = {
    */
   async create(name: string, address: string | undefined, userRole: RoleType, clientId?: string): Promise<BuildingRecord> {
     const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
-    const result = await query<BuildingRecord>(
-      `INSERT INTO buildings (name, address, client_id) VALUES ($1, $2, $3) RETURNING *`,
-      [name, address ?? null, effectiveClientId],
-    );
-    return result.rows[0];
+    if (!effectiveClientId) {
+      const result = await query<BuildingRecord>(
+        `INSERT INTO buildings (name, address, client_id) VALUES ($1, $2, $3) RETURNING *`,
+        [name, address ?? null, effectiveClientId],
+      );
+      return result.rows[0];
+    }
+
+    return withTransaction(async (client) => {
+      await EntitlementsService.assertCanCreateBuilding(client, effectiveClientId);
+      const result = await client.query<BuildingRecord>(
+        `INSERT INTO buildings (name, address, client_id) VALUES ($1, $2, $3) RETURNING *`,
+        [name, address ?? null, effectiveClientId],
+      );
+      return result.rows[0];
+    });
   },
 
   /**

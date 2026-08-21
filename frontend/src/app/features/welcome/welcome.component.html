@@ -1,0 +1,69 @@
+<div class="welcome-page">
+  <div class="lang-switcher-wrap">
+    <app-language-switcher />
+  </div>
+
+  <header class="welcome-topbar">
+    <a class="brand" routerLink="/welcome">
+      <img class="brand-logo" src="logo.svg" alt="{{ 'welcome.brand' | translate }}" />
+      <span class="brand-name">{{ 'welcome.brand' | translate }}</span>
+    </a>
+  </header>
+
+  <!-- Decorative animated background -->
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+    <span class="orb orb-4"></span>
+  </div>
+
+  <main class="welcome-content">
+    <section class="hero reveal">
+      <h1 class="headline" [attr.aria-label]="fullHeadline()">
+        <span class="type-text" aria-hidden="true">{{ typedText() }}<span class="type-cursor"></span></span>
+      </h1>
+      <p class="subhead">{{ 'welcome.subhead' | translate }}</p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary cta-primary" routerLink="/signup">
+          <span class="material-symbols-outlined">rocket_launch</span>
+          {{ 'welcome.signup' | translate }}
+        </a>
+        <a class="btn btn-ghost cta-secondary" routerLink="/login">
+          <span class="material-symbols-outlined">login</span>
+          {{ 'welcome.login' | translate }}
+        </a>
+      </div>
+
+      <p class="free-note">{{ 'welcome.freeNote' | translate }}</p>
+    </section>
+
+    <section class="features">
+      <h2 class="features-title reveal">{{ 'welcome.featuresTitle' | translate }}</h2>
+      <div class="feature-grid">
+        <article class="feature-card reveal" style="--delay: 0.05s">
+          <span class="feature-icon"><span class="material-symbols-outlined">table_chart</span></span>
+          <h3>{{ 'welcome.featureSeating' | translate }}</h3>
+          <p>{{ 'welcome.featureSeatingDesc' | translate }}</p>
+        </article>
+        <article class="feature-card reveal" style="--delay: 0.15s">
+          <span class="feature-icon"><span class="material-symbols-outlined">groups</span></span>
+          <h3>{{ 'welcome.featureGuests' | translate }}</h3>
+          <p>{{ 'welcome.featureGuestsDesc' | translate }}</p>
+        </article>
+        <article class="feature-card reveal" style="--delay: 0.25s">
+          <span class="feature-icon"><span class="material-symbols-outlined">qr_code_scanner</span></span>
+          <h3>{{ 'welcome.featureCheckin' | translate }}</h3>
+          <p>{{ 'welcome.featureCheckinDesc' | translate }}</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="welcome-footer">
+    <span>{{ 'welcome.brand' | translate }}</span>
+    <span class="dot">•</span>
+    <span>{{ 'welcome.footerTagline' | translate }}</span>
+  </footer>
+</div>

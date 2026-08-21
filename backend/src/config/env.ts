@@ -35,4 +35,11 @@ export const env = {
 
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:4200',
   localUrl: process.env.LOCAL_URL || 'http://localhost:4200',
+  campay: {
+    mode: process.env.CAMPAY_MODE || 'sandbox',
+    appUsername: process.env.CAMPAY_APP_USERNAME || '',
+    appPassword: process.env.CAMPAY_APP_PASSWORD || '',
+    permanentAccessToken: process.env.CAMPAY_PERMANENT_ACCESS_TOKEN || '',
+    webhookKey: process.env.CAMPAY_WEBHOOK_KEY || '',
+  },
 };

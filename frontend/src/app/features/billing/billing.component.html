@@ -1,0 +1,59 @@
+<section class="billing-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">{{ 'billing.eyebrow' | translate }}</p>
+      <h1 class="text-display-lg">{{ 'billing.title' | translate }}</h1>
+      <p class="subtitle">{{ 'billing.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading card"><span class="material-symbols-outlined spin">progress_activity</span>{{ 'common.loading' | translate }}</div>
+  } @else if (subscription() && usage()) {
+    <section class="overview-grid">
+      <article class="current-plan card">
+        <span class="eyebrow">{{ 'billing.currentPlan' | translate }}</span>
+        <div class="plan-heading"><h2>{{ subscription()!.plan.name }}</h2><span class="status-chip">{{ subscription()!.status }}</span></div>
+        <p class="price">{{ price(subscription()!.plan) }}</p>
+        <p class="period">{{ 'billing.periodStarted' | translate }} {{ subscription()!.currentPeriodStart | date:'mediumDate' }}</p>
+        @if (subscription()!.plan.code !== 'FREE') {
+          <p class="period">{{ 'billing.accessUntil' | translate }} {{ subscription()!.currentPeriodEnd | date:'mediumDate' }}</p>
+          <button type="button" class="renewal-button" (click)="manageCancellation()">{{ subscription()!.cancelAtPeriodEnd ? ('billing.resume' | translate) : ('billing.cancelRenewal' | translate) }}</button>
+        }
+      </article>
+
+      <article class="usage-card card">
+        <div class="usage-title"><span>{{ 'billing.buildings' | translate }}</span><strong>{{ usage()!.buildings.used }} / {{ limit(usage()!.buildings.limit) }}</strong></div>
+        @if (usage()!.buildings.limit !== null) { <div class="progress"><span [style.width.%]="percent(usage()!.buildings.used, usage()!.buildings.limit)"></span></div> }
+      </article>
+
+      <article class="usage-card card">
+        <div class="usage-title"><span>{{ 'billing.events' | translate }}</span><strong>{{ usage()!.eventCreations.used }} / {{ limit(usage()!.eventCreations.limit) }}</strong></div>
+        @if (usage()!.eventCreations.limit !== null) { <div class="progress"><span [style.width.%]="percent(usage()!.eventCreations.used, usage()!.eventCreations.limit)"></span></div> }
+      </article>
+    </section>
+
+    <section class="plans-section">
+      <div class="section-heading"><h2>{{ 'billing.choosePlan' | translate }}</h2><p>{{ 'billing.choosePlanHint' | translate }}</p></div>
+      <div class="plans-grid">
+        @for (plan of plans(); track plan.code) {
+          <article class="plan-card card" [class.current]="isCurrentPlan(plan)">
+            <span class="plan-label">{{ plan.name }}</span>
+            <h3>{{ price(plan) }}</h3>
+            <span class="current-badge" *ngIf="isCurrentPlan(plan)">{{ 'billing.current' | translate }}</span>
+            <ul>
+              <li>{{ limit(plan.limits.buildings) }} {{ 'billing.buildings' | translate }}</li>
+              <li>{{ limit(plan.limits.eventCreationsPerPeriod) }} {{ 'billing.eventsPerMonth' | translate }}</li>
+              <li>{{ limit(plan.limits.tablesPerEvent) }} {{ 'billing.tablesPerEvent' | translate }}</li>
+              @for (feature of plan.features; track feature) { <li>{{ feature }}</li> }
+            </ul>
+            @if (!isCurrentPlan(plan)) {
+              <button type="button" class="btn btn-primary" [disabled]="plan.priceXaf === 0" (click)="openCheckout(plan)">{{ 'billing.upgrade' | translate }}</button>
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+  @if (selectedPlan()) { <div class="modal-backdrop"><section class="checkout-modal card"><button class="close" (click)="closeCheckout()">×</button><p class="eyebrow">{{ 'billing.checkout' | translate }}</p><h2>{{ selectedPlan()!.name }} - {{ price(selectedPlan()!) }}</h2><label>{{ 'billing.phone' | translate }}<input [(ngModel)]="phone" placeholder="2376XXXXXXXX" [disabled]="checkoutLoading()" /></label><p class="payment-message" *ngIf="paymentMessage()">{{ paymentMessage() }}</p><button class="btn btn-primary" (click)="submitCheckout()" [disabled]="checkoutLoading() || phone.length < 9">{{ checkoutLoading() ? ('common.processing' | translate) : ('billing.confirmPayment' | translate) }}</button></section></div> }
+</section>

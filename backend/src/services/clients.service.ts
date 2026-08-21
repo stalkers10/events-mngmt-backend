@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { query } from '../config/db';
+import { SubscriptionsService } from './subscriptions.service';
 import { env } from '../config/env';
 
 const SALT_ROUNDS = 12;
@@ -12,16 +13,21 @@ export interface ClientRecord {
   phone: string | null;
   is_active: boolean;
   created_at: Date;
+  plan_code: string;
+  subscription_status: string;
 }
 
 export const ClientsService = {
-  /** Super Admin: list all Client Admin accounts */
+  /** Super Admin: list all Client Admin accounts (with their plan/status) */
   async list(): Promise<ClientRecord[]> {
     const result = await query<ClientRecord>(
-      `SELECT id, username, name, email, phone, is_active, created_at
-       FROM users
-       WHERE role = 'CLIENT_ADMIN'
-       ORDER BY created_at DESC`,
+      `SELECT u.id, u.username, u.name, u.email, u.phone, u.is_active, u.created_at,
+              COALESCE(s.plan_code, 'FREE') as plan_code,
+              COALESCE(s.status, 'FREE') as subscription_status
+       FROM users u
+       LEFT JOIN subscriptions s ON s.client_id = u.id
+       WHERE u.role = 'CLIENT_ADMIN'
+       ORDER BY u.created_at DESC`,
     );
     return result.rows;
   },
@@ -68,7 +74,11 @@ export const ClientsService = {
       [username, passwordHash, name, email, phone ?? null],
     );
 
-    return result.rows[0];
+    const client = result.rows[0];
+    // New tenants always start with an explicit Free subscription. The
+    // migration backfills pre-existing Client Admin accounts.
+    await SubscriptionsService.ensureFreeSubscription(client.id);
+    return client;
   },
 
   /** Super Admin: soft-delete (deactivate) a client — blocks their login */

@@ -9,6 +9,8 @@ import { VenueService } from '../../core/services/venue.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ToastService } from '../../core/services/toast.service';
 import { describeHttpError } from '../../core/utils/http-error.util';
+import { planLimitFromError } from '../../core/utils/plan-limit.util';
+import { UpgradeService } from '../../core/services/upgrade.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { ClientFilterService } from '../../core/services/client-filter.service';
 
@@ -74,7 +76,8 @@ export class VenuesComponent implements OnInit, AfterViewInit {
     private toast: ToastService,
     public i18n: I18nextService,
     private route: ActivatedRoute,
-    public clientFilter: ClientFilterService
+    public clientFilter: ClientFilterService,
+    private upgrade: UpgradeService
   ) {
     this.buildingForm = this.fb.group({
       name: ['', Validators.required],
@@ -140,6 +143,11 @@ export class VenuesComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         this.isCreatingBuilding.set(false);
+        const limit = planLimitFromError(error);
+        if (limit) {
+          this.upgrade.show(limit);
+          return;
+        }
         const description = describeHttpError(error, 'generic');
         this.toast.error(this.i18n.t(description.key, description.params));
       },
