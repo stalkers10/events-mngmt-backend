@@ -345,7 +345,16 @@
     "featureGuestsDesc": "Suivez invitations, RSVP et attributions en temps réel.",
     "featureCheckin": "Enregistrement rapide",
     "featureCheckinDesc": "Scannez les billets à l'entrée pour un accès instantané et fiable.",
-    "footerTagline": "L'élégance au service de vos événements."
+    "footerTagline": "L'élégance au service de vos événements.",
+    "ctaTitle": "Prêt à organiser votre prochain événement sans accroc ?",
+    "ctaSubtitle": "Créez votre compte gratuit et commencez à concevoir le plan de salle, les invités et les enregistrements en quelques minutes.",
+    "footerProduct": "Produit",
+    "footerFeatures": "Fonctionnalités",
+    "footerCompany": "Société",
+    "footerContact": "Contact",
+    "footerPrivacy": "Confidentialité",
+    "footerTerms": "Conditions",
+    "footerRights": "Tous droits réservés."
   },
   "billing": {
     "eyebrow": "Abonnement",

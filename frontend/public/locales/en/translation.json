@@ -353,7 +353,16 @@
     "featureGuestsDesc": "Track invites, RSVPs, and assignments in real time.",
     "featureCheckin": "Fast check-in",
     "featureCheckinDesc": "Scan tickets at the door for instant, reliable entry.",
-    "footerTagline": "Events, made elegant."
+    "footerTagline": "Events, made elegant.",
+    "ctaTitle": "Ready to host your next flawless event?",
+    "ctaSubtitle": "Create your free account and start designing seating, guests, and check-ins in minutes.",
+    "footerProduct": "Product",
+    "footerFeatures": "Features",
+    "footerCompany": "Company",
+    "footerContact": "Contact",
+    "footerPrivacy": "Privacy",
+    "footerTerms": "Terms",
+    "footerRights": "All rights reserved."
   },
   "billing": {
     "eyebrow": "Subscription",
