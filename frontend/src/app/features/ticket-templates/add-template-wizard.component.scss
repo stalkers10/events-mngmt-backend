@@ -1,0 +1,262 @@
+.wizard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.wizard {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 1180px;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.wizard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.wizard-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.wizard-close {
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+
+.wizard-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.wizard-section {
+  margin-bottom: 18px;
+}
+
+.wizard-section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.wizard-radio {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.wizard-radio label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.wizard-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #d3d3d3;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 6px;
+  font-family: inherit;
+}
+
+.wizard-input.code {
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.wizard-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.wizard-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.wizard-error {
+  background: #fdecec;
+  color: #b42318;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.wizard-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #eee;
+}
+
+.btn-primary,
+.btn-ghost {
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-ghost {
+  background: #fff;
+  border-color: #d3d3d3;
+  color: #444;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.split-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 280px;
+  
+  .editor-pane, .preview-pane {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.split-textarea {
+  flex: 1;
+  min-height: 300px;
+  resize: vertical;
+}
+
+.mapping-pane {
+  flex: 1 0 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  background: #fafafa;
+
+  h4 { margin: 0; font-size: 13px; }
+  p { margin: 5px 0 8px; color: #666; font-size: 12px; }
+  label { display: block; margin-top: 7px; font-size: 12px; font-weight: 600; }
+  .wizard-input { margin-top: 3px; }
+}
+
+@media (max-width: 900px) {
+  .wizard-overlay { padding: 12px; align-items: flex-start; overflow-y: auto; }
+  .wizard { max-width: 720px; max-height: none; min-height: min(720px, calc(100vh - 24px)); }
+  .split-view { min-height: 0; }
+  .split-view .editor-pane,
+  .split-view .preview-pane { flex-basis: 100%; }
+  .preview-host-wrapper { min-height: 300px; }
+}
+
+@media (max-width: 560px) {
+  .wizard-overlay { padding: 0; }
+  .wizard { width: 100%; min-height: 100vh; border-radius: 0; }
+  .wizard-head,
+  .wizard-body,
+  .wizard-foot { padding-left: 14px; padding-right: 14px; }
+  .wizard-radio { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .wizard-label-row { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .split-textarea { min-height: 240px; }
+  .preview-host-wrapper { min-height: 240px; }
+  .wizard-foot { position: sticky; bottom: 0; background: #fff; }
+}
+
+.preview-host-wrapper {
+  flex: 1;
+  border: 1px solid #d3d3d3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f9f9f9;
+  margin-top: 6px;
+  
+  // Make the app-ticket-template-host fill the space
+  app-ticket-template-host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    
+    ::ng-deep .ticket-tpl-root, 
+    ::ng-deep iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  }
+}
+
+.wizard-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.file-upload-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 4px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.file-upload-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  outline: none;
+  background: white;
+  cursor: inherit;
+  display: block;
+}

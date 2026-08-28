@@ -13,66 +13,14 @@
     </div>
   } @else {
     @if (ticket(); as details) {
-      <!-- The Ticket Card -->
-      <article class="ticket-card" [class.cancelled]="details.status === 'CANCELLED'">
-        <!-- Ticket Header Image -->
-        <div class="ticket-image-wrapper">
-          <img class="ticket-hero-image" alt="Event gala header" src="Events/wallpaper.jpg">
-          <div class="ticket-image-overlay"></div>
-        </div>
-
-        <!-- Ticket Content -->
-        <div class="ticket-content">
-          <!-- Event Title & Invitee -->
-          <div class="ticket-main-info">
-            <h2 class="text-headline-sm">{{ details.event_name }}</h2>
-            <p class="text-body-lg invitee-name">{{ details.invitee_name }}</p>
-            <span class="status-chip chip-solid" [class.cancelled-chip]="details.status === 'CANCELLED'">
-              {{ details.status }}
-            </span>
-          </div>
-
-          <!-- Divider -->
-          <div class="divider"></div>
-
-          <!-- Details Grid -->
-          <div class="details-grid">
-            <div class="detail-item">
-              <span class="text-label-caps label">Date</span>
-              <span class="text-body-sm value">{{ details.start_time | date:'mediumDate' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="text-label-caps label">Time</span>
-              <span class="text-body-sm value">{{ details.start_time | date:'shortTime' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="text-label-caps label">Venue</span>
-              <span class="text-body-sm value">Room {{ details.room_number }} (Floor {{ details.floor_number }})</span>
-            </div>
-            @if (details.reservation_type === 'COUPLE') {
-              <div class="detail-item">
-                <span class="text-label-caps label">Type</span>
-                <span class="text-body-sm value couple-type-value">{{ 'ticket.coupleLabel' | translate }}</span>
-              </div>
-            }
-            <div class="detail-item">
-              <span class="text-label-caps label">Seating</span>
-              <span class="text-body-sm value">@if (details.reservation_type === 'COUPLE') {
-                Table {{ details.table_number }}, Chairs {{ details.chair_number }} & {{ details.paired_chair_number }}
-              } @else {
-                Table {{ details.table_number }}, Chair {{ details.chair_number }}
-              }</span>
-            </div>
-          </div>
-
-
-          <!-- QR Code Section -->
-          <div class="qr-section">
-            <img class="qr-image" [src]="details.qrDataUrl" alt="Ticket QR code">
-            <p class="text-label-caps qr-token">{{ details.qr_token }}</p>
-          </div>
-        </div>
-      </article>
+      <!-- The Ticket Card (rendered from the event's chosen template) -->
+      <div #ticketEl class="ticket-render-wrap">
+        <app-ticket-template-host
+          [templateId]="(details.reservation_type === 'COUPLE' ? details.ticket_template_couple : details.ticket_template_single) || 'classic'"
+          [details]="details"
+          [customTemplates]="customTemplates()"
+        />
+      </div>
 
       <!-- Actions -->
       <div class="action-buttons">

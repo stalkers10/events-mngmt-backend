@@ -122,6 +122,23 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
   }
 });
 
+router.patch('/:eventId/ticket-template', async (req: Request<{ eventId: string }>, res: Response) => {
+  const single = typeof req.body?.singleTemplateId === 'string' ? req.body.singleTemplateId : '';
+  const couple = typeof req.body?.coupleTemplateId === 'string' ? req.body.coupleTemplateId : '';
+  if (!single || !couple) {
+    res.status(400).json({ error: 'singleTemplateId and coupleTemplateId are required' });
+    return;
+  }
+  try {
+    const userRole = req.user!.role as RoleType;
+    const clientId = resolveClientId(req.user!);
+    const event = await EventsService.setTicketTemplates(req.params.eventId, single, couple, userRole, clientId);
+    res.status(200).json(event);
+  } catch (err: any) {
+    res.status(err.statusCode ?? 409).json({ error: err.message });
+  }
+});
+
 router.delete('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
     const userRole = req.user!.role as RoleType;

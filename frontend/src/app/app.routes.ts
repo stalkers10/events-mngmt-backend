@@ -65,6 +65,14 @@ export const routes: Routes = [
           import('./features/seating-map/seating-map.component').then((m) => m.SeatingMapComponent),
       },
       {
+        path: 'events/:eventId/ticket-templates',
+        canActivate: [adminOnlyGuard],
+        loadComponent: () =>
+          import('./features/ticket-templates/ticket-templates-page.component').then(
+            (m) => m.TicketTemplatesPageComponent
+          ),
+      },
+      {
         path: 'tickets/:ticketId',
         canActivate: [adminOnlyGuard],
         loadComponent: () =>

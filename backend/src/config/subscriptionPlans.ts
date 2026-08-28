@@ -33,7 +33,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
   GO: {
     code: 'GO',
     name: 'Go',
-    priceXaf: 2,
+    priceXaf: 10,
     interval: 'MONTHLY',
     limits: { buildings: 3, eventCreationsPerPeriod: 4, tablesPerEvent: 13 },
     features: ['Everything in Free', 'Up to 3 buildings', '4 event creations per month', 'Up to 13 tables per event'],
@@ -41,7 +41,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
   PRO: {
     code: 'PRO',
     name: 'Pro',
-    priceXaf: 3,
+    priceXaf: 15,
     interval: 'MONTHLY',
     limits: { buildings: null, eventCreationsPerPeriod: null, tablesPerEvent: null },
     features: ['Everything in Go', 'Unlimited buildings', 'Unlimited event creation', 'Unlimited tables per event'],

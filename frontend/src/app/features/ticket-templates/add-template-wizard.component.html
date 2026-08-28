@@ -1,0 +1,124 @@
+<div class="wizard-overlay" (click)="close.emit()">
+  <div class="wizard" (click)="$event.stopPropagation()">
+    <header class="wizard-head">
+      <h2>{{ 'ticketTemplates.wizard.title' | translate }}</h2>
+      <button class="wizard-close" type="button" (click)="close.emit()" aria-label="close">×</button>
+    </header>
+
+    <div class="wizard-body">
+      @if (error()) {
+        <div class="wizard-error">{{ error() }}</div>
+      }
+
+      <section class="wizard-section">
+        <h3>{{ 'ticketTemplates.wizard.categorySection' | translate }}</h3>
+        <div class="wizard-radio">
+          <label>
+            <input type="radio" name="catMode" [(ngModel)]="categoryMode" value="existing" />
+            {{ 'ticketTemplates.wizard.existingCategory' | translate }}
+          </label>
+          <label>
+            <input type="radio" name="catMode" [(ngModel)]="categoryMode" value="new" />
+            {{ 'ticketTemplates.wizard.newCategory' | translate }}
+          </label>
+        </div>
+
+        @if (categoryMode === 'existing') {
+          <select class="wizard-input" [(ngModel)]="selectedCategory">
+            <option value="" disabled>{{ 'ticketTemplates.wizard.chooseCategory' | translate }}</option>
+            @for (c of categories(); track c.id) {
+              <option [value]="c.id">{{ categoryLabel(c.id) }}</option>
+            }
+          </select>
+        } @else {
+          <input class="wizard-input" type="text" [(ngModel)]="newCategory" [placeholder]="'ticketTemplates.wizard.newCategoryName' | translate" />
+        }
+      </section>
+
+      <section class="wizard-section">
+        <h3>{{ 'ticketTemplates.wizard.themeSection' | translate }}</h3>
+        <input class="wizard-input" type="text" [(ngModel)]="themeName" [placeholder]="'ticketTemplates.wizard.themeNamePlaceholder' | translate" />
+        <textarea class="wizard-input" rows="2" [(ngModel)]="themeDescription" [placeholder]="'ticketTemplates.wizard.themeDescPlaceholder' | translate"></textarea>
+      </section>
+
+      <section class="wizard-section preview-section">
+        <h3>{{ 'ticketTemplates.wizard.htmlSection' | translate }}</h3>
+        
+        <div class="split-view">
+          <div class="editor-pane">
+            <div class="wizard-label-row">
+              <label class="wizard-label">{{ 'ticketTemplates.wizard.singleHtml' | translate }}</label>
+              <label class="btn btn-outline btn-sm file-upload-btn">
+                Choose HTML File
+                <input type="file" (change)="onFileSelected($event, 'single')" accept=".html" class="file-upload-input" />
+              </label>
+            </div>
+            <textarea class="wizard-input code split-textarea" [(ngModel)]="singleHtml" [placeholder]="'ticketTemplates.wizard.htmlPlaceholder' | translate"></textarea>
+          </div>
+          <div class="preview-pane">
+            <label class="wizard-label">Preview (Single)</label>
+            <div class="preview-host-wrapper">
+              <app-ticket-template-host
+                [htmlOverride]="singleHtml || fallbackHtml"
+                [details]="sampleSingle"
+                [fieldMapping]="singleMapping"
+                [sample]="true">
+              </app-ticket-template-host>
+            </div>
+          </div>
+          <div class="mapping-pane">
+            <h4>Map live fields (class names)</h4>
+            <p>Enter the class shown in the designer HTML, for example <code>CoupleNames</code>. For repeated classes use <code>#1</code> or <code>#2</code>, e.g. <code>EventDateTitle#2</code>.</p>
+            @for (field of mappingFields; track field) {
+              <label>{{ mappingLabel(field) }}
+                <input class="wizard-input" [(ngModel)]="singleMapping[field]" [placeholder]="mappingPlaceholder(field)" />
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="split-view">
+          <div class="editor-pane">
+            <div class="wizard-label-row">
+              <label class="wizard-label">{{ 'ticketTemplates.wizard.coupleHtml' | translate }}</label>
+              <label class="btn btn-outline btn-sm file-upload-btn">
+                Choose HTML File
+                <input type="file" (change)="onFileSelected($event, 'couple')" accept=".html" class="file-upload-input" />
+              </label>
+            </div>
+            <textarea class="wizard-input code split-textarea" [(ngModel)]="coupleHtml" [placeholder]="'ticketTemplates.wizard.htmlPlaceholder' | translate"></textarea>
+          </div>
+          <div class="preview-pane">
+            <label class="wizard-label">Preview (Couple)</label>
+            <div class="preview-host-wrapper">
+              <app-ticket-template-host
+                [htmlOverride]="coupleHtml || fallbackHtml"
+                [details]="sampleCouple"
+                [fieldMapping]="coupleMapping"
+                [sample]="true">
+              </app-ticket-template-host>
+            </div>
+          </div>
+          <div class="mapping-pane">
+            <h4>Map live fields (class names)</h4>
+            <p>Use the class names shown in the couple ticket artwork.</p>
+            @for (field of mappingFields; track field) {
+              <label>{{ mappingLabel(field) }}
+                <input class="wizard-input" [(ngModel)]="coupleMapping[field]" [placeholder]="mappingPlaceholder(field)" />
+              </label>
+            }
+          </div>
+        </div>
+
+        <p class="wizard-hint">{{ 'ticketTemplates.wizard.tokensHint' | translate }}</p>
+      </section>
+    </div>
+
+    <footer class="wizard-foot">
+      <button class="btn-ghost" type="button" (click)="close.emit()">{{ 'ticketTemplates.wizard.cancel' | translate }}</button>
+      <button class="btn-primary" type="button" [disabled]="saving()" (click)="submit()">
+        {{ saving() ? ('ticketTemplates.wizard.saving' | translate) : ('ticketTemplates.wizard.save' | translate) }}
+      </button>
+    </footer>
+  </div>
+</div>

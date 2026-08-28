@@ -1,0 +1,194 @@
+@startuml
+skinparam class {
+  BackgroundColor #FFF7F1
+  BorderColor #570013
+  ArrowColor #570013
+  FontColor #2A1118
+  FontSize 12
+}
+skinparam stereotype {
+  FontColor #8a1030
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  CLIENT_ADMIN
+  GATE_STAFF
+}
+
+class Client {
+  + id: UUID
+  + name: string
+  + email: string
+  + phone: string
+  + plan_code: string
+  + subscription_status: string
+  + created_at: timestamp
+}
+
+class User {
+  + id: UUID
+  + username: string
+  + password_hash: string
+  + role: RoleType
+  + is_active: boolean
+  + client_id: UUID
+  + name: string
+  + email: string
+  + phone: string
+  + created_at: timestamp
+}
+
+class Building {
+  + id: UUID
+  + name: string
+  + address: string
+  + client_id: UUID
+}
+
+class Room {
+  + id: UUID
+  + building_id: UUID
+  + room_number: string
+  + floor_number: int
+  + capacity: int
+}
+
+class Event {
+  + id: UUID
+  + name: string
+  + start_time: timestamp
+  + end_time: timestamp
+  + room_id: UUID
+  + room_ids: UUID[]
+  + client_id: UUID
+  + created_at: timestamp
+}
+
+class Invitee {
+  + id: UUID
+  + name: string
+  + email: string
+  + phone: string
+  + client_id: UUID
+}
+
+class Table {
+  + id: UUID
+  + event_id: UUID
+  + table_number: string
+  + position: point
+}
+
+class Chair {
+  + id: UUID
+  + table_id: UUID
+  + chair_number: string
+}
+
+enum ReservationType {
+  SINGLE
+  COUPLE
+}
+
+enum ReservationStatus {
+  ACTIVE
+  PENDING_CANCELLATION
+  CANCELLED
+}
+
+class Reservation {
+  + id: UUID
+  + event_id: UUID
+  + table_id: UUID
+  + chair_id: UUID
+  + invitee_id: UUID
+  + room_id: UUID
+  + reservation_type: ReservationType
+  + couple_group_id: UUID
+  + status: ReservationStatus
+  + created_at: timestamp
+  + cancelled_at: timestamp
+}
+
+enum TicketStatus {
+  ISSUED
+  CHECKED_IN
+  CANCELLED
+}
+
+class Ticket {
+  + id: UUID
+  + reservation_id: UUID
+  + qr_token: string
+  + status: TicketStatus
+  + issued_at: timestamp
+  + checked_in_at: timestamp
+}
+
+class GateStaffAssignment {
+  + id: UUID
+  + user_id: UUID
+  + event_id: UUID
+  + client_id: UUID
+}
+
+class Subscription {
+  + id: UUID
+  + client_id: UUID
+  + plan_code: string
+  + status: string
+  + current_period_start: timestamp
+  + current_period_end: timestamp
+  + price_xaf: int
+}
+
+class PaymentTransaction {
+  + id: UUID
+  + client_id: UUID
+  + intended_plan_code: string
+  + amount_xaf: int
+  + payment_phone: string
+  + status: string
+  + created_at: timestamp
+}
+
+class SubscriptionUsageLedger {
+  + id: UUID
+  + client_id: UUID
+  + usage_type: string
+  + resource_id: UUID
+  + period_start: timestamp
+}
+
+' ---- Tenant (Client) owns everything ----
+Client ||--o{ User             : client_id
+Client ||--o{ Building         : client_id
+Client ||--o{ Event            : client_id
+Client ||--o{ Invitee          : client_id
+Client ||--o{ Subscription     : client_id
+Client ||--o{ PaymentTransaction : client_id
+Client ||--o{ GateStaffAssignment : client_id
+Client ||--o{ SubscriptionUsageLedger : client_id
+
+' ---- Venue hierarchy ----
+Building ||--o{ Room           : building_id
+Room ||--o{ Event              : room_id
+
+' ---- Event composition ----
+Event ||--o{ Table
+Event ||--o{ Reservation
+Event ||--o{ GateStaffAssignment : event_id
+Table ||--o{ Chair
+
+' ---- Reservation / Ticket ----
+Invitee ||--o{ Reservation     : invitee_id
+Reservation ||--|| Ticket      : reservation_id
+User ||--o{ GateStaffAssignment : user_id (gate staff)
+
+note right of Reservation
+  COUPLE reservations are two rows
+  sharing one couple_group_id
+  (selected seat + partner seat)
+end note
+@enduml

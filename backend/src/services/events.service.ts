@@ -1,6 +1,7 @@
 import { query } from '../config/db';
 import { RoleType } from '../types/auth';
 import { EntitlementsService } from './entitlements.service';
+import { TicketTemplatesService } from './ticket-templates.service';
 export const EVENT_GRACE_MINUTES = 30;
 
 export function isEventExpired(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
@@ -17,6 +18,8 @@ export interface EventRecord {
   end_time: Date;
   client_id: string | null;
   created_at: Date;
+  ticket_template_single: string;
+  ticket_template_couple: string;
 }
 
 export function normalizeRoomIds(roomIds: unknown, fallbackRoomId?: string | null): string[] {
@@ -53,6 +56,8 @@ export function normalizeEventRecord(event: any): EventRecord {
     end_time: endTimeValue instanceof Date ? endTimeValue : new Date(endTimeValue as string | Date),
     client_id: typeof event.client_id === 'string' ? event.client_id : null,
     created_at: createdAtValue instanceof Date ? createdAtValue : new Date(createdAtValue as string | Date),
+    ticket_template_single: typeof event.ticket_template_single === 'string' ? event.ticket_template_single : 'classic',
+    ticket_template_couple: typeof event.ticket_template_couple === 'string' ? event.ticket_template_couple : 'classic',
   };
 }
 
@@ -147,20 +152,20 @@ export const EventsService = {
   },
   
   async checkRoomAvailability(roomId: string, startTime: Date, endTime: Date, excludeEventId?: string): Promise<boolean> {
+    // Use @> (JSONB containment) instead of jsonb_array_elements_text to avoid
+    // PostgreSQL "operator does not exist: text = uuid" type inference issues.
+    // $1 is used as UUID for room_id, $4 is the same value wrapped as a JSON
+    // string for the JSONB containment check.
     let sql = `SELECT id FROM events 
                WHERE (
                  room_id = $1
-                 OR EXISTS (
-                   SELECT 1
-                   FROM jsonb_array_elements_text(COALESCE(room_ids, '[]'::jsonb)) AS assigned_room_id
-                   WHERE assigned_room_id = $1
-                 )
+                 OR COALESCE(room_ids, '[]'::jsonb) @> $4::jsonb
                )
                AND start_time < $3 
                AND end_time > $2`;
-    const params: any[] = [roomId, startTime, endTime];
+    const params: any[] = [roomId, startTime, endTime, JSON.stringify(roomId)];
     if (excludeEventId) {
-      sql += ` AND id != $4`;
+      sql += ` AND id != $5`;
       params.push(excludeEventId);
     }
     const result = await query(sql, params);
@@ -191,11 +196,16 @@ export const EventsService = {
     if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       for (const roomId of uniqueRoomIds) {
         const roomResult = await query(
-          `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
-          [roomId, clientId]
+          `SELECT r.id, r.room_number, b.client_id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1`,
+          [roomId]
         );
         if (roomResult.rows.length === 0) {
-           const e = new Error('One or more selected rooms do not belong to you');
+           const e = new Error('Room not found');
+           (e as any).statusCode = 404;
+           throw e;
+        }
+        if (roomResult.rows[0].client_id !== clientId) {
+           const e = new Error(`Room '${roomResult.rows[0].room_number}' does not belong to you`);
            (e as any).statusCode = 403;
            throw e;
         }
@@ -205,7 +215,9 @@ export const EventsService = {
     for (const roomId of uniqueRoomIds) {
       const isAvailable = await this.checkRoomAvailability(roomId, startTime, endTime);
       if (!isAvailable) {
-        throw new Error('One or more selected rooms are already booked during this time');
+        const roomRes = await query(`SELECT room_number FROM rooms WHERE id = $1`, [roomId]);
+        const roomName = roomRes.rows[0]?.room_number || 'Unknown Room';
+        throw new Error(`Room '${roomName}' is already booked during this time`);
       }
     }
 
@@ -232,9 +244,10 @@ export const EventsService = {
       }
 
       for (const tableData of tables ?? []) {
+        const tableRoomId = (tableData as any).roomId || primaryRoomId;
         const tableRes = await client.query(
-          `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
-          [event.id, tableData.tableNumber, tableData.position || null]
+          `INSERT INTO tables (event_id, table_number, position, room_id) VALUES ($1, $2, $3, $4) RETURNING *`,
+          [event.id, tableData.tableNumber, tableData.position || null, tableRoomId]
         );
         const tableId = tableRes.rows[0].id;
         for (let i = 1; i <= tableData.numberOfChairs; i++) {
@@ -251,11 +264,18 @@ export const EventsService = {
     });
   },
   
-  async addTable(eventId: string, tableNumber: string, position: string | null, _roomId: string | undefined, userRole: RoleType, clientId?: string): Promise<TableRecord> {
+  async addTable(eventId: string, tableNumber: string, position: string | null, roomId: string | undefined, userRole: RoleType, clientId?: string): Promise<TableRecord> {
+    // Resolve room_id: use provided roomId or fall back to the event's primary room
+    let effectiveRoomId = roomId;
+    if (!effectiveRoomId) {
+      const eventRes = await query<{ room_id: string }>(`SELECT room_id FROM events WHERE id = $1`, [eventId]);
+      effectiveRoomId = eventRes.rows[0]?.room_id;
+    }
+
     if (userRole !== RoleType.CLIENT_ADMIN || !clientId) {
       const result = await query<TableRecord>(
-        `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
-        [eventId, tableNumber, position]
+        `INSERT INTO tables (event_id, table_number, position, room_id) VALUES ($1, $2, $3, $4) RETURNING *`,
+        [eventId, tableNumber, position, effectiveRoomId]
       );
       return result.rows[0];
     }
@@ -264,8 +284,8 @@ export const EventsService = {
     return withTransaction(async (client) => {
       await EntitlementsService.assertCanAddTables(client, clientId, eventId, 1);
       const result = await client.query<TableRecord>(
-        `INSERT INTO tables (event_id, table_number, position) VALUES ($1, $2, $3) RETURNING *`,
-        [eventId, tableNumber, position]
+        `INSERT INTO tables (event_id, table_number, position, room_id) VALUES ($1, $2, $3, $4) RETURNING *`,
+        [eventId, tableNumber, position, effectiveRoomId]
       );
       return result.rows[0];
     });
@@ -314,11 +334,16 @@ export const EventsService = {
     if (userRole === RoleType.CLIENT_ADMIN && clientId) {
       for (const roomId of uniqueRoomIds) {
         const roomResult = await query(
-          `SELECT r.id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1 AND b.client_id = $2`,
-          [roomId, clientId]
+          `SELECT r.id, r.room_number, b.client_id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1`,
+          [roomId]
         );
         if (roomResult.rows.length === 0) {
-           const e = new Error('One or more selected rooms do not belong to you');
+           const e = new Error('Room not found');
+           (e as any).statusCode = 404;
+           throw e;
+        }
+        if (roomResult.rows[0].client_id !== clientId) {
+           const e = new Error(`Room '${roomResult.rows[0].room_number}' does not belong to you`);
            (e as any).statusCode = 403;
            throw e;
         }
@@ -335,7 +360,9 @@ export const EventsService = {
     for (const roomId of uniqueRoomIds) {
       const isAvailable = await this.checkRoomAvailability(roomId, startTime, endTime, eventId);
       if (!isAvailable) {
-        throw new Error('One or more selected rooms are already booked during this time');
+        const roomRes = await query(`SELECT room_number FROM rooms WHERE id = $1`, [roomId]);
+        const roomName = roomRes.rows[0]?.room_number || 'Unknown Room';
+        throw new Error(`Room '${roomName}' is already booked during this time`);
       }
     }
 
@@ -349,7 +376,33 @@ export const EventsService = {
     );
     return normalizeEventRecord(result.rows[0]);
   },
-  
+
+  async setTicketTemplates(eventId: string, singleId: string, coupleId: string, userRole: RoleType, clientId?: string): Promise<EventRecord> {
+    const allowed = ['classic', 'marriage', 'anniversary', 'ceremony', 'boarding-single', 'boarding-couple'];
+    const validate = async (id: string): Promise<void> => {
+      if (allowed.includes(id)) return;
+      const match = id.match(/^(.+?)__(single|couple)$/);
+      const base = match ? match[1] : id;
+      const found = await TicketTemplatesService.getById(base);
+      if (!found) {
+        const e = new Error('Invalid ticket template');
+        (e as any).statusCode = 400;
+        throw e;
+      }
+    };
+    await validate(singleId);
+    await validate(coupleId);
+    const existing = await this.getById(eventId, userRole, clientId);
+    if (!existing) {
+      throw new NotFoundOrForbiddenError();
+    }
+    const result = await query<EventRecord>(
+      `UPDATE events SET ticket_template_single = $1, ticket_template_couple = $2 WHERE id = $3 RETURNING *`,
+      [singleId, coupleId, eventId]
+    );
+    return normalizeEventRecord(result.rows[0]);
+  },
+
   async delete(eventId: string, userRole: RoleType, clientId?: string): Promise<void> {
     const existingEvent = await this.getById(eventId, userRole, clientId);
     if (!existingEvent) {

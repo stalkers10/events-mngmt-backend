@@ -290,6 +290,129 @@
   "ticket": {
     "coupleLabel": "Couple reservation"
   },
+  "ticketTemplates": {
+    "pageTitle": "Ticket Templates",
+    "subtitle": "Choose the layout used when generating tickets for this event.",
+    "backToSeating": "Back to seating map",
+    "current": "Current",
+    "useTemplate": "Use this template",
+    "saving": "Saving...",
+    "preview": "Preview",
+    "saved": "Ticket template updated.",
+    "saveError": "Failed to update template.",
+    "entryLink": "Ticket Templates",
+    "templates": {
+      "classic": {
+        "name": "Classic",
+        "description": "Clean burgundy design that fits any event."
+      },
+      "marriage": {
+        "name": "Marriage",
+        "description": "Elegant blush card for weddings and couples."
+      },
+      "anniversary": {
+        "name": "Anniversary",
+        "description": "Refined gold-accented layout for celebrations."
+      },
+      "ceremony": {
+        "name": "Ceremony",
+        "description": "Formal dark minimal design for ceremonies."
+      }
+    },
+    "breadcrumb": "Ticket Templates",
+    "chooseCategory": "Choose a category for this event's tickets",
+    "chooseTheme": "Choose a group theme",
+    "browse": "Browse",
+    "viewTemplates": "View templates",
+    "singleTicket": "Single Ticket",
+    "coupleTicket": "Couple Ticket",
+    "types": {
+      "single": "Single Ticket",
+      "singleDesc": "Template used for individual (single) reservations.",
+      "couple": "Couple Ticket",
+      "coupleDesc": "Template used for couple reservations."
+    },
+    "categories": {
+      "marriage": {
+        "name": "Marriage",
+        "description": "Wedding and union celebrations."
+      },
+      "anniversary": {
+        "name": "Anniversary",
+        "description": "Milestone anniversary celebrations."
+      },
+      "gala": {
+        "name": "Gala",
+        "description": "Formal galas, balls and award nights."
+      },
+      "simple": {
+        "name": "Simple Events",
+        "description": "Clean, everyday event templates."
+      }
+    },
+    "themes": {
+      "elegantBlush": {
+        "name": "Elegant Blush",
+        "description": "Soft blush tones with delicate detailing."
+      },
+      "classicRomance": {
+        "name": "Classic Romance",
+        "description": "Timeless romantic styling."
+      },
+      "goldenYears": {
+        "name": "Golden Years",
+        "description": "Warm gold accents for milestone years."
+      },
+      "modernLove": {
+        "name": "Modern Love",
+        "description": "Contemporary celebration styling."
+      },
+      "midnightGala": {
+        "name": "Midnight Gala",
+        "description": "Dark, formal gala aesthetic."
+      },
+      "charityBall": {
+        "name": "Charity Ball",
+        "description": "Refined ballroom styling."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "Understated, essential layout."
+      },
+      "essential": {
+        "name": "Essential",
+        "description": "No-frills practical ticket."
+      }
+    },
+    "chooseCombo": "Choose this combo",
+    "pickCombo": "Select one single and one couple template, then confirm your combo below.",
+    "addTemplate": "Add ticket template",
+    "created": "Ticket template created.",
+    "wizard": {
+      "title": "Add ticket template",
+      "categorySection": "1. Category",
+      "existingCategory": "Use an existing category",
+      "newCategory": "Create a new category",
+      "chooseCategory": "Select a category",
+      "newCategoryName": "New category name",
+      "categoryRequired": "Please choose or enter a category.",
+      "themeSection": "2. Theme",
+      "themeNamePlaceholder": "Theme name (e.g. Spring Garden)",
+      "themeDescPlaceholder": "Short description (optional)",
+      "themeRequired": "Please enter a theme name.",
+      "htmlSection": "3. Ticket HTML",
+      "singleHtml": "Single ticket HTML",
+      "coupleHtml": "Couple ticket HTML",
+      "htmlPlaceholder": "Paste the ticket HTML here. Use {{tokens}} for dynamic data.",
+      "tokensHint": "Available tokens: {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{qr_image}}",
+      "singleRequired": "Single ticket HTML is required.",
+      "coupleRequired": "Couple ticket HTML is required.",
+      "cancel": "Cancel",
+      "save": "Save template",
+      "saving": "Saving...",
+      "createError": "Failed to create template."
+    }
+  },
   "auth": {
     "login": {
       "title": "Elite Events",
@@ -377,11 +500,11 @@
     "choosePlan": "Choose the plan that fits your events",
     "choosePlanHint": "Plan changes and Mobile Money checkout will be available soon.",
     "current": "Current plan",
-    "upgrade": "Upgrade with CamPay"
-    ,"checkout": "CamPay checkout",
+    "upgrade": "Upgrade with CamPay",
+    "checkout": "CamPay checkout",
     "phone": "Mobile Money number",
-    "confirmPayment": "Request payment"
-    ,"accessUntil": "Paid access until",
+    "confirmPayment": "Request payment",
+    "accessUntil": "Paid access until",
     "cancelRenewal": "Cancel renewal",
     "resume": "Keep renewal active"
   },
@@ -448,7 +571,7 @@
     "checkedIn": "Checked In",
     "ticketIssued": "Issued",
     "ticketCancelled": "Cancelled",
-    "confirmCancelTitle":"Cancel Reactivation",
+    "confirmCancelTitle": "Cancel Reactivation",
     "confirmCancel": "Cancel reservation for {{name}}?",
     "cancelledToast": "Reservation cancelled successfully.",
     "viewAllForClient": "View all guests for this client",

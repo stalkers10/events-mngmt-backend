@@ -19,6 +19,10 @@
               <i [style.width.%]="totalSeats() ? (reservedSeats() / totalSeats()) * 100 : 0"></i>
             </div>
           </div>
+          <a class="ticket-templates-link" [routerLink]="['/events', activeEvent.id, 'ticket-templates']">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            {{ 'ticketTemplates.entryLink' | translate }}
+          </a>
         </header>
         <section class="map-surface card canvas-container">
           <div class="canvas-header">

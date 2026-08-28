@@ -1,0 +1,69 @@
+@startuml
+left to right direction
+skinparam package {
+  BackgroundColor #FFF7F1
+  BorderColor #570013
+  FontColor #2A1118
+}
+skinparam actor {
+  BackgroundColor #FDEEE6
+  BorderColor #570013
+  FontColor #2A1118
+}
+skinparam usecase {
+  BackgroundColor #ffffff
+  BorderColor #570013
+  FontColor #2A1118
+}
+
+actor "Super Admin" as SA
+actor "Client Admin" as CA
+actor "Gate Staff" as GS
+actor "Visitor" as V
+
+rectangle "Tenant (Client) Management" {
+  usecase UC1 as "Manage client organizations"
+  usecase UC2 as "Grant / update subscriptions"
+  usecase UC3 as "View client payments"
+}
+rectangle "Event Operations" {
+  usecase UC4 as "Manage buildings & rooms"
+  usecase UC5 as "Create & manage events"
+  usecase UC6 as "Manage guests (invitees)"
+  usecase UC7 as "Assign seats (single & couple)"
+  usecase UC8 as "Issue tickets (QR)"
+  usecase UC9 as "Preview ticket (PDF)"
+  usecase UC10 as "View dashboard"
+}
+rectangle "Gate Operations" {
+  usecase UC11 as "Scan ticket / check-in"
+  usecase UC12 as "View scan result"
+}
+rectangle "Onboarding" {
+  usecase UC13 as "Create free account (self-register)"
+}
+
+SA -- UC1
+SA -- UC2
+SA -- UC3
+
+CA -- UC4
+CA -- UC5
+CA -- UC6
+CA -- UC7
+CA -- UC8
+CA -- UC9
+CA -- UC10
+CA --> UC2 : requests upgrade (payment)
+
+GS -- UC11
+GS -- UC12
+
+V -- UC13
+CA -- UC13 : account becomes ClientAdmin
+
+note right of UC2
+  Driven by CamPay Mobile Money
+  (payment_transactions)
+end note
+@enduml

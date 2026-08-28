@@ -1,0 +1,48 @@
+@startuml
+skinparam sequence {
+  ArrowColor #570013
+  LifeLineBorderColor #570013
+  ParticipantBorderColor #570013
+  BackgroundColor #FFF7F1
+  FontColor #2A1118
+}
+skinparam actor {
+  BackgroundColor #FDEEE6
+  BorderColor #570013
+}
+
+autonumber
+actor "Client Admin" as A
+participant "Reservations API" as API
+participant "ReservationService" as R
+participant "QRCode" as Q
+database "PostgreSQL" as DB
+participant "TicketsService" as T
+
+A -> API : POST /events/:id/reservations { table, chair, partnerChair?, invitee, type }
+activate API
+API -> R : createReservation(...)
+activate R
+
+R -> DB : BEGIN
+R -> DB : validate room & partner seat (COUPLE)
+R -> DB : INSERT invitee (client_id)
+R -> DB : INSERT reservation(s) [2 rows if COUPLE] sharing couple_group_id
+R -> Q : crypto.randomUUID() -> qrToken
+R -> DB : INSERT ticket(reservation_id, qr_token)
+R -> Q : QRCode.toDataURL(qrToken) -> qrDataUrl
+R -> DB : COMMIT
+DB --> R : ticket id
+R --> API : { reservationId, ticketId, qrToken, qrDataUrl }
+deactivate R
+API --> A : 201 reservation + issued ticket
+
+... later: guest preview / print ...
+A -> T : GET /tickets/:id (preview)
+activate T
+T -> DB : SELECT details (event, invitee, room, table, chair)
+T -> Q : QRCode.toBuffer(qrToken)
+T -> T : generatePdf(details)  [pdfkit]
+T --> A : PDF ticket
+deactivate T
+@enduml

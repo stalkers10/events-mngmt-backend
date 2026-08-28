@@ -1,0 +1,51 @@
+@startuml
+skinparam sequence {
+  ArrowColor #570013
+  LifeLineBorderColor #570013
+  ParticipantBorderColor #570013
+  BackgroundColor #FFF7F1
+  FontColor #2A1118
+}
+skinparam actor {
+  BackgroundColor #FDEEE6
+  BorderColor #570013
+}
+
+autonumber
+actor "Gate Staff" as G
+participant "Scanner (mobile)" as S
+participant "Gate Staff API" as A
+participant "TicketsService" as T
+database "PostgreSQL" as DB
+
+G -> S : open scanner, aim at QR
+S -> A : POST /gate-staff/scan { qrToken }
+activate A
+A -> T : scanTicket(qrToken, userId, role)
+activate T
+
+T -> DB : SELECT ticket + reservation + event + invitee + chair + table + room WHERE qr_token = ?
+DB --> T : ticket row (or empty)
+
+alt no ticket found
+  T --> A : throw "Invalid QR Code"
+else ticket found
+  T -> T : isEventExpired(end_time) ?
+  T -> T : status = CHECKED_IN / CANCELLED ?
+  opt role = GATE_STAFF
+    T -> DB : SELECT 1 FROM gate_staff_assignments WHERE user_id = ? AND event_id = ?
+    DB --> T : assignment (or empty)
+    alt not assigned to event
+      T --> A : throw "Not assigned to event"
+    end
+  end
+  T -> DB : UPDATE tickets SET status='CHECKED_IN', checked_in_at=NOW()
+  DB --> T : ok
+  T --> A : ScanResult { success:true, details }
+end
+
+A --> S : 200 { success, guest name, seat }
+deactivate T
+deactivate A
+S --> G : show check-in success
+@enduml

@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.ticket-template-render {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ticket-inner {
+  width: 360px;
+  transform-origin: top left;
+}
+
+.ticket-frame {
+  display: block;
+  border: 0;
+  background: transparent;
+  transform-origin: top left;
+}

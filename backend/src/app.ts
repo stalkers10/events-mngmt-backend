@@ -13,6 +13,7 @@ import buildingRoutes from './routes/buildings.routes';
 import clientsRoutes from './routes/clients.routes';
 import subscriptionRoutes, { adminSubscriptionRouter } from './routes/subscriptions.routes';
 import paymentRoutes, { campayWebhookRouter, adminPaymentRouter } from './routes/payments.routes';
+import { ticketTemplatesRouter } from './routes/ticket-templates.routes';
 
 const app = express();
 
@@ -24,7 +25,8 @@ app.use(
     
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/webhooks', campayWebhookRouter);
 
 app.get('/health', (_req, res) => {
@@ -43,6 +45,7 @@ app.use('/billing', adminSubscriptionRouter);
 app.use('/billing', adminPaymentRouter);
 app.use('/billing', subscriptionRoutes);
 app.use('/billing', paymentRoutes);
+app.use('/ticket-templates', ticketTemplatesRouter);
 
 // 404 handler
 app.use((req, res) => {

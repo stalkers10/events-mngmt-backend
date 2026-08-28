@@ -693,3 +693,29 @@
     font-size: 9px;
   }
 }
+
+.ticket-templates-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: #fff;
+  color: #570013;
+  border: 1px solid #d9b9c2;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ticket-templates-link:hover {
+  background: #fbeef2;
+  box-shadow: 0 4px 12px rgba(87, 0, 19, 0.12);
+}
+
+.ticket-templates-link .material-symbols-outlined {
+  font-size: 18px;
+}

@@ -24,6 +24,8 @@ export interface TicketDetails {
   reservation_type: string;
   paired_table_number: string | null;
   paired_chair_number: string | null;
+  ticket_template_single: string;
+  ticket_template_couple: string;
 }
 
 export interface ScanResult {
@@ -35,7 +37,7 @@ export const TicketsService = {
   async getDetailsByReservation(reservationId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.id as event_id, e.name as event_name, e.start_time, 
+              e.id as event_id, e.name as event_name, e.start_time, e.ticket_template_single as ticket_template_single, e.ticket_template_couple as ticket_template_couple, 
               i.name as invitee_name, 
               rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
@@ -59,7 +61,7 @@ export const TicketsService = {
   async getDetailsById(ticketId: string): Promise<TicketDetails | null> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.id as event_id, e.name as event_name, e.start_time, e.end_time,
+              e.id as event_id, e.name as event_name, e.start_time, e.end_time, e.ticket_template_single as ticket_template_single, e.ticket_template_couple as ticket_template_couple,
               i.name as invitee_name, 
               rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,
@@ -208,7 +210,7 @@ export const TicketsService = {
   ): Promise<{ success: boolean; message: string; details?: TicketDetails }> {
     const res = await query<TicketDetails>(
       `SELECT t.*, 
-              e.id as event_id, e.name as event_name, e.start_time, e.end_time,
+              e.id as event_id, e.name as event_name, e.start_time, e.end_time, e.ticket_template_single as ticket_template_single, e.ticket_template_couple as ticket_template_couple,
               i.name as invitee_name, 
               rm.room_number, rm.floor_number, r.room_id as reservation_room_id,
               tb.table_number,

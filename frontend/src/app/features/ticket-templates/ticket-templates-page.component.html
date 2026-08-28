@@ -1,0 +1,139 @@
+<div class="tpl-page">
+  <header class="tpl-header">
+    <a class="back-link" [routerLink]="['/events', eventId, 'seating-map']">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ 'ticketTemplates.backToSeating' | translate }}
+    </a>
+    <div class="tpl-header-row">
+      <div>
+        <h1 class="tpl-title">{{ 'ticketTemplates.pageTitle' | translate }}</h1>
+        <p class="tpl-subtitle">{{ 'ticketTemplates.subtitle' | translate }}</p>
+      </div>
+      <button type="button" class="btn btn-outline add-tpl-btn" (click)="openWizard()">
+        <span class="material-symbols-outlined">add</span>
+        {{ 'ticketTemplates.addTemplate' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Breadcrumb -->
+  <nav class="tpl-breadcrumb">
+    <button type="button" class="crumb" [class.active]="step() === 'categories'" (click)="backToCategories()">
+      {{ 'ticketTemplates.breadcrumb' | translate }}
+    </button>
+    @if (step() !== 'categories') {
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb" [class.active]="step() === 'themes'" (click)="backToThemes()">
+        {{ categoryName() }}
+      </button>
+    }
+    @if (step() === 'templates') {
+      <span class="crumb-sep">/</span>
+      <span class="crumb current">{{ themeName() }}</span>
+    }
+  </nav>
+
+  <!-- STEP 1: Categories -->
+  @if (step() === 'categories') {
+    <p class="tpl-step-hint">{{ 'ticketTemplates.chooseCategory' | translate }}</p>
+    <div class="tpl-grid">
+      @for (cat of categories(); track cat.id) {
+        <article class="tpl-card clickable" (click)="selectCategory(cat.id)">
+          <div class="tpl-info">
+            <h3 class="tpl-name">{{ nameOf(cat) }}</h3>
+            <p class="tpl-desc">{{ descOf(cat) }}</p>
+          </div>
+          <div class="tpl-actions">
+            <button type="button" class="btn btn-primary">{{ 'ticketTemplates.browse' | translate }}</button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <!-- STEP 2: Group Themes -->
+  @if (step() === 'themes') {
+    <p class="tpl-step-hint">{{ 'ticketTemplates.chooseTheme' | translate }}</p>
+    <div class="tpl-grid">
+      @for (theme of themesForCategory(); track theme.id) {
+        <article class="tpl-card clickable" (click)="selectTheme(theme.id)">
+          <div class="tpl-info">
+            <h3 class="tpl-name">{{ nameOf(theme) }}</h3>
+            <p class="tpl-desc">{{ descOf(theme) }}</p>
+          </div>
+          <div class="tpl-actions">
+            <button type="button" class="btn btn-primary">{{ 'ticketTemplates.viewTemplates' | translate }}</button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <!-- STEP 3: Single & Couple templates (two per row on web) -->
+  @if (step() === 'templates') {
+    <p class="tpl-step-hint">{{ 'ticketTemplates.pickCombo' | translate }}</p>
+    <div class="tpl-grid two-col">
+      @for (t of templatesForTheme(); track t.id) {
+        <article
+          class="tpl-card clickable"
+          [class.selected]="isSelected(t.type, t.designId)"
+          (click)="pick(t.type, t.designId)"
+        >
+          @if (isSaved(t.type, t.designId)) {
+            <span class="current-badge">{{ 'ticketTemplates.current' | translate }}</span>
+          }
+          <span class="type-pill">{{ t.type === 'single' ? ('ticketTemplates.singleTicket' | translate) : ('ticketTemplates.coupleTicket' | translate) }}</span>
+          <div class="tpl-preview">
+            <app-ticket-template-host
+              [templateId]="t.designId"
+              [details]="sample"
+              [sample]="true"
+              [customTemplates]="customTemplates()"
+            />
+          </div>
+          <div class="tpl-info">
+            <h3 class="tpl-name">{{ t.label ?? (t.nameKey | translate) }}</h3>
+            <p class="tpl-desc">{{ t.descriptionKey | translate }}</p>
+          </div>
+          <div class="tpl-actions">
+            <button type="button" class="btn btn-outline" (click)="openPreview(t.designId); $event.stopPropagation()">
+              {{ 'ticketTemplates.preview' | translate }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+
+    <div class="tpl-combo-actions">
+      <button type="button" class="btn btn-primary btn-lg" [disabled]="saving()" (click)="chooseCombo()">
+        @if (saving()) {
+          {{ 'ticketTemplates.saving' | translate }}
+        } @else {
+          {{ 'ticketTemplates.chooseCombo' | translate }}
+        }
+      </button>
+    </div>
+  }
+</div>
+
+@if (previewDesignId(); as pid) {
+  <div class="tpl-modal-overlay" (click)="closePreview()">
+    <div class="tpl-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="tpl-modal-close" (click)="closePreview()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <div class="tpl-modal-preview">
+        <app-ticket-template-host
+          [templateId]="pid"
+          [details]="sample"
+          [sample]="true"
+          [customTemplates]="customTemplates()"
+        />
+      </div>
+    </div>
+  </div>
+}
+
+@if (wizardOpen()) {
+  <app-add-template-wizard (created)="onTemplateCreated()" (close)="closeWizard()" />
+}

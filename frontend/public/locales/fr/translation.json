@@ -282,6 +282,129 @@
   "ticket": {
     "coupleLabel": "Réservation en couple"
   },
+  "ticketTemplates": {
+    "pageTitle": "Modèles de billet",
+    "subtitle": "Choisissez la mise en page utilisée pour générer les billets de cet événement.",
+    "backToSeating": "Retour au plan de salle",
+    "current": "Actuel",
+    "useTemplate": "Utiliser ce modèle",
+    "saving": "Enregistrement...",
+    "preview": "Aperçu",
+    "saved": "Modèle de billet mis à jour.",
+    "saveError": "Échec de la mise à jour du modèle.",
+    "entryLink": "Modèles de billet",
+    "templates": {
+      "classic": {
+        "name": "Classique",
+        "description": "Design bordeaux épuré qui convient à tout événement."
+      },
+      "marriage": {
+        "name": "Mariage",
+        "description": "Carte rose élégante pour les mariages et les couples."
+      },
+      "anniversary": {
+        "name": "Anniversaire",
+        "description": "Mise en page raffinée aux accents dorés pour les célébrations."
+      },
+      "ceremony": {
+        "name": "Cérémonie",
+        "description": "Design sombre et minimaliste pour les cérémonies."
+      }
+    },
+    "breadcrumb": "Modèles de billet",
+    "chooseCategory": "Choisissez une catégorie pour les billets de cet événement",
+    "chooseTheme": "Choisissez un thème de groupe",
+    "browse": "Parcourir",
+    "viewTemplates": "Voir les modèles",
+    "singleTicket": "Billet individuel",
+    "coupleTicket": "Billet en couple",
+    "types": {
+      "single": "Billet individuel",
+      "singleDesc": "Modèle utilisé pour les réservations individuelles.",
+      "couple": "Billet en couple",
+      "coupleDesc": "Modèle utilisé pour les réservations en couple."
+    },
+    "categories": {
+      "marriage": {
+        "name": "Mariage",
+        "description": "Célébrations de mariage et d'union."
+      },
+      "anniversary": {
+        "name": "Anniversaire",
+        "description": "Célébrations d'anniversaire important."
+      },
+      "gala": {
+        "name": "Gala",
+        "description": "Galas, bals et soirées de remise de prix."
+      },
+      "simple": {
+        "name": "Événements simples",
+        "description": "Modèles d'événements simples et quotidiens."
+      }
+    },
+    "themes": {
+      "elegantBlush": {
+        "name": "Rose élégant",
+        "description": "Tons rose doux avec des détails délicats."
+      },
+      "classicRomance": {
+        "name": "Romance classique",
+        "description": "Style romantique intemporel."
+      },
+      "goldenYears": {
+        "name": "Années dorées",
+        "description": "Accents dorés chaleureux pour les grands angles."
+      },
+      "modernLove": {
+        "name": "Amour moderne",
+        "description": "Style de célébration contemporain."
+      },
+      "midnightGala": {
+        "name": "Gala de minuit",
+        "description": "Esthétique de gala sombre et formelle."
+      },
+      "charityBall": {
+        "name": "Bal de charité",
+        "description": "Style de salle de bal raffiné."
+      },
+      "minimal": {
+        "name": "Minimal",
+        "description": "Mise en page sobre et essentielle."
+      },
+      "essential": {
+        "name": "Essentiel",
+        "description": "Billet pratique sans fioritures."
+      }
+    },
+    "chooseCombo": "Choisir cette combinaison",
+    "pickCombo": "Sélectionnez un billet individuel et un en couple, puis confirmez votre combinaison ci-dessous.",
+    "addTemplate": "Ajouter un modèle de billet",
+    "created": "Modèle de billet créé.",
+    "wizard": {
+      "title": "Ajouter un modèle de billet",
+      "categorySection": "1. Catégorie",
+      "existingCategory": "Utiliser une catégorie existante",
+      "newCategory": "Créer une nouvelle catégorie",
+      "chooseCategory": "Choisir une catégorie",
+      "newCategoryName": "Nom de la nouvelle catégorie",
+      "categoryRequired": "Veuillez choisir ou saisir une catégorie.",
+      "themeSection": "2. Thème",
+      "themeNamePlaceholder": "Nom du thème (ex. Jardin de printemps)",
+      "themeDescPlaceholder": "Courte description (facultatif)",
+      "themeRequired": "Veuillez saisir un nom de thème.",
+      "htmlSection": "3. HTML du billet",
+      "singleHtml": "HTML billet individuel",
+      "coupleHtml": "HTML billet en couple",
+      "htmlPlaceholder": "Collez le HTML du billet ici. Utilisez {{tokens}} pour les données dynamiques.",
+      "tokensHint": "Jetons disponibles : {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{qr_image}}",
+      "singleRequired": "Le HTML du billet individuel est requis.",
+      "coupleRequired": "Le HTML du billet en couple est requis.",
+      "cancel": "Annuler",
+      "save": "Enregistrer le modèle",
+      "saving": "Enregistrement...",
+      "createError": "Échec de la création du modèle."
+    }
+  },
   "auth": {
     "login": {
       "title": "Elite Events",
@@ -369,11 +492,11 @@
     "choosePlan": "Choisissez le forfait adapté à vos événements",
     "choosePlanHint": "Les changements de forfait et le paiement Mobile Money seront bientôt disponibles.",
     "current": "Forfait actuel",
-    "upgrade": "Mettre a niveau avec CamPay"
-    ,"checkout": "Paiement CamPay",
+    "upgrade": "Mettre a niveau avec CamPay",
+    "checkout": "Paiement CamPay",
     "phone": "Numéro Mobile Money",
-    "confirmPayment": "Demander le paiement"
-    ,"accessUntil": "Accès payant jusqu'au",
+    "confirmPayment": "Demander le paiement",
+    "accessUntil": "Accès payant jusqu'au",
     "cancelRenewal": "Annuler le renouvellement",
     "resume": "Maintenir le renouvellement"
   },
@@ -441,7 +564,7 @@
     "checkedIn": "Entrée validée",
     "ticketIssued": "Émis",
     "ticketCancelled": "Annulé",
-    "confirmCancelTitle":"Annuler Réservation",
+    "confirmCancelTitle": "Annuler Réservation",
     "confirmCancel": "Annuler la réservation de {{name}} ?",
     "cancelledToast": "Réservation annulée avec succès.",
     "viewAllForClient": "Voir tous les invités de ce client",
