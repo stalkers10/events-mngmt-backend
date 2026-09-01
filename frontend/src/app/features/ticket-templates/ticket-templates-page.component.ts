@@ -206,6 +206,43 @@ export class TicketTemplatesPageComponent implements OnInit {
     this.toast.success(this.i18n.t('ticketTemplates.created'));
   }
 
+  deleteCustomTemplate(rowId: string): void {
+    this.store.delete(rowId).subscribe({
+      next: () => {
+        this.store.refresh();
+        this.toast.success(this.i18n.t('ticketTemplates.deleted'));
+      },
+      error: () => this.toast.error(this.i18n.t('ticketTemplates.deleteError')),
+    });
+  }
+
+  customThemeRowId(themeId: string): string | null {
+    return themeId.startsWith('custom-') ? themeId.slice('custom-'.length) : null;
+  }
+
+  customCategoryRows(categoryId: string): any[] {
+    return this.customTemplates().filter((t) => t.category === categoryId);
+  }
+
+  deleteCategory(categoryId: string): void {
+    const rows = this.customCategoryRows(categoryId);
+    if (rows.length === 0) return;
+    if (rows.length === 1) {
+      this.deleteCustomTemplate(rows[0].id);
+      return;
+    }
+    const ids = rows.map((r) => r.id);
+    this.store.deleteMany(ids).subscribe({
+      next: () => this.store.refresh(),
+      error: () => this.toast.error(this.i18n.t('ticketTemplates.deleteError')),
+    });
+  }
+
+  extractRowId(designId: string): string {
+    const m = designId.match(/^(.+?)__(single|couple)$/);
+    return m ? m[1] : designId;
+  }
+
   openPreview(designId: string): void {
     this.previewDesignId.set(designId);
   }

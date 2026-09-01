@@ -10,10 +10,10 @@ import { ToastService } from '../../core/services/toast.service';
 import { VenueService } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { getEventState, isEventVisible } from '../../core/utils/event-status';
+import { getEventState, isEventVisible, EventState } from '../../core/utils/event-status';
 import { ClientFilterService } from '../../core/services/client-filter.service';
 
-export type FilterTab = 'all' | 'upcoming' | 'live' | 'past';
+export type FilterTab = 'all' | 'drafts' | 'upcoming' | 'live' | 'past';
 export type SortOrder = 'latest' | 'oldest';
 
 @Component({
@@ -30,7 +30,7 @@ export class EventsComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly searchQuery = signal('');
 
-  readonly filterTabs: FilterTab[] = ['all', 'upcoming', 'live', 'past'];
+  readonly filterTabs: FilterTab[] = ['all', 'drafts', 'upcoming', 'live', 'past'];
   readonly activeFilter = signal<FilterTab>('all');
   readonly sortOrder = signal<SortOrder>('latest');
 
@@ -40,8 +40,21 @@ export class EventsComponent implements OnInit {
     const query = this.searchQuery().trim().toLowerCase();
 
     let list = this.clientFilter.filterList(this.events());
-    list = list.filter(e => isEventVisible(e.start_time, e.end_time));
-    list = list.filter(e => filter === 'all' ? true : this.eventState(e) === filter);
+
+    // Apply filter tab
+    if (filter === 'drafts') {
+      list = list.filter(e => this.eventState(e) === 'draft');
+    } else if (filter === 'all') {
+      // All includes drafts + non-expired published events
+      list = list.filter(e => this.eventState(e) === 'draft' || isEventVisible(e.start_time, e.end_time));
+    } else {
+      // upcoming / live / past — published events only
+      list = list.filter(e =>
+        this.eventState(e) !== 'draft' &&
+        isEventVisible(e.start_time, e.end_time) &&
+        this.eventState(e) === filter
+      );
+    }
 
     if (query) {
       list = list.filter((event) => {
@@ -58,13 +71,29 @@ export class EventsComponent implements OnInit {
     }
 
     return [...list].sort((a, b) => {
-      const diff = +new Date(a.start_time) - +new Date(b.start_time);
+      // Drafts always first in 'all' tab, then sort by start_time
+      const aIsDraft = this.eventState(a) === 'draft';
+      const bIsDraft = this.eventState(b) === 'draft';
+      if (aIsDraft && !bIsDraft) return -1;
+      if (!aIsDraft && bIsDraft) return 1;
+      if (aIsDraft && bIsDraft) {
+        // Sort drafts by creation date (newest first)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      const diff = +new Date(a.start_time!) - +new Date(b.start_time!);
       return sort === 'latest' ? -diff : diff;
     });
   });
 
   readonly activeEventsCount = computed(() =>
-    this.clientFilter.filterList(this.events()).filter(e => isEventVisible(e.start_time, e.end_time) && (this.eventState(e) === 'live' || this.eventState(e) === 'upcoming')).length
+    this.clientFilter.filterList(this.events()).filter(e =>
+      isEventVisible(e.start_time, e.end_time) &&
+      (this.eventState(e) === 'live' || this.eventState(e) === 'upcoming')
+    ).length
+  );
+
+  readonly draftsCount = computed(() =>
+    this.clientFilter.filterList(this.events()).filter(e => this.eventState(e) === 'draft').length
   );
 
   readonly totalCapacity = computed(() =>
@@ -111,7 +140,9 @@ export class EventsComponent implements OnInit {
   }
 
   roomFor(event: EventSummary): Room | undefined {
-    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    const roomIds = event.room_ids && event.room_ids.length > 0
+      ? event.room_ids
+      : event.room_id ? [event.room_id] : [];
     return this.rooms().find((r) => roomIds.includes(r.id));
   }
 
@@ -120,25 +151,34 @@ export class EventsComponent implements OnInit {
   }
 
   roomFloorLabel(event: EventSummary): string {
-    const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
+    if (this.eventState(event) === 'draft') return '—';
+    const roomIds = event.room_ids && event.room_ids.length > 0
+      ? event.room_ids
+      : event.room_id ? [event.room_id] : [];
     const rooms = this.rooms().filter((room) => roomIds.includes(room.id));
     if (rooms.length === 0) return '—';
-    if (rooms.length === 1) {
-      return `${rooms[0].room_number} · Floor ${rooms[0].floor_number}`;
-    }
+    if (rooms.length === 1) return `${rooms[0].room_number} · Floor ${rooms[0].floor_number}`;
     return `${rooms.length} rooms selected`;
   }
 
-  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
-    return getEventState(event.start_time, event.end_time);
+  eventState(event: EventSummary): EventState {
+    return getEventState(event.start_time, event.end_time, event.status);
+  }
+
+  isDraft(event: EventSummary): boolean {
+    return this.eventState(event) === 'draft';
   }
 
   canEditSeating(event: EventSummary): boolean {
-    return isEventVisible(event.start_time, event.end_time);
+    return !this.isDraft(event) && isEventVisible(event.start_time, event.end_time);
   }
 
   openSeatingMap(eventId: string): void {
     this.router.navigate(['/events', eventId, 'seating-map']);
+  }
+
+  openEditPage(eventId: string): void {
+    this.router.navigate(['/events', eventId, 'edit']);
   }
 
   setFilter(filter: FilterTab): void {
@@ -151,8 +191,19 @@ export class EventsComponent implements OnInit {
 
   countByFilter(filter: FilterTab): number {
     const list = this.clientFilter.filterList(this.events());
-    if (filter === 'all') return list.filter(e => isEventVisible(e.start_time, e.end_time)).length;
-    return list.filter(e => isEventVisible(e.start_time, e.end_time) && this.eventState(e) === filter).length;
+    if (filter === 'drafts') {
+      return list.filter(e => this.eventState(e) === 'draft').length;
+    }
+    if (filter === 'all') {
+      return list.filter(e =>
+        this.eventState(e) === 'draft' || isEventVisible(e.start_time, e.end_time)
+      ).length;
+    }
+    return list.filter(e =>
+      this.eventState(e) !== 'draft' &&
+      isEventVisible(e.start_time, e.end_time) &&
+      this.eventState(e) === filter
+    ).length;
   }
 
   deleteEvent(id: string): void {
@@ -168,10 +219,8 @@ export class EventsComponent implements OnInit {
   confirmDeleteEvent(): void {
     const eventId = this.pendingDeleteEventId();
     if (!eventId) return;
-
     this.showDeleteConfirmation.set(false);
     this.pendingDeleteEventId.set(null);
-
     this.venueService.deleteEvent(eventId).subscribe({
       next: () => {
         this.toast.success(this.i18n.t('events.deleteSuccess') || 'Event deleted successfully');

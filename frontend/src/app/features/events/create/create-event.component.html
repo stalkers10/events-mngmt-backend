@@ -1,189 +1,55 @@
-<div class="create-event-page">
-  <button class="back-btn" [routerLink]="['/events']">
-    <span class="material-symbols-outlined">arrow_back</span>
-    {{ 'seating.backToEvents' | translate }}
-  </button>
+<div class="create-draft-page">
+  <div class="create-draft-card card">
 
-  <div class="split-layout">
-    <!-- Left Panel: Configuration -->
-    <div class="left-panel" [style.width.px]="leftPanelWidth()">
-      <h2>{{ 'events.createEvent' | translate }}</h2>
+    <div class="create-draft-header">
+      <div class="header-icon">
+        <span class="material-symbols-outlined">event_note</span>
+      </div>
+      <h1>{{ 'events.newEvent' | translate }}</h1>
+      <p class="subtitle">{{ 'events.newEventSubtitle' | translate }}</p>
+    </div>
 
-      <div class="form-field" style="margin-bottom: 24px;">
-        <label>{{ 'events.name' | translate }}</label>
+    <div class="create-draft-body">
+      <div class="form-field">
+        <label for="event-name">{{ 'events.name' | translate }}</label>
         <input
+          id="event-name"
           type="text"
           [(ngModel)]="eventName"
           [placeholder]="'events.namePlaceholder' | translate"
-          [class.field-invalid]="submitted() && !eventName()"
-        >
-        @if (submitted() && !eventName()) {
+          [class.field-invalid]="submitted() && !eventName().trim()"
+          (keydown.enter)="submit()"
+          autofocus
+        />
+        @if (submitted() && !eventName().trim()) {
           <p class="invalid-feedback">{{ 'events.nameRequired' | translate }}</p>
         }
       </div>
 
-      <div class="form-field" style="margin-bottom: 24px; position: relative;">
-        <label>{{ 'events.room' | translate }}</label>
-        <button type="button" class="room-dropdown-toggle" [class.open]="roomDropdownOpen()" (click)="toggleRoomDropdown()">
-          <span *ngIf="selectedRoomIds().length === 0">{{ 'events.selectRooms' | translate }}</span>
-          <span *ngIf="selectedRoomIds().length > 0">
-            {{ selectedRoomLabel() }}
-          </span>
-          <span class="material-symbols-outlined">arrow_drop_down</span>
-        </button>
-        <div class="room-dropdown-menu" *ngIf="roomDropdownOpen()">
-          @for (room of rooms(); track room.id) {
-            <label class="room-dropdown-item">
-              <input
-                type="checkbox"
-                [checked]="isRoomSelected(room.id)"
-                (change)="toggleRoomSelection(room.id)"
-              />
-              <span>{{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}</span>
-              <span class="room-dropdown-chip">{{ room.building?.name || 'Room' }}</span>
-            </label>
-          }
-        </div>
-      </div>
+      <p class="draft-hint">
+        <span class="material-symbols-outlined">info</span>
+        {{ 'events.draftHint' | translate }}
+      </p>
+    </div>
 
-      <div class="form-field" *ngIf="selectedRoomIds().length > 1" style="margin-bottom: 24px;">
-        <label>{{ 'events.previewRoom' | translate }}</label>
-        <app-custom-select
-          [options]="previewRoomOptions()"
-          [selected]="activeRoomId()"
-          [placeholder]="'events.previewRoom' | translate"
-          [fullWidth]="true"
-          (selectedChange)="setActiveRoom($event)"
-        ></app-custom-select>
-        <p class="field-note">{{ 'events.previewRoomHint' | translate }}</p>
-      </div>
-
-      <div class="form-row form-row--stacked">
-        <div class="form-field" style="margin-bottom: 24px;">
-          <label>{{ 'events.startTime' | translate }}</label>
-          <input
-            type="datetime-local"
-            [(ngModel)]="startTime"
-            [min]="minStartTime()"
-            [class.field-invalid]="submitted() && !startTime()"
-          >
-          @if (submitted() && !startTime()) {
-            <p class="invalid-feedback">{{ 'events.startTimeRequired' | translate }}</p>
-          }
-        </div>
-        <div class="form-field" style="margin-bottom: 24px;">
-          <label>{{ 'events.endTime' | translate }}</label>
-          <input
-            type="datetime-local"
-            [(ngModel)]="endTime"
-            [min]="minEndTime()"
-            [class.field-invalid]="submitted() && !endTime()"
-          >
-          @if (submitted() && !endTime()) {
-            <p class="invalid-feedback">{{ 'events.endTimeRequired' | translate }}</p>
-          }
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-field" style="margin-bottom: 24px;">
-          <label>{{ 'events.tableCount' | translate }}</label>
-          <input type="number" [(ngModel)]="tableCount" min="1" max="50">
-        </div>
-        <div class="form-field" style="margin-bottom: 24px;">
-          <label>{{ 'events.chairsPerTable' | translate }}</label>
-          <input type="number" [(ngModel)]="chairsPerTable" min="1" max="20">
-        </div>
-      </div>
-
-      <button class="btn btn-primary" style="width: 100%; margin-bottom: 24px;" (click)="generateLayout()">
-        {{ 'events.generatePreview' | translate }}
+    <div class="create-draft-footer">
+      <a [routerLink]="['/events']" class="btn btn-secondary">
+        {{ 'common.cancel' | translate }}
+      </a>
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="submit()"
+        [disabled]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          <span class="material-symbols-outlined spin">progress_activity</span>
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+        }
+        {{ 'events.saveDraft' | translate }}
       </button>
-
-      <div class="table-editor" *ngIf="selectedTable()">
-        <h3>{{ 'events.editTable' | translate }} {{ selectedTable()!.id }}</h3>
-        <div class="form-field">
-          <label for="table-name">{{ 'events.tableName' | translate }}</label>
-          <input
-            id="table-name"
-            type="text"
-            [ngModel]="selectedTable()!.name"
-            (ngModelChange)="updateName($event)"
-            [placeholder]="'events.tableNamePlaceholder' | translate"
-          >
-        </div>
-        <div class="form-field">
-          <label>{{ 'events.chairsForTable' | translate }} {{ selectedTable()!.id }}</label>
-          <input type="number" [(ngModel)]="selectedTable()!.chairs" (ngModelChange)="updateChairs($event)" min="1" max="20">
-        </div>
-        <div class="table-position">
-          <span>{{ 'events.position' | translate }}: {{ round(selectedTable()!.x) }}, {{ round(selectedTable()!.y) }}</span>
-          <button class="btn btn-secondary" (click)="removeTable()">{{ 'events.removeTable' | translate }}</button>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary" style="width: 100%;" (click)="createEvent()">
-          {{ 'events.createEvent' | translate }}
-        </button>
-      </div>
     </div>
 
-    <!-- Draggable Splitter -->
-    <div class="resizer" (mousedown)="onResizerMouseDown($event)"></div>
-    <div class="grid-background" style="position: fixed; inset: -5000px; background-position: center;"></div>
-
-    <!-- Right Panel: Interactive Preview -->
-    <div class="right-panel">
-      <div class="canvas-container">
-        <div class="canvas-header">
-          <h3>{{ 'events.seatingPreview' | translate }}</h3>
-          <div class="canvas-controls">
-            <button class="btn-icon" (click)="zoomIn()" title="{{ 'events.zoomIn' | translate }}">+</button>
-            <button class="btn-icon" (click)="zoomOut()" title="{{ 'events.zoomOut' | translate }}">−</button>
-            <button class="btn-icon" (click)="resetView()" title="{{ 'events.resetView' | translate }}">⌂</button>
-          </div>
-        </div>
-        <div class="canvas-viewport"
-             style="flex: 1; position: relative; overflow: hidden; touch-action: none; background: var(--bg-primary);"
-             (click)="onCanvasClick()"
-             (mousedown)="onCanvasMouseDown($event)"
-             (wheel)="onWheel($event)">
-          <div #canvas class="canvas"
-               [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
-               [style.transform-origin]="'0 0'"
-               style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: visible;">
-            <div class="grid-background" style="position: fixed; inset: -5000px; background-position: center;"></div>
-            <div class="stage-label">{{ 'events.stage' | translate }}</div>
-            <div *ngFor="let table of currentTables(); trackBy: trackByTableId"
-             class="table-group"
-             [class.selected]="table.selected"
-             [style.left.px]="table.x"
-             [style.top.px]="table.y"
-              [style.width.px]="getTableSize(table.chairs, table.name)"
-              [style.height.px]="getTableSize(table.chairs, table.name)"
-             (click)="onTableClick(table, $event)"
-             (mousedown)="onTableMouseDown(table, $event)">
-
-            <!-- Chairs around table -->
-            <div class="chairs-ring">
-              <div *ngFor="let chair of getChairPositions(table); let i = index"
-                   class="chair"
-                   [style.transform]="'translate(-50%, -50%) rotate(' + chair.angle + 'deg)'"
-                   [style.left.%]="chair.left"
-                   [style.top.%]="chair.top">
-                <span class="material-symbols-outlined">chair</span>
-              </div>
-            </div>
-
-            <!-- Table surface -->
-            <div class="table-surface">
-              <span class="table-number">{{ table.name.trim() ? table.name.trim() : 'T' + table.id }}</span>
-              <span class="chair-count">{{ table.chairs }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>

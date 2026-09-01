@@ -41,4 +41,8 @@ export class TicketTemplateService {
   }): Observable<any> {
     return this.http.post<any>(this.tmplBase, payload);
   }
+
+  deleteTemplate(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.tmplBase}/${id}`);
+  }
 }

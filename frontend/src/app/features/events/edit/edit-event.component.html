@@ -1,0 +1,372 @@
+<div class="edit-event-page">
+
+  <!-- ── Loading state ── -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spin">progress_activity</span>
+      {{ 'common.loading' | translate }}
+    </div>
+
+  } @else {
+
+    <div class="split-layout">
+
+      <!-- ── Left Panel: Configuration ── -->
+      <div class="left-panel" [style.width.px]="leftPanelWidth()">
+
+        <!-- Back nav + title -->
+        <div class="panel-top">
+          <a [routerLink]="['/events']" class="back-btn">
+            <span class="material-symbols-outlined">arrow_back</span>
+            {{ 'seating.backToEvents' | translate }}
+          </a>
+          <div class="panel-title-row">
+            <h2>
+              @if (isDraft) {
+                {{ 'events.configureEvent' | translate }}
+              } @else {
+                {{ 'events.editEvent' | translate }}
+              }
+            </h2>
+            @if (isDraft) {
+              <span class="draft-pill">
+                <span class="material-symbols-outlined">edit_note</span>
+                {{ 'events.draft' | translate }}
+              </span>
+            }
+          </div>
+          @if (isDraft) {
+            <p class="panel-hint">{{ 'events.configureHint' | translate }}</p>
+          }
+        </div>
+
+        <div class="panel-body">
+
+          <!-- Event name -->
+          <div class="form-field">
+            <label>{{ 'events.name' | translate }}</label>
+            <input
+              type="text"
+              [(ngModel)]="eventName"
+              [placeholder]="'events.namePlaceholder' | translate"
+              [class.field-invalid]="submitted() && !eventName().trim()"
+            />
+            @if (submitted() && !eventName().trim()) {
+              <p class="invalid-feedback">{{ 'events.nameRequired' | translate }}</p>
+            }
+          </div>
+
+          <!-- Room selector -->
+          <div class="form-field" style="position: relative;">
+            <label>{{ 'events.room' | translate }}</label>
+            <button
+              type="button"
+              class="room-dropdown-toggle"
+              [class.open]="roomDropdownOpen()"
+              (click)="toggleRoomDropdown()"
+            >
+              <span class="room-dropdown-toggle-label" *ngIf="selectedRoomIds().length === 0">{{ 'events.selectRooms' | translate }}</span>
+              <span class="room-dropdown-toggle-label" *ngIf="selectedRoomIds().length > 0">{{ selectedRoomLabel() }}</span>
+              <span class="material-symbols-outlined">arrow_drop_down</span>
+            </button>
+
+            @if (submitted() && selectedRoomIds().length === 0) {
+              <p class="invalid-feedback">{{ 'errors.fillAllFields' | translate }}</p>
+            }
+
+            <div class="room-dropdown-menu" *ngIf="roomDropdownOpen()">
+              @for (room of rooms(); track room.id) {
+                <label class="room-dropdown-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isRoomSelected(room.id)"
+                    (change)="toggleRoomSelection(room.id)"
+                  />
+                  <span class="room-dropdown-text">{{ room.room_number }} · {{ 'events.floor' | translate }} {{ room.floor_number }}</span>
+                  <span class="room-dropdown-chip">{{ room.building?.name || '' }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Preview room selector (multi-room only) -->
+          @if (selectedRoomIds().length > 1) {
+            <div class="form-field">
+              <label>{{ 'events.previewRoom' | translate }}</label>
+              <app-custom-select
+                [options]="previewRoomOptions()"
+                [selected]="activeRoomId()"
+                [placeholder]="'events.previewRoom' | translate"
+                [fullWidth]="true"
+                (selectedChange)="setActiveRoom($event)"
+              ></app-custom-select>
+              <p class="field-note">{{ 'events.previewRoomHint' | translate }}</p>
+            </div>
+          }
+
+          <!-- Start / End time -->
+          <div class="form-row form-row--stacked">
+            <div class="form-field">
+              <label>{{ 'events.startTime' | translate }}</label>
+              <input
+                type="datetime-local"
+                [(ngModel)]="startTime"
+                [min]="minStartTime()"
+                [class.field-invalid]="submitted() && !startTime()"
+              />
+              @if (submitted() && !startTime()) {
+                <p class="invalid-feedback">{{ 'events.startTimeRequired' | translate }}</p>
+              }
+            </div>
+            <div class="form-field">
+              <label>{{ 'events.endTime' | translate }}</label>
+              <input
+                type="datetime-local"
+                [(ngModel)]="endTime"
+                [min]="minEndTime()"
+                [class.field-invalid]="submitted() && !endTime()"
+              />
+              @if (submitted() && !endTime()) {
+                <p class="invalid-feedback">{{ 'events.endTimeRequired' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Table generator -->
+          <div class="form-row">
+            <div class="form-field">
+              <label>{{ 'events.tableCount' | translate }}</label>
+              <input type="number" [(ngModel)]="tableCount" min="1" max="50" />
+            </div>
+            <div class="form-field">
+              <label>{{ 'events.chairsPerTable' | translate }}</label>
+              <input type="number" [(ngModel)]="chairsPerTable" min="1" max="20" />
+            </div>
+          </div>
+
+          <button class="btn btn-secondary generate-btn" (click)="generateLayout()">
+            <span class="material-symbols-outlined">grid_view</span>
+            {{ 'events.generatePreview' | translate }}
+          </button>
+
+          <!-- ── Sessions editor ── -->
+          <div class="sessions-section">
+            <div class="sessions-header">
+              <div class="sessions-title">
+                <span class="material-symbols-outlined">event_note</span>
+                <span>{{ 'events.sessions.title' | translate }}</span>
+              </div>
+              <button type="button" class="btn-add-session" (click)="addSession()">
+                <span class="material-symbols-outlined">add</span>
+                {{ 'events.sessions.add' | translate }}
+              </button>
+            </div>
+            <p class="sessions-hint">{{ 'events.sessions.hint' | translate }}</p>
+
+            @if (sessions().length === 0) {
+              <div class="sessions-empty">
+                <span class="material-symbols-outlined">calendar_today</span>
+                <span>{{ 'events.sessions.empty' | translate }}</span>
+              </div>
+            }
+
+            <div class="sessions-list">
+              @for (session of sessions(); track $index) {
+                <div class="session-card">
+                  <div class="session-card-num">{{ $index + 1 }}</div>
+                  <div class="session-card-fields">
+                    <input
+                      type="text"
+                      class="session-input"
+                      [value]="session.label"
+                      (input)="updateSession($index, 'label', $any($event.target).value)"
+                      [placeholder]="'events.sessions.labelPlaceholder' | translate"
+                    />
+                    <input
+                      type="datetime-local"
+                      class="session-input session-input--datetime"
+                      [value]="session.datetime"
+                      (input)="updateSession($index, 'datetime', $any($event.target).value)"
+                    />
+                    <input
+                      type="text"
+                      class="session-input session-input--location"
+                      [value]="session.location"
+                      (input)="updateSession($index, 'location', $any($event.target).value)"
+                      [placeholder]="'events.sessions.locationPlaceholder' | translate"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="session-remove"
+                    (click)="removeSession($index)"
+                    [title]="'events.sessions.removeTitle' | translate"
+                  >
+                    <span class="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (sessions().length > 0) {
+              <button
+                type="button"
+                class="sessions-save-btn"
+                [disabled]="isSavingSessions()"
+                (click)="saveSessions()"
+              >
+                @if (isSavingSessions()) {
+                  <span class="material-symbols-outlined spin">progress_activity</span>
+                } @else {
+                  <span class="material-symbols-outlined">check</span>
+                }
+                {{ 'events.sessions.save' | translate }}
+              </button>
+            }
+          </div>
+
+          <!-- Selected table editor -->
+          @if (selectedTable()) {
+            <div class="table-editor">
+              <h3>{{ 'events.editTable' | translate }} {{ selectedTable()!.id }}</h3>
+              <div class="form-field">
+                <label for="table-name">{{ 'events.tableName' | translate }}</label>
+                <input
+                  id="table-name"
+                  type="text"
+                  [ngModel]="selectedTable()!.name"
+                  (ngModelChange)="updateName($event)"
+                  [placeholder]="'events.tableNamePlaceholder' | translate"
+                />
+              </div>
+              <div class="form-field">
+                <label>{{ 'events.chairsForTable' | translate }} {{ selectedTable()!.id }}</label>
+                <input
+                  type="number"
+                  [(ngModel)]="selectedTable()!.chairs"
+                  (ngModelChange)="updateChairs($event)"
+                  min="1"
+                  max="20"
+                />
+              </div>
+              <div class="table-position">
+                <span>{{ 'events.position' | translate }}: {{ round(selectedTable()!.x) }}, {{ round(selectedTable()!.y) }}</span>
+                <button class="btn btn-danger-outline" (click)="removeTable()">
+                  {{ 'events.removeTable' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- ── Action buttons ── -->
+        <div class="panel-actions">
+          <button
+            class="btn btn-secondary"
+            (click)="saveChanges()"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              <span class="material-symbols-outlined spin">progress_activity</span>
+            } @else {
+              <span class="material-symbols-outlined">save</span>
+            }
+            {{ 'events.saveChanges' | translate }}
+          </button>
+
+          @if (isDraft) {
+            <button
+              class="btn btn-primary"
+              (click)="publishEvent()"
+              [disabled]="isPublishing()"
+            >
+              @if (isPublishing()) {
+                <span class="material-symbols-outlined spin">progress_activity</span>
+              } @else {
+                <span class="material-symbols-outlined">publish</span>
+              }
+              {{ 'events.publish' | translate }}
+            </button>
+          }
+        </div>
+
+      </div><!-- /left-panel -->
+
+      <!-- ── Resizer ── -->
+      <div class="resizer" (mousedown)="onResizerMouseDown($event)"></div>
+
+      <!-- ── Right Panel: Canvas ── -->
+      <div class="right-panel">
+        <div class="canvas-container">
+          <div class="canvas-header">
+            <h3>{{ 'events.seatingPreview' | translate }}</h3>
+            <div class="canvas-controls">
+              <button class="btn-icon" (click)="zoomIn()" [title]="'events.zoomIn' | translate">+</button>
+              <button class="btn-icon" (click)="zoomOut()" [title]="'events.zoomOut' | translate">−</button>
+              <button class="btn-icon" (click)="resetView()" [title]="'events.resetView' | translate">⌂</button>
+            </div>
+          </div>
+
+          <div
+            class="canvas-viewport"
+            style="flex: 1; position: relative; overflow: hidden; touch-action: none; background: var(--bg-primary);"
+            (click)="onCanvasClick()"
+            (mousedown)="onCanvasMouseDown($event)"
+            (wheel)="onWheel($event)"
+          >
+            <div
+              #canvas
+              class="canvas"
+              [style.transform]="'translate(' + pan().x + 'px, ' + pan().y + 'px) scale(' + zoom() + ')'"
+              [style.transform-origin]="'0 0'"
+              style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: visible;"
+            >
+              <div class="grid-background" style="position: fixed; inset: -5000px;"></div>
+              <div class="stage-label">{{ 'events.stage' | translate }}</div>
+
+              @if (currentTables().length === 0) {
+                <div class="empty-canvas-hint">
+                  <span class="material-symbols-outlined">table_restaurant</span>
+                  <p>{{ 'events.noTablesPreview' | translate }}</p>
+                </div>
+              }
+
+              <div
+                *ngFor="let table of currentTables(); trackBy: trackByTableId"
+                class="table-group"
+                [class.selected]="table.selected"
+                [style.left.px]="table.x"
+                [style.top.px]="table.y"
+                [style.width.px]="getTableSize(table.chairs, table.name)"
+                [style.height.px]="getTableSize(table.chairs, table.name)"
+                (click)="onTableClick(table, $event)"
+                (mousedown)="onTableMouseDown(table, $event)"
+              >
+                <div class="chairs-ring">
+                  <div
+                    *ngFor="let chair of getChairPositions(table); let i = index"
+                    class="chair"
+                    [style.transform]="'translate(-50%, -50%) rotate(' + chair.angle + 'deg)'"
+                    [style.left.%]="chair.left"
+                    [style.top.%]="chair.top"
+                  >
+                    <span class="material-symbols-outlined">chair</span>
+                  </div>
+                </div>
+                <div class="table-surface">
+                  <span class="table-number">{{ table.name.trim() ? table.name.trim() : 'T' + table.id }}</span>
+                  <span class="chair-count">{{ table.chairs }}</span>
+                </div>
+              </div>
+
+            </div><!-- /canvas -->
+          </div><!-- /canvas-viewport -->
+        </div><!-- /canvas-container -->
+      </div><!-- /right-panel -->
+
+    </div><!-- /split-layout -->
+
+  }<!-- /else isLoading -->
+
+</div>

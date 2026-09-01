@@ -57,11 +57,15 @@
           </div>
           <div class="preview-pane">
             <label class="wizard-label">Preview (Single)</label>
+            @if (singleTokenWarning) {
+              <div class="wizard-token-warn">{{ singleTokenWarning }}</div>
+            }
             <div class="preview-host-wrapper">
               <app-ticket-template-host
                 [htmlOverride]="singleHtml || fallbackHtml"
                 [details]="sampleSingle"
                 [fieldMapping]="singleMapping"
+                [fitToWidth]="false"
                 [sample]="true">
               </app-ticket-template-host>
             </div>
@@ -90,11 +94,15 @@
           </div>
           <div class="preview-pane">
             <label class="wizard-label">Preview (Couple)</label>
+            @if (coupleTokenWarning) {
+              <div class="wizard-token-warn">{{ coupleTokenWarning }}</div>
+            }
             <div class="preview-host-wrapper">
               <app-ticket-template-host
                 [htmlOverride]="coupleHtml || fallbackHtml"
                 [details]="sampleCouple"
                 [fieldMapping]="coupleMapping"
+                [fitToWidth]="false"
                 [sample]="true">
               </app-ticket-template-host>
             </div>

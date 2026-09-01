@@ -4,6 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Building, EventSummary, Room } from '../models/dashboard.model';
 
+export interface EventSession {
+  label: string;
+  datetime: string; // ISO-8601 local datetime string
+  location: string;
+}
+
 export interface CreateBuildingPayload {
   name: string;
   address?: string;
@@ -26,7 +32,33 @@ export interface CreateEventPayload {
     tableNumber: string;
     position?: string;
     numberOfChairs: number;
+    roomId?: string;
   }[];
+}
+
+export interface CreateDraftPayload {
+  name: string;
+}
+
+export interface PublishEventPayload {
+  roomIds: string[];
+  name?: string;
+  startTime: string;
+  endTime: string;
+  tables?: {
+    tableNumber: string;
+    position?: string;
+    numberOfChairs: number;
+    roomId?: string;
+  }[];
+}
+
+export interface UpdateEventPayload {
+  roomIds: string[];
+  roomId?: string;
+  name: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface CreateTablePayload {
@@ -74,6 +106,18 @@ export class VenueService {
     return this.http.post<EventSummary>(`${environment.apiUrl}/events`, payload);
   }
 
+  createDraft(payload: CreateDraftPayload): Observable<EventSummary> {
+    return this.http.post<EventSummary>(`${environment.apiUrl}/events/draft`, payload);
+  }
+
+  publishEvent(id: string, payload: PublishEventPayload): Observable<EventSummary> {
+    return this.http.patch<EventSummary>(`${environment.apiUrl}/events/${id}/publish`, payload);
+  }
+
+  updateEvent(id: string, payload: UpdateEventPayload): Observable<EventSummary> {
+    return this.http.put<EventSummary>(`${environment.apiUrl}/events/${id}`, payload);
+  }
+
   deleteEvent(eventId: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/events/${eventId}`);
   }
@@ -97,6 +141,10 @@ export class VenueService {
 
   addChairs(eventId: string, tableId: string, payload: CreateChairsPayload): Observable<any> {
     return this.http.post(`${environment.apiUrl}/events/${eventId}/tables/${tableId}/chairs`, payload);
+  }
+
+  updateSessions(eventId: string, sessions: EventSession[]): Observable<EventSummary> {
+    return this.http.patch<EventSummary>(`${environment.apiUrl}/events/${eventId}/sessions`, { sessions });
   }
 
   createReservation(payload: {

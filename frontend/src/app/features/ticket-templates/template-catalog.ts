@@ -1,23 +1,27 @@
 import { TicketCategory, TicketGroupTheme, TicketTemplateEntry } from './ticket-template.types';
 import { classicTemplateHtml } from './templates/classic.template';
 import { marriageTemplateHtml } from './templates/marriage.template';
-import { anniversaryTemplateHtml } from './templates/anniversary.template';
 import { ceremonyTemplateHtml } from './templates/ceremony.template';
 import { boardingCoupleTemplateHtml, boardingSingleTemplateHtml } from './templates/boarding-pass.template';
+import { anniversarySingleTemplateHtml, anniversaryCoupleTemplateHtml } from './templates/anniversary.template';
+import { simpleSingleTemplateHtml, simpleCoupleTemplateHtml } from './templates/simple.template';
 
 /**
  * The built-in designs. The stored template id on an event is one of these keys.
- * New designer HTML is added here (and to the backend allow-list in
- * EventsService.setTicketTemplates). The per-type/per-theme catalog below
- * references these by `designId`.
+ * anniversary and classic/simple are kept in DESIGNS so existing events that
+ * already reference them still render correctly, but they are removed from the
+ * picker catalog below.
  */
 export const DESIGNS: Record<string, string> = {
   classic: classicTemplateHtml,
   marriage: marriageTemplateHtml,
-  anniversary: anniversaryTemplateHtml,
   ceremony: ceremonyTemplateHtml,
   'boarding-single': boardingSingleTemplateHtml,
   'boarding-couple': boardingCoupleTemplateHtml,
+  'anniversary-single': anniversarySingleTemplateHtml,
+  'anniversary-couple': anniversaryCoupleTemplateHtml,
+  'simple-single': simpleSingleTemplateHtml,
+  'simple-couple': simpleCoupleTemplateHtml,
 };
 
 export const ALLOWED_DESIGN_IDS = Object.keys(DESIGNS);
@@ -28,7 +32,8 @@ export function getTemplateHtml(designId: string): string {
 
 /** Fixed canvas width used by the gallery and PDF renderer for each base design. */
 export function getTemplateNaturalWidth(designId: string): number {
-  return designId === 'boarding-single' || designId === 'boarding-couple' ? 960 : 360;
+  const wide = ['boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple'];
+  return wide.includes(designId) ? 960 : 360;
 }
 
 export const CATEGORIES: TicketCategory[] = [
@@ -51,23 +56,24 @@ export const GROUP_THEMES: TicketGroupTheme[] = [
 ];
 
 // Maps each theme to the base design used for its single & couple templates.
-const THEME_DESIGN: Record<string, string> = {
-  'mar-elegant': 'marriage',
-  'mar-classic': 'marriage',
-  'ann-golden': 'anniversary',
-  'ann-modern': 'anniversary',
-  'gala-midnight': 'ceremony',
-  'gala-charity': 'ceremony',
-  'simple-minimal': 'classic',
-  'simple-essential': 'classic',
+const THEME_DESIGN: Record<string, { single: string; couple: string }> = {
+  'mar-elegant':    { single: 'marriage',            couple: 'marriage' },
+  'mar-classic':    { single: 'marriage',            couple: 'marriage' },
+  'mar-boarding':   { single: 'boarding-single',     couple: 'boarding-couple' },
+  'ann-golden':     { single: 'anniversary-single',  couple: 'anniversary-couple' },
+  'ann-modern':     { single: 'anniversary-single',  couple: 'anniversary-couple' },
+  'gala-midnight':  { single: 'ceremony',            couple: 'ceremony' },
+  'gala-charity':   { single: 'ceremony',            couple: 'ceremony' },
+  'simple-minimal': { single: 'simple-single',       couple: 'simple-couple' },
+  'simple-essential':{ single: 'simple-single',      couple: 'simple-couple' },
 };
 
 export const TEMPLATES: TicketTemplateEntry[] = GROUP_THEMES.flatMap((theme) => {
-  const designId = THEME_DESIGN[theme.id] ?? 'classic';
+  const design = THEME_DESIGN[theme.id] ?? { single: 'classic', couple: 'classic' };
   return [
     {
       id: `${theme.id}-single`,
-      designId: theme.id === 'mar-boarding' ? 'boarding-single' : designId,
+      designId: design.single,
       groupThemeId: theme.id,
       type: 'single',
       nameKey: 'ticketTemplates.types.single',
@@ -75,7 +81,7 @@ export const TEMPLATES: TicketTemplateEntry[] = GROUP_THEMES.flatMap((theme) => 
     },
     {
       id: `${theme.id}-couple`,
-      designId: theme.id === 'mar-boarding' ? 'boarding-couple' : designId,
+      designId: design.couple,
       groupThemeId: theme.id,
       type: 'couple',
       nameKey: 'ticketTemplates.types.couple',
@@ -141,6 +147,7 @@ export function getMergedCategories(custom: any[] = []): TicketCategory[] {
         nameKey: '',
         descriptionKey: '',
         label: row.category,
+        custom: true,
       });
     }
   }
@@ -160,6 +167,7 @@ export function getMergedGroupThemes(custom: any[] = []): TicketGroupTheme[] {
       nameKey: '',
       descriptionKey: '',
       label: row.theme_name,
+      custom: true,
     });
   }
   return merged;

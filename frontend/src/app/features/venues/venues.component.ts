@@ -145,7 +145,8 @@ export class VenuesComponent implements OnInit, AfterViewInit {
         this.isCreatingBuilding.set(false);
         const limit = planLimitFromError(error);
         if (limit) {
-          this.upgrade.show(limit);
+          this.toast.warning(limit.reason);
+          setTimeout(() => this.upgrade.show(limit), 350);
           return;
         }
         const description = describeHttpError(error, 'generic');

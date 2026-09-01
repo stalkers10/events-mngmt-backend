@@ -309,6 +309,15 @@ h1 {
   &.is-past {
     opacity: 0.65;
   }
+
+  /* Draft card: slightly muted, dashed left border accent */
+  &.is-draft {
+    border-left: 3px dashed var(--color-input-border);
+
+    .event-name {
+      color: var(--color-on-surface);
+    }
+  }
 }
 
 /* ── Card top row: name + badge ── */
@@ -358,6 +367,16 @@ h1 {
     color: var(--color-on-surface-variant);
     border: 1px solid var(--color-input-border);
   }
+
+  &.badge-draft {
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface-variant);
+    border: 1px dashed var(--color-input-border);
+  }
+}
+
+.draft-badge-icon {
+  font-size: 13px;
 }
 
 .live-dot {
@@ -404,6 +423,24 @@ h1 {
   border-top: 1px solid var(--color-input-border);
 }
 
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.btn-icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+
+  .material-symbols-outlined { font-size: 18px; }
+}
+
 .btn-delete {
   display: inline-flex;
   align-items: center;
@@ -424,11 +461,27 @@ h1 {
   }
 }
 
-.edit-seating-btn {
+/* ── Filter tab draft variant ── */
+.filter-tab--drafts {
+  &.active {
+    background: var(--color-surface-container-high);
+    border-color: var(--color-input-border);
+    color: var(--color-on-surface);
+    border-style: dashed;
+  }
+}
+
+/* ── Meta row muted (draft placeholder) ── */
+.meta-row--muted {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* ── Configure button ── */
+.configure-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  text-decoration: none;
+  gap: 6px;
   font-size: 14px;
   font-weight: 600;
 
@@ -539,4 +592,15 @@ h1 {
   .spotlight-title {
     font-size: 20px;
   }
+}
+
+.edit-seating-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+
+  .material-symbols-outlined { font-size: 18px; }
 }

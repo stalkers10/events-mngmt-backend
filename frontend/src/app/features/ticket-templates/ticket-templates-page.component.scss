@@ -139,6 +139,17 @@
   border: 1px solid #d9b9c2;
 }
 
+.btn-outline.btn-danger {
+  color: #b42318;
+  border-color: #f9c5c1;
+}
+
+.btn-outline.btn-danger:hover {
+  background: #b42318;
+  color: #fff;
+  border-color: #b42318;
+}
+
 /* Modal */
 .tpl-modal-overlay {
   position: fixed;

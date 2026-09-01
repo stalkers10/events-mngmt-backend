@@ -2,6 +2,19 @@
   display: block;
 }
 
+/* The backdrop must sit above the toast viewport (z-index: 1000) so the
+   upgrade prompt is never obscured by a warning toast that fires just before it. */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-md);
+  background: rgba(37, 24, 25, 0.55);
+  backdrop-filter: blur(2px);
+}
+
 .upgrade-modal {
   max-width: 480px;
 }

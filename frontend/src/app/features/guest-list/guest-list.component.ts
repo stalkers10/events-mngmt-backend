@@ -138,7 +138,7 @@ export class GuestListComponent implements OnInit {
       rooms: this.venues.rooms(),
     }).subscribe({
       next: ({ events, rooms }) => {
-        this.events.set([...events].filter((event) => isEventVisible(event.start_time, event.end_time)).sort((a, b) => +new Date(b.start_time) - +new Date(a.start_time)));
+        this.events.set([...events].filter((event) => isEventVisible(event.start_time, event.end_time)).sort((a, b) => +new Date(b.start_time ?? 0) - +new Date(a.start_time ?? 0)));
         this.rooms.set(rooms);
         this.isLoadingEvents.set(false);
       },
@@ -238,8 +238,8 @@ export class GuestListComponent implements OnInit {
     return this.rooms().find((r) => roomIds.includes(r.id));
   }
 
-  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
-    return getEventState(event.start_time, event.end_time);
+  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' | 'draft' {
+    return getEventState(event.start_time, event.end_time, event.status);
   }
 
   cancelReservation(row: GuestRow): void {

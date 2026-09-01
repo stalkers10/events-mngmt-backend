@@ -11,7 +11,7 @@ import { TicketTemplateService } from '../ticket-templates/ticket-template.servi
 import { CustomTemplateStore } from '../ticket-templates/custom-template.store';
 import { buildContext, renderTemplateHtml } from '../ticket-templates/render-template';
 import { getHtmlForDesign, getTemplateNaturalWidth, isCustomDesign } from '../ticket-templates/template-catalog';
-import { isBoardingPassDesign, resolveBoardingPassHtml } from '../ticket-templates/boarding-pass-render';
+import { isBoardingPassDesign } from '../ticket-templates/boarding-pass-render';
 import { renderMappedTemplate } from '../ticket-templates/template-mapping';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -108,17 +108,33 @@ export class TicketPreviewComponent implements OnInit {
   private async buildStaticPdf(designId: string, t: any): Promise<void> {
     const qr = t.qr_token ? await QRCode.toDataURL(t.qr_token, { errorCorrectionLevel: 'H', width: 240, margin: 1 }) : '';
     const ctx = buildContext(t, qr);
-    const html = isBoardingPassDesign(designId)
-      ? await resolveBoardingPassHtml(designId, ctx)
-      : renderTemplateHtml(getHtmlForDesign(designId), ctx);
+    const html = renderTemplateHtml(getHtmlForDesign(designId), ctx);
+
+    const width = getTemplateNaturalWidth(designId);
+    // For wide boarding-pass style tickets (960px) the natural height is 400px.
+    // We must set both dimensions explicitly so the off-screen div doesn't
+    // collapse and clip the right-hand stub section.
+    const height = (designId === 'boarding-single' || designId === 'boarding-couple' ||
+                    designId === 'anniversary-single' || designId === 'anniversary-couple' ||
+                    designId === 'simple-single' || designId === 'simple-couple') ? 400 : 'auto';
 
     const host = document.createElement('div');
-    const width = getTemplateNaturalWidth(designId);
-    host.style.cssText = `position:absolute;left:-99999px;top:0;width:${width}px;`;
+    host.style.cssText = `position:absolute;left:-99999px;top:0;width:${width}px;${height !== 'auto' ? `height:${height}px;` : ''}overflow:visible;`;
     host.innerHTML = html;
     document.body.appendChild(host);
+
+    // Give fonts and images a moment to load before capturing
+    await new Promise(r => setTimeout(r, 400));
+
     try {
-      const canvas = await html2canvas(host, { backgroundColor: '#ffffff', scale: 2 });
+      const canvas = await html2canvas(host, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        width,
+        height: height !== 'auto' ? height as number : host.scrollHeight,
+        windowWidth: width,
+        useCORS: true,
+      });
       const pdf = new jsPDF({
         orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
         unit: 'pt',
@@ -146,8 +162,9 @@ export class TicketPreviewComponent implements OnInit {
       match && match[2] === 'couple' ? row.couple_mapping : row.single_mapping
     );
 
+    const naturalWidth = getTemplateNaturalWidth(designId);
     const measure = document.createElement('iframe');
-    measure.style.cssText = 'position:absolute;left:-99999px;top:0;width:360px;height:10px;border:0;';
+    measure.style.cssText = `position:absolute;left:-99999px;top:0;width:${naturalWidth}px;height:10px;border:0;`;
     document.body.appendChild(measure);
     const doc = measure.contentDocument!;
     doc.open();
@@ -157,9 +174,13 @@ export class TicketPreviewComponent implements OnInit {
     const h = doc.documentElement.scrollHeight || 600;
     measure.remove();
 
-    const wmm = (360 * 25.4) / 96;
+    const wmm = (naturalWidth * 25.4) / 96;
     const hmm = (h * 25.4) / 96;
-    const styleTag = `<style>@page{size:${wmm}mm ${hmm}mm;margin:0}html,body{margin:0;padding:0}</style>`;
+    const isLandscape = naturalWidth > h;
+    const sizeDirective = isLandscape
+      ? `@page{size:${hmm}mm ${wmm}mm landscape;margin:0}`
+      : `@page{size:${wmm}mm ${hmm}mm;margin:0}`;
+    const styleTag = `<style>${sizeDirective}html,body{margin:0;padding:0}</style>`;
     const styled = /<\/head>/i.test(resolved)
       ? resolved.replace(/<\/head>/i, styleTag + '</head>')
       : styleTag + resolved;

@@ -45,6 +45,11 @@
           </div>
           <div class="tpl-actions">
             <button type="button" class="btn btn-primary">{{ 'ticketTemplates.browse' | translate }}</button>
+            @if (cat.custom) {
+              <button type="button" class="btn btn-outline btn-danger" (click)="deleteCategory(cat.id); $event.stopPropagation()">
+                {{ 'ticketTemplates.delete' | translate }}
+              </button>
+            }
           </div>
         </article>
       }
@@ -63,6 +68,11 @@
           </div>
           <div class="tpl-actions">
             <button type="button" class="btn btn-primary">{{ 'ticketTemplates.viewTemplates' | translate }}</button>
+            @if (customThemeRowId(theme.id); as rowId) {
+              <button type="button" class="btn btn-outline btn-danger" (click)="deleteCustomTemplate(rowId); $event.stopPropagation()">
+                {{ 'ticketTemplates.delete' | translate }}
+              </button>
+            }
           </div>
         </article>
       }
@@ -99,6 +109,11 @@
             <button type="button" class="btn btn-outline" (click)="openPreview(t.designId); $event.stopPropagation()">
               {{ 'ticketTemplates.preview' | translate }}
             </button>
+            @if (t.custom) {
+              <button type="button" class="btn btn-outline btn-danger" (click)="deleteCustomTemplate(extractRowId(t.designId)); $event.stopPropagation()">
+                {{ 'ticketTemplates.delete' | translate }}
+              </button>
+            }
           </div>
         </article>
       }

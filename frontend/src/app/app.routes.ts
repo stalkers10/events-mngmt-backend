@@ -85,6 +85,12 @@ export const routes: Routes = [
           import('./features/events/create/create-event.component').then((m) => m.CreateEventComponent),
       },
       {
+        path: 'events/:eventId/edit',
+        canActivate: [adminOnlyGuard],
+        loadComponent: () =>
+          import('./features/events/edit/edit-event.component').then((m) => m.EditEventComponent),
+      },
+      {
         path: 'events',
         canActivate: [adminOnlyGuard],
         loadComponent: () =>

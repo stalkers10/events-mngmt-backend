@@ -188,7 +188,47 @@
     "tableNamePlaceholder": "ex. Table VIP",
     "tableNameRequired": "Le nom de la table est requis.",
     "tableNameSaved": "Nom de la table mis à jour.",
-    "tableNameDuplicate": "Une table portant ce nom existe déjà."
+    "tableNameDuplicate": "Une table portant ce nom existe déjà.",
+    "newEvent": "Nouvel événement",
+    "newEventSubtitle": "Donnez un nom à votre événement pour commencer. Vous pourrez ajouter les salles, dates et tables ensuite.",
+    "draftHint": "Ceci sera enregistré en brouillon. Configurez les détails depuis la page de modification.",
+    "saveDraft": "Enregistrer le brouillon",
+    "draftSaved": "Brouillon enregistré. Configurez votre événement maintenant.",
+    "draft": "Brouillon",
+    "configureEvent": "Configurer l'événement",
+    "editEvent": "Modifier l'événement",
+    "configureHint": "Remplissez tous les détails et publiez quand vous êtes prêt.",
+    "saveChanges": "Enregistrer les modifications",
+    "savedToast": "Événement mis à jour avec succès.",
+    "publish": "Publier l'événement",
+    "publishedToast": "Événement publié avec succès.",
+    "sessions": {
+      "title": "Séances de l'événement",
+      "add": "Ajouter",
+      "hint": "Les séances apparaissent sur les billets imprimés — ex. Cérémonie religieuse à 11h, Réception du soir à 19h. Jusqu'à 6 séances sont affichées sur le boarding pass.",
+      "empty": "Aucune séance pour le moment",
+      "labelPlaceholder": "Intitulé  (ex. Cérémonie religieuse)",
+      "locationPlaceholder": "Lieu",
+      "save": "Enregistrer les séances",
+      "saved": "Séances enregistrées",
+      "removeTitle": "Supprimer la séance"
+    },
+    "confirmDeleteTitle": "Supprimer l'événement",
+    "configure": "Configurer",
+    "draftNoDates": "Aucune date configurée",
+    "filter": {
+      "all": "Tous",
+      "drafts": "Brouillons",
+      "upcoming": "À venir",
+      "live": "En cours",
+      "past": "Terminés"
+    },
+    "state": {
+      "live": "En cours",
+      "upcoming": "À venir",
+      "past": "Terminé",
+      "draft": "Brouillon"
+    }
   },
   "clients": {
     "title": "Clients",
@@ -396,14 +436,18 @@
       "singleHtml": "HTML billet individuel",
       "coupleHtml": "HTML billet en couple",
       "htmlPlaceholder": "Collez le HTML du billet ici. Utilisez {{tokens}} pour les données dynamiques.",
-      "tokensHint": "Jetons disponibles : {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{qr_image}}",
+      "tokensHint": "Jetons disponibles : {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{paired_table_number}} {{paired_chair_number}} {{qr_image}}",
       "singleRequired": "Le HTML du billet individuel est requis.",
       "coupleRequired": "Le HTML du billet en couple est requis.",
       "cancel": "Annuler",
       "save": "Enregistrer le modèle",
       "saving": "Enregistrement...",
-      "createError": "Échec de la création du modèle."
-    }
+      "createError": "Échec de la création du modèle.",
+      "noTokensWarning": "Aucun jeton {{…}} détecté dans ce HTML. Les données dynamiques ne seront pas remplacées. Vérifiez que les jetons sont présents."
+    },
+    "delete": "Supprimer",
+    "deleted": "Modèle supprimé.",
+    "deleteError": "Échec de la suppression du modèle."
   },
   "auth": {
     "login": {

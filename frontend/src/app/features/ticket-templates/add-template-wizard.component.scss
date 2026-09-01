@@ -161,6 +161,7 @@
     flex: 1 1 420px;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 }
 
@@ -206,24 +207,40 @@
   .wizard-foot { position: sticky; bottom: 0; background: #fff; }
 }
 
+.wizard-token-warn {
+  background: #fff7e6;
+  color: #b54708;
+  border: 1px solid #fde68a;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
 .preview-host-wrapper {
   flex: 1;
   border: 1px solid #d3d3d3;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   background: #f9f9f9;
   margin-top: 6px;
-  
-  // Make the app-ticket-template-host fill the space
+  min-width: 0;
+  padding: 8px;
+  max-height: 560px;
+
+  // When the fixed-width ticket is wider than the pane, allow horizontal
+  // scrolling instead of squeezing it down.
   app-ticket-template-host {
     display: block;
-    width: 100%;
-    height: 100%;
-    
-    ::ng-deep .ticket-tpl-root, 
+    width: max-content;
+    min-width: 100%;
+
+    ::ng-deep .ticket-template-render {
+      overflow: visible;
+    }
+
+    ::ng-deep .ticket-tpl-root,
     ::ng-deep iframe {
-      width: 100%;
-      height: 100%;
       border: 0;
     }
   }

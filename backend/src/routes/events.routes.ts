@@ -29,8 +29,6 @@ const eventSchema = z.object({
     });
   }
 });
-
-// GET /events (Admins see all/theirs, Gate Staff see assigned)
 router.get('/', async (req: Request, res: Response) => {
   try {
     const user = req.user!;
@@ -52,6 +50,27 @@ router.get('/', async (req: Request, res: Response) => {
 
 // The following routes require admin privileges
 router.use(requireRole(RoleType.SUPER_ADMIN, RoleType.CLIENT_ADMIN));
+
+/**
+ * POST /events/draft
+ * Creates a lightweight draft with only a name. No plan limit consumed.
+ * Must be defined BEFORE /:eventId routes to avoid route conflict.
+ */
+router.post('/draft', async (req: Request, res: Response) => {
+  const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+  if (!name) {
+    res.status(400).json({ error: 'Event name is required' });
+    return;
+  }
+  try {
+    const userRole = req.user!.role as RoleType;
+    const clientId = resolveClientId(req.user!);
+    const event = await EventsService.createDraft(name, userRole, clientId);
+    res.status(201).json(event);
+  } catch (err: any) {
+    res.status(err.statusCode ?? 500).json({ error: err.message });
+  }
+});
 
 router.get('/:eventId', async (req: Request<{ eventId: string }>, res: Response) => {
   try {
@@ -122,6 +141,64 @@ router.put('/:eventId', async (req: Request<{ eventId: string }>, res: Response)
   }
 });
 
+/**
+ * PATCH /events/:eventId/publish
+ * Transitions a DRAFT event to PUBLISHED. This is where plan limits fire.
+ */
+const publishSchema = z.object({
+  roomIds: z.array(z.string().uuid()).min(1, 'Select at least one room'),
+  name: z.string().min(1).optional(),
+  startTime: z.string().datetime({ message: 'Valid start time is required' }),
+  endTime: z.string().datetime({ message: 'Valid end time is required' }),
+  tables: z.array(z.object({
+    tableNumber: z.string().min(1),
+    position: z.string().optional(),
+    numberOfChairs: z.number().int().positive(),
+    roomId: z.string().uuid().optional(),
+  })).optional(),
+});
+
+router.patch('/:eventId/publish', async (req: Request<{ eventId: string }>, res: Response) => {
+  const parsed = publishSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  try {
+    const userRole = req.user!.role as RoleType;
+    const clientId = resolveClientId(req.user!);
+
+    // Fetch current event name if not provided in payload
+    let eventName = parsed.data.name;
+    if (!eventName) {
+      const existing = await EventsService.getById(req.params.eventId, userRole, clientId);
+      if (!existing) {
+        res.status(404).json({ error: 'Event not found' });
+        return;
+      }
+      eventName = existing.name;
+    }
+
+    const event = await EventsService.publish(
+      req.params.eventId,
+      parsed.data.roomIds,
+      eventName,
+      new Date(parsed.data.startTime),
+      new Date(parsed.data.endTime),
+      parsed.data.tables,
+      userRole,
+      clientId
+    );
+    res.status(200).json(event);
+  } catch (err: any) {
+    const meta = err.code === 'PLAN_LIMIT_REACHED' ? err.details : undefined;
+    res.status(err.statusCode ?? 409).json({
+      error: err.message,
+      ...(meta ? { code: err.code, feature: meta.feature, limit: meta.limit, used: meta.used, remaining: meta.remaining } : {}),
+    });
+  }
+});
+
 router.patch('/:eventId/ticket-template', async (req: Request<{ eventId: string }>, res: Response) => {
   const single = typeof req.body?.singleTemplateId === 'string' ? req.body.singleTemplateId : '';
   const couple = typeof req.body?.coupleTemplateId === 'string' ? req.body.coupleTemplateId : '';
@@ -133,6 +210,33 @@ router.patch('/:eventId/ticket-template', async (req: Request<{ eventId: string 
     const userRole = req.user!.role as RoleType;
     const clientId = resolveClientId(req.user!);
     const event = await EventsService.setTicketTemplates(req.params.eventId, single, couple, userRole, clientId);
+    res.status(200).json(event);
+  } catch (err: any) {
+    res.status(err.statusCode ?? 409).json({ error: err.message });
+  }
+});
+
+router.patch('/:eventId/sessions', async (req: Request<{ eventId: string }>, res: Response) => {
+  const sessionsRaw = req.body?.sessions;
+  if (!Array.isArray(sessionsRaw)) {
+    res.status(400).json({ error: 'sessions must be an array' });
+    return;
+  }
+  // Validate each entry has the required shape
+  const sessionsSchema = z.array(z.object({
+    label:    z.string(),
+    datetime: z.string(),
+    location: z.string(),
+  }));
+  const parsed = sessionsSchema.safeParse(sessionsRaw);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  try {
+    const userRole = req.user!.role as RoleType;
+    const clientId = resolveClientId(req.user!);
+    const event = await EventsService.setSessions(req.params.eventId, parsed.data, userRole, clientId);
     res.status(200).json(event);
   } catch (err: any) {
     res.status(err.statusCode ?? 409).json({ error: err.message });

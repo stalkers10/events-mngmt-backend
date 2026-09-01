@@ -17,15 +17,26 @@ export interface TicketTemplateContext {
   ticket_id: string;
   qr_token: string;
   qr_image: string;
+  // Session tokens for boarding-pass template (up to 6 sessions)
+  session_1_datetime: string;
+  session_1_location: string;
+  session_2_datetime: string;
+  session_2_location: string;
+  session_3_datetime: string;
+  session_3_location: string;
+  session_4_datetime: string;
+  session_4_location: string;
+  session_5_datetime: string;
+  session_5_location: string;
+  session_6_datetime: string;
+  session_6_location: string;
 }
 
 export interface TicketTemplateDef {
   id: string;
-  /** i18n key for the display name, e.g. 'ticketTemplates.templates.marriage.name' */
   name: string;
-  /** i18n key for the short description */
   description: string;
-  category: 'wedding' | 'celebration' | 'formal' | 'generic';
+  category: 'marriage' | 'anniversary' | 'gala' | 'simple';
   /** Self-contained HTML (including a <style> block). Use {{token}} placeholders. */
   html: string;
 }
@@ -36,6 +47,8 @@ export interface TicketCategory {
   descriptionKey: string;
   /** Direct (non-i18n) label used for custom categories created in the UI */
   label?: string;
+  /** When true, this category only exists due to a custom template row */
+  custom?: boolean;
 }
 
 export interface TicketGroupTheme {
@@ -45,6 +58,8 @@ export interface TicketGroupTheme {
   descriptionKey: string;
   /** Direct (non-i18n) label used for custom themes created in the UI */
   label?: string;
+  /** When true, this theme is a pseudo-theme for a custom template row */
+  custom?: boolean;
 }
 
 export interface TicketTemplateEntry {

@@ -21,7 +21,7 @@ const createSchema = z.object({
 
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    res.json(await TicketTemplatesService.list());
+    res.json(await TicketTemplatesService.list(_req.user!));
   } catch {
     res.status(500).json({ error: 'Failed to fetch ticket templates' });
   }
@@ -48,6 +48,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
   try {
     const t = await TicketTemplatesService.create(
+      req.user!,
       parsed.data.category,
       parsed.data.themeName,
       parsed.data.themeDescription ?? null,
@@ -59,6 +60,23 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(t);
   } catch {
     res.status(500).json({ error: 'Failed to create ticket template' });
+  }
+});
+
+router.delete('/:id', async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { deleted, authorized } = await TicketTemplatesService.deleteById(req.params.id, req.user!);
+    if (!authorized) {
+      res.status(403).json({ error: 'You can only delete templates you created' });
+      return;
+    }
+    if (!deleted) {
+      res.status(404).json({ error: 'Ticket template not found' });
+      return;
+    }
+    res.status(204).send();
+  } catch {
+    res.status(500).json({ error: 'Failed to delete ticket template' });
   }
 });
 

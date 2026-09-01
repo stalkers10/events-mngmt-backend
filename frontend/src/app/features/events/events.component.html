@@ -48,6 +48,7 @@
           type="button"
           class="filter-tab"
           [class.active]="activeFilter() === tab"
+          [class.filter-tab--drafts]="tab === 'drafts'"
           (click)="setFilter(tab)"
         >
           {{ ('events.filter.' + tab) | translate }}
@@ -119,36 +120,51 @@
       <!-- ── Event grid ── -->
       <div class="event-grid">
         @for (event of filteredEvents(); track event.id) {
-          <div class="event-card card" [class.is-past]="eventState(event) === 'past'">
 
-            <!-- Card header row: name + badge -->
+          <div
+            class="event-card card"
+            [class.is-past]="eventState(event) === 'past'"
+            [class.is-draft]="isDraft(event)"
+          >
+
+            <!-- Card header: name + badge -->
             <div class="event-card-top">
               <h3 class="event-name">{{ event.name }}</h3>
               <span class="event-badge badge-{{ eventState(event) }}">
                 @if (eventState(event) === 'live') {
                   <span class="live-dot"></span>
                 }
+                @if (eventState(event) === 'draft') {
+                  <span class="material-symbols-outlined draft-badge-icon">edit_note</span>
+                }
                 {{ ('events.state.' + eventState(event)) | translate }}
               </span>
             </div>
 
-            <!-- Meta rows -->
+            <!-- Meta rows — muted for drafts -->
             <div class="event-meta">
               <span class="meta-row">
                 <span class="material-symbols-outlined">location_on</span>
                 {{ roomFloorLabel(event) }}
               </span>
-              <span class="meta-row">
-                <span class="material-symbols-outlined">calendar_today</span>
-                {{ event.start_time | date: 'MMM d, yyyy' }}
-              </span>
-              <span class="meta-row">
-                <span class="material-symbols-outlined">schedule</span>
-                {{ event.start_time | date: 'MMM d, yyyy h:mm a' }} – {{ event.end_time | date: 'MMM d, yyyy h:mm a' }}
-              </span>
+              @if (!isDraft(event)) {
+                <span class="meta-row">
+                  <span class="material-symbols-outlined">calendar_today</span>
+                  {{ event.start_time | date: 'MMM d, yyyy' }}
+                </span>
+                <span class="meta-row">
+                  <span class="material-symbols-outlined">schedule</span>
+                  {{ event.start_time | date: 'MMM d, yyyy h:mm a' }} – {{ event.end_time | date: 'MMM d, yyyy h:mm a' }}
+                </span>
+              } @else {
+                <span class="meta-row meta-row--muted">
+                  <span class="material-symbols-outlined">calendar_today</span>
+                  {{ 'events.draftNoDates' | translate }}
+                </span>
+              }
             </div>
 
-            <!-- Card footer -->
+            <!-- Card footer — different actions for draft vs published -->
             <div class="event-footer">
               <button
                 type="button"
@@ -158,16 +174,40 @@
               >
                 <span class="material-symbols-outlined">delete</span>
               </button>
-              <button
-                type="button"
-                class="btn btn-primary edit-seating-btn"
-                [disabled]="!canEditSeating(event)"
-                [attr.aria-disabled]="!canEditSeating(event)"
-                (click)="openSeatingMap(event.id)"
-              >
-                <span class="material-symbols-outlined">chair</span>
-                {{ 'events.editSeating' | translate }}
-              </button>
+
+              <div class="footer-actions">
+                @if (isDraft(event)) {
+                  <!-- Draft: only Configure button -->
+                  <button
+                    type="button"
+                    class="btn btn-primary configure-btn"
+                    (click)="openEditPage(event.id)"
+                  >
+                    <span class="material-symbols-outlined">tune</span>
+                    {{ 'events.configure' | translate }}
+                  </button>
+                } @else {
+                  <!-- Published: Edit button + Seating button -->
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-icon-only"
+                    (click)="openEditPage(event.id)"
+                    [title]="'common.edit' | translate"
+                  >
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-primary edit-seating-btn"
+                    [disabled]="!canEditSeating(event)"
+                    [attr.aria-disabled]="!canEditSeating(event)"
+                    (click)="openSeatingMap(event.id)"
+                  >
+                    <span class="material-symbols-outlined">chair</span>
+                    {{ 'events.editSeating' | translate }}
+                  </button>
+                }
+              </div>
             </div>
 
           </div>

@@ -18,6 +18,10 @@ export const sampleCoupleTicket = {
   reservation_type: 'COUPLE',
   paired_table_number: '12',
   paired_chair_number: '4',
+  sessions: [
+    { label: 'Church ceremony', datetime: '2026-09-12T11:00:00.000Z', location: 'Koto, St Francis of Assisi Parish' },
+    { label: 'Evening reception', datetime: '2026-09-12T19:00:00.000Z', location: 'Bonamoussadi, Dakota Party Hall' },
+  ],
 };
 
 export const sampleSingleTicket = {
@@ -37,6 +41,10 @@ export const sampleSingleTicket = {
   table_number: '7',
   chair_number: '2',
   reservation_type: 'SINGLE',
-  paired_table_number: null,
-  paired_chair_number: null,
+  paired_table_number: '',
+  paired_chair_number: '',
+  sessions: [
+    { label: 'Church ceremony', datetime: '2026-09-12T11:00:00.000Z', location: 'Koto, St Francis of Assisi Parish' },
+    { label: 'Evening reception', datetime: '2026-09-12T19:00:00.000Z', location: 'Bonamoussadi, Dakota Party Hall' },
+  ],
 };

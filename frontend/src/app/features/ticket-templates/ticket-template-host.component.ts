@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { getHtmlForDesign, getTemplateNaturalWidth, isCustomDesign } from './template-catalog';
 import { buildContext, renderTemplateHtml } from './render-template';
-import { isBoardingPassDesign, resolveBoardingPassHtml } from './boarding-pass-render';
+import { isBoardingPassDesign } from './boarding-pass-render';
 import { renderMappedTemplate } from './template-mapping';
 import { TicketFieldMapping } from './template-mapping';
 import QRCode from 'qrcode';
@@ -33,10 +33,12 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
   @Input() customTemplates: any[] = [];
   /** Mapping used while onboarding a raw designer HTML file. */
   @Input() fieldMapping: TicketFieldMapping | null = null;
+  /** When true (default), scale the fixed-width ticket down to fit the available width. */
+  @Input() fitToWidth = true;
 
   @ViewChild('wrap') wrap?: ElementRef<HTMLElement>;
   @ViewChild('inner') inner?: ElementRef<HTMLElement>;
-  
+
   private frame?: ElementRef<HTMLIFrameElement>;
   @ViewChild('frame') set frameRef(el: ElementRef<HTMLIFrameElement> | undefined) {
     this.frame = el;
@@ -56,6 +58,10 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
     const data = e.data as any;
     if (data && data.__tplHeight) {
       this.iframeHeight = data.__tplHeight;
+      this.fit();
+    }
+    if (data && typeof data.__tplWidth === 'number' && this.fitToWidth === false) {
+      this.naturalWidth = data.__tplWidth;
       this.fit();
     }
   };
@@ -105,9 +111,7 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
       }
     }
     const ctx = buildContext(this.details, qrDataUrl);
-    let resolved = isBoardingPassDesign(this.templateId)
-      ? await resolveBoardingPassHtml(this.templateId, ctx)
-      : renderTemplateHtml(this.resolveHtml(), ctx);
+    let resolved = renderTemplateHtml(this.resolveHtml(), ctx);
     if (this.fieldMapping) {
       resolved = renderMappedTemplate(resolved, ctx, this.fieldMapping);
     } else if (isCustomDesign(this.templateId)) {
@@ -137,15 +141,17 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
     }
   }
 
-  /** Appends a script that reports the rendered height to the parent for fit-to-width scaling. */
+  /** Appends a script that reports the rendered size to the parent for proper scrolling/fit. */
   private injectMeasureScript(html: string): string {
     const canvasStyle = isBoardingPassDesign(this.templateId)
       ? '<style>html,body{margin:0;padding:0;width:960px;min-width:960px;overflow:hidden}</style>'
-      : '';
+      : '<style>html,body{margin:0;padding:0}</style>';
     const script = canvasStyle +
-      `<script>(function(){function p(){try{parent.postMessage({__tplHeight:document.documentElement.scrollHeight},'*');}catch(e){}}` +
-      `window.addEventListener('load',p);if(window.ResizeObserver){new ResizeObserver(p).observe(document.documentElement);}` +
-      `setTimeout(p,200);setTimeout(p,600);setTimeout(p,1200);})();<\/script>`;
+      `<script>(function(){var w,h,wm=0;` +
+      `function m(){try{w=document.documentElement.scrollWidth;h=document.documentElement.scrollHeight;` +
+      `if(w!==wm){wm=w;parent.postMessage({__tplHeight:h,__tplWidth:w},'*');}else{parent.postMessage({__tplHeight:h},'*');}}catch(e){}}` +
+      `window.addEventListener('load',m);if(window.ResizeObserver){new ResizeObserver(m).observe(document.documentElement);}` +
+      `setTimeout(m,200);setTimeout(m,600);setTimeout(m,1200);})();<\/script>`;
     if (/<\/body>/i.test(html)) return html.replace(/<\/body>/i, script + '</body>');
     return html + script;
   }
@@ -159,6 +165,26 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
     if (!this.wrap) return;
     const wrapEl = this.wrap.nativeElement;
     const avail = wrapEl.clientWidth;
+    if (!this.fitToWidth) {
+      if (this.useIframe() && this.frame) {
+        const fr = this.frame.nativeElement;
+        this.iframeHeight = this.iframeHeight || 520;
+        // In live preview mode, render the pasted designer HTML in a wide
+        // viewport so fixed-width (e.g. 360/960px) designs lay out at their
+        // natural size and fluid designs don't collapse. The parent wrapper
+        // scrolls horizontally/vertically instead of squeezing.
+        fr.style.width = `1200px`;
+        fr.style.height = `${this.iframeHeight}px`;
+        fr.style.transform = 'none';
+        fr.style.zoom = '1';
+        fr.style.marginLeft = '0';
+      } else if (this.inner) {
+        const innerEl = this.inner.nativeElement;
+        innerEl.style.transform = 'none';
+        innerEl.style.marginLeft = '0';
+      }
+      return;
+    }
     if (!avail) return;
     const scale = Math.min(1, avail / this.naturalWidth);
     if (this.useIframe() && this.frame) {

@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
     forkJoin({ rooms: this.dashboard.rooms(), events: this.dashboard.events(), buildings: this.dashboard.buildings() }).subscribe({
       next: ({ rooms, events, buildings }) => {
         this.rooms.set(rooms);
-        this.events.set([...events].sort((a, b) => +new Date(a.start_time) - +new Date(b.start_time)));
+        this.events.set([...events].sort((a, b) => +new Date(a.start_time ?? 0) - +new Date(b.start_time ?? 0)));
         this.buildings.set(buildings);
         this.isLoading.set(false);
       },
@@ -105,14 +105,14 @@ export class DashboardComponent implements OnInit {
   roomEvent(roomId: string): EventSummary | undefined {
     return this.events().find((event) => {
       const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
-      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live';
+      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time, event.status) === 'live';
     });
   }
 
   nextRoomEvent(roomId: string): EventSummary | undefined {
     return this.events().find((event) => {
       const roomIds = event.room_ids && event.room_ids.length > 0 ? event.room_ids : [event.room_id];
-      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'upcoming';
+      return roomIds.includes(roomId) && isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time, event.status) === 'upcoming';
     });
   }
 
@@ -133,7 +133,7 @@ export class DashboardComponent implements OnInit {
 
   displayedEvents(): EventSummary[] {
     return this.clientFilter.filterList(this.events())
-      .filter((event) => isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time) === 'live')
+      .filter((event) => isEventVisible(event.start_time, event.end_time) && getEventState(event.start_time, event.end_time, event.status) === 'live')
       .slice(0, 4);
   }
 
@@ -142,8 +142,8 @@ export class DashboardComponent implements OnInit {
     return this.rooms().find((room) => roomIds.includes(room.id));
   }
 
-  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' {
-    return getEventState(event.start_time, event.end_time);
+  eventState(event: EventSummary): 'live' | 'upcoming' | 'past' | 'draft' {
+    return getEventState(event.start_time, event.end_time, event.status);
   }
 
   buildingFor(event: EventSummary): Building | undefined {

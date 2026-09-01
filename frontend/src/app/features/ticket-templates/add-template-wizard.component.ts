@@ -32,6 +32,25 @@ export class AddTemplateWizardComponent {
   readonly saving = signal(false);
   readonly error = signal('');
 
+  readonly knownTokens = [
+    'event_name', 'invitee_name', 'start_date', 'start_time', 'end_date', 'end_time',
+    'room_number', 'floor_number', 'table_number', 'chair_number',
+    'paired_table_number', 'paired_chair_number', 'seating_label',
+    'reservation_type', 'status', 'ticket_id', 'qr_token', 'qr_image',
+  ];
+
+  get singleTokenWarning(): string {
+    if (!this.singleHtml.trim()) return '';
+    const found = this.knownTokens.filter(t => this.singleHtml.includes(`{{${t}}}`));
+    return found.length === 0 ? this.i18n.t('ticketTemplates.wizard.noTokensWarning') : '';
+  }
+
+  get coupleTokenWarning(): string {
+    if (!this.coupleHtml.trim()) return '';
+    const found = this.knownTokens.filter(t => this.coupleHtml.includes(`{{${t}}}`));
+    return found.length === 0 ? this.i18n.t('ticketTemplates.wizard.noTokensWarning') : '';
+  }
+
   categoryMode: 'existing' | 'new' = 'existing';
   selectedCategory = '';
   newCategory = '';

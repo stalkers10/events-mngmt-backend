@@ -178,17 +178,9 @@
     "spotlightTitle": "Venue Spotlight",
     "confirmDelete": "Are you sure you want to delete this event? This action cannot be undone.",
     "spotlightBody": "Our premium suites are now available for late 2028 bookings. Secure the Grand Ballroom for your next gala.",
-    "filter": {
-      "all": "All",
-      "upcoming": "Upcoming",
-      "live": "Live",
-      "past": "Finished"
-    },
-    "state": {
-      "live": "Live Now",
-      "upcoming": "Upcoming",
-      "past": "Finished"
-    },
+    "confirmDeleteTitle": "Delete event",
+    "configure": "Configure",
+    "draftNoDates": "No dates configured yet",
     "nameRequired": "Event name is required.",
     "startTimeRequired": "Start date & time is required.",
     "endTimeRequired": "End date & time is required.",
@@ -196,7 +188,44 @@
     "tableNamePlaceholder": "e.g. VIP Table",
     "tableNameRequired": "Table name is required.",
     "tableNameSaved": "Table name updated.",
-    "tableNameDuplicate": "A table with that name already exists."
+    "tableNameDuplicate": "A table with that name already exists.",
+    "newEvent": "New Event",
+    "newEventSubtitle": "Give your event a name to get started. You can add rooms, dates, and tables after.",
+    "draftHint": "This will be saved as a draft. You can configure rooms, dates, and tables from the edit page.",
+    "saveDraft": "Save Draft",
+    "draftSaved": "Draft saved. Configure your event now.",
+    "draft": "Draft",
+    "configureEvent": "Configure Event",
+    "editEvent": "Edit Event",
+    "configureHint": "Fill in all the details and publish when ready.",
+    "saveChanges": "Save Changes",
+    "savedToast": "Event updated successfully.",
+    "publish": "Publish Event",
+    "publishedToast": "Event published successfully.",
+    "sessions": {
+      "title": "Event Sessions",
+      "add": "Add",
+      "hint": "Sessions appear on printed tickets — e.g. Church ceremony at 11 AM, Evening reception at 7 PM. Up to 6 are shown on the boarding pass.",
+      "empty": "No sessions yet",
+      "labelPlaceholder": "Label  (e.g. Church ceremony)",
+      "locationPlaceholder": "Location",
+      "save": "Save Sessions",
+      "saved": "Sessions saved",
+      "removeTitle": "Remove session"
+    },
+    "filter": {
+      "all": "All",
+      "drafts": "Drafts",
+      "upcoming": "Upcoming",
+      "live": "Live",
+      "past": "Finished"
+    },
+    "state": {
+      "live": "Live Now",
+      "upcoming": "Upcoming",
+      "past": "Finished",
+      "draft": "Draft"
+    }
   },
   "clients": {
     "title": "Clients",
@@ -404,14 +433,18 @@
       "singleHtml": "Single ticket HTML",
       "coupleHtml": "Couple ticket HTML",
       "htmlPlaceholder": "Paste the ticket HTML here. Use {{tokens}} for dynamic data.",
-      "tokensHint": "Available tokens: {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{qr_image}}",
+      "tokensHint": "Available tokens: {{event_name}} {{invitee_name}} {{start_date}} {{start_time}} {{end_time}} {{room_number}} {{floor_number}} {{table_number}} {{chair_number}} {{seating_label}} {{reservation_type}} {{status}} {{ticket_id}} {{qr_token}} {{paired_table_number}} {{paired_chair_number}} {{qr_image}}",
       "singleRequired": "Single ticket HTML is required.",
       "coupleRequired": "Couple ticket HTML is required.",
       "cancel": "Cancel",
       "save": "Save template",
       "saving": "Saving...",
-      "createError": "Failed to create template."
-    }
+      "createError": "Failed to create template.",
+      "noTokensWarning": "No {{token}} placeholders found in this HTML. Dynamic data will not be replaced. Make sure your HTML contains {{token}} placeholders."
+    },
+    "delete": "Delete",
+    "deleted": "Template deleted.",
+    "deleteError": "Failed to delete template."
   },
   "auth": {
     "login": {

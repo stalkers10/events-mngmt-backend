@@ -4,22 +4,31 @@ import { EntitlementsService } from './entitlements.service';
 import { TicketTemplatesService } from './ticket-templates.service';
 export const EVENT_GRACE_MINUTES = 30;
 
-export function isEventExpired(endTime: Date | string, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
+export function isEventExpired(endTime: Date | string | null | undefined, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
+  if (endTime == null) return false; // drafts with no end_time are never expired
   const expiryTime = new Date(endTime).getTime() + graceMinutes * 60 * 1000;
   return expiryTime < now.getTime();
 }
 
+export interface EventSession {
+  label: string;
+  datetime: string; // ISO-8601
+  location: string;
+}
+
 export interface EventRecord {
   id: string;
-  room_id: string;
+  room_id: string | null;
   room_ids: string[];
   name: string;
-  start_time: Date;
-  end_time: Date;
+  start_time: Date | null;
+  end_time: Date | null;
   client_id: string | null;
   created_at: Date;
+  status: 'DRAFT' | 'PUBLISHED';
   ticket_template_single: string;
   ticket_template_couple: string;
+  sessions: EventSession[];
 }
 
 export function normalizeRoomIds(roomIds: unknown, fallbackRoomId?: string | null): string[] {
@@ -41,6 +50,21 @@ export function normalizeRoomIds(roomIds: unknown, fallbackRoomId?: string | nul
   return fallbackRoomId && fallbackRoomId.length > 0 ? [fallbackRoomId] : [];
 }
 
+function normalizeSessions(raw: unknown): EventSession[] {
+  let parsed: unknown = raw;
+  if (typeof raw === 'string') {
+    try { parsed = JSON.parse(raw); } catch { return []; }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed
+    .filter((s): s is Record<string, unknown> => s !== null && typeof s === 'object')
+    .map((s) => ({
+      label:    typeof s['label']    === 'string' ? s['label']    : '',
+      datetime: typeof s['datetime'] === 'string' ? s['datetime'] : '',
+      location: typeof s['location'] === 'string' ? s['location'] : '',
+    }));
+}
+
 // Accept a wide input shape coming from DB rows (which may be typed as EventRecord)
 export function normalizeEventRecord(event: any): EventRecord {
   const startTimeValue = event.start_time as unknown;
@@ -49,15 +73,17 @@ export function normalizeEventRecord(event: any): EventRecord {
 
   return {
     id: typeof event.id === 'string' ? event.id : '',
-    room_id: typeof event.room_id === 'string' ? event.room_id : '',
+    room_id: typeof event.room_id === 'string' ? event.room_id : null,
     room_ids: normalizeRoomIds(event.room_ids, typeof event.room_id === 'string' ? event.room_id : undefined),
     name: typeof event.name === 'string' ? event.name : '',
-    start_time: startTimeValue instanceof Date ? startTimeValue : new Date(startTimeValue as string | Date),
-    end_time: endTimeValue instanceof Date ? endTimeValue : new Date(endTimeValue as string | Date),
+    start_time: startTimeValue == null ? null : (startTimeValue instanceof Date ? startTimeValue : new Date(startTimeValue as string | Date)),
+    end_time: endTimeValue == null ? null : (endTimeValue instanceof Date ? endTimeValue : new Date(endTimeValue as string | Date)),
     client_id: typeof event.client_id === 'string' ? event.client_id : null,
     created_at: createdAtValue instanceof Date ? createdAtValue : new Date(createdAtValue as string | Date),
+    status: event.status === 'DRAFT' ? 'DRAFT' : 'PUBLISHED',
     ticket_template_single: typeof event.ticket_template_single === 'string' ? event.ticket_template_single : 'classic',
     ticket_template_couple: typeof event.ticket_template_couple === 'string' ? event.ticket_template_couple : 'classic',
+    sessions: normalizeSessions(event.sessions),
   };
 }
 
@@ -85,7 +111,8 @@ class NotFoundOrForbiddenError extends Error {
 
 export const EventsService = {
   async list(userRole: RoleType, clientId?: string): Promise<EventRecord[]> {
-    let sql = `SELECT * FROM events WHERE end_time + interval '30 minutes' > NOW()`;
+    // Include drafts (they have no end_time) and non-expired published events
+    let sql = `SELECT * FROM events WHERE (status = 'DRAFT' OR end_time + interval '30 minutes' > NOW())`;
     const params: any[] = [];
     
     if (userRole === RoleType.CLIENT_ADMIN && clientId) {
@@ -93,7 +120,8 @@ export const EventsService = {
       sql += ` AND client_id = $${params.length}`;
     }
     
-    sql += ` ORDER BY start_time ASC`;
+    // Drafts first (no start_time), then published sorted by start_time
+    sql += ` ORDER BY CASE WHEN status = 'DRAFT' THEN 0 ELSE 1 END ASC, start_time ASC`;
     const result = await query<EventRecord>(sql, params);
     return result.rows.map((event) => normalizeEventRecord(event));
   },
@@ -103,6 +131,7 @@ export const EventsService = {
                FROM events e
                JOIN gate_staff_assignments gsa ON e.id = gsa.event_id
                WHERE gsa.user_id = $1
+                 AND e.status = 'PUBLISHED'
                  AND e.end_time + interval '30 minutes' > NOW()`;
     const params: any[] = [userId];
     
@@ -130,6 +159,130 @@ export const EventsService = {
     return result.rows.length > 0 ? normalizeEventRecord(result.rows[0]) : null;
   },
   
+  /**
+   * Creates a lightweight draft — only name + client_id are stored.
+   * Room, times, and tables are filled in later via publish().
+   * Drafts do NOT consume plan quota.
+   */
+  async createDraft(name: string, userRole: RoleType, clientId?: string): Promise<EventRecord> {
+    if (!name || !name.trim()) {
+      const e = new Error('Event name is required');
+      (e as any).statusCode = 400;
+      throw e;
+    }
+    const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
+    const result = await query<EventRecord>(
+      `INSERT INTO events (name, client_id, status) VALUES ($1, $2, 'DRAFT') RETURNING *`,
+      [name.trim(), effectiveClientId ?? null]
+    );
+    return normalizeEventRecord(result.rows[0]);
+  },
+
+  /**
+   * Transitions a DRAFT event to PUBLISHED.
+   * This is where plan limits are enforced.
+   */
+  async publish(
+    eventId: string,
+    roomIds: string[],
+    name: string,
+    startTime: Date,
+    endTime: Date,
+    tables: { tableNumber: string; position?: string; numberOfChairs: number; roomId?: string }[] | undefined,
+    userRole: RoleType,
+    clientId?: string
+  ): Promise<EventRecord> {
+    if (startTime >= endTime) {
+      throw new Error('Start time must be before end time');
+    }
+
+    const existing = await this.getById(eventId, userRole, clientId);
+    if (!existing) {
+      throw new NotFoundOrForbiddenError();
+    }
+
+    const uniqueRoomIds = Array.from(new Set(roomIds.filter(Boolean)));
+    if (uniqueRoomIds.length === 0) {
+      throw new Error('Select at least one room for this event');
+    }
+
+    // Verify room ownership for CLIENT_ADMIN
+    if (userRole === RoleType.CLIENT_ADMIN && clientId) {
+      for (const roomId of uniqueRoomIds) {
+        const roomResult = await query(
+          `SELECT r.id, r.room_number, b.client_id FROM rooms r JOIN buildings b ON r.building_id = b.id WHERE r.id = $1`,
+          [roomId]
+        );
+        if (roomResult.rows.length === 0) {
+          const e = new Error('Room not found');
+          (e as any).statusCode = 404;
+          throw e;
+        }
+        if (roomResult.rows[0].client_id !== clientId) {
+          const e = new Error(`Room '${roomResult.rows[0].room_number}' does not belong to you`);
+          (e as any).statusCode = 403;
+          throw e;
+        }
+      }
+    }
+
+    for (const roomId of uniqueRoomIds) {
+      const isAvailable = await this.checkRoomAvailability(roomId, startTime, endTime, eventId);
+      if (!isAvailable) {
+        const roomRes = await query(`SELECT room_number FROM rooms WHERE id = $1`, [roomId]);
+        const roomName = roomRes.rows[0]?.room_number || 'Unknown Room';
+        throw new Error(`Room '${roomName}' is already booked during this time`);
+      }
+    }
+
+    const primaryRoomId = uniqueRoomIds[0];
+    const roomIdsPayload = JSON.stringify(uniqueRoomIds);
+    const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
+
+    const { withTransaction } = await import('../config/db');
+    return await withTransaction(async (client) => {
+      // Plan limit check only fires at publish time
+      const subscription = effectiveClientId
+        ? await EntitlementsService.assertCanCreateEvent(client, effectiveClientId)
+        : undefined;
+
+      const result = await client.query(
+        `UPDATE events
+         SET room_id = $1, room_ids = $2, name = $3, start_time = $4, end_time = $5, status = 'PUBLISHED'
+         WHERE id = $6
+         RETURNING *`,
+        [primaryRoomId, roomIdsPayload, name.trim(), startTime, endTime, eventId]
+      );
+      const event = result.rows[0];
+
+      if (tables && tables.length > 0) {
+        if (effectiveClientId) {
+          await EntitlementsService.assertCanAddTables(client, effectiveClientId, eventId, tables.length);
+        }
+        for (const tableData of tables) {
+          const tableRoomId = tableData.roomId || primaryRoomId;
+          const tableRes = await client.query(
+            `INSERT INTO tables (event_id, table_number, position, room_id) VALUES ($1, $2, $3, $4) RETURNING *`,
+            [event.id, tableData.tableNumber, tableData.position || null, tableRoomId]
+          );
+          const tableId = tableRes.rows[0].id;
+          for (let i = 1; i <= tableData.numberOfChairs; i++) {
+            await client.query(
+              `INSERT INTO chairs (table_id, chair_number) VALUES ($1, $2)`,
+              [tableId, String(i)]
+            );
+          }
+        }
+      }
+
+      if (effectiveClientId && subscription) {
+        await EntitlementsService.recordEventCreation(client, effectiveClientId, event.id, subscription);
+      }
+
+      return normalizeEventRecord(event);
+    });
+  },
+
   async getTables(eventId: string): Promise<TableRecord[]> {
     const result = await query<TableRecord>(
       `SELECT * FROM tables WHERE event_id = $1 ORDER BY table_number`,
@@ -378,7 +531,7 @@ export const EventsService = {
   },
 
   async setTicketTemplates(eventId: string, singleId: string, coupleId: string, userRole: RoleType, clientId?: string): Promise<EventRecord> {
-    const allowed = ['classic', 'marriage', 'anniversary', 'ceremony', 'boarding-single', 'boarding-couple'];
+    const allowed = ['classic', 'marriage', 'anniversary', 'ceremony', 'boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple'];
     const validate = async (id: string): Promise<void> => {
       if (allowed.includes(id)) return;
       const match = id.match(/^(.+?)__(single|couple)$/);
@@ -399,6 +552,18 @@ export const EventsService = {
     const result = await query<EventRecord>(
       `UPDATE events SET ticket_template_single = $1, ticket_template_couple = $2 WHERE id = $3 RETURNING *`,
       [singleId, coupleId, eventId]
+    );
+    return normalizeEventRecord(result.rows[0]);
+  },
+
+  async setSessions(eventId: string, sessions: EventSession[], userRole: RoleType, clientId?: string): Promise<EventRecord> {
+    const existing = await this.getById(eventId, userRole, clientId);
+    if (!existing) {
+      throw new NotFoundOrForbiddenError();
+    }
+    const result = await query<EventRecord>(
+      `UPDATE events SET sessions = $1 WHERE id = $2 RETURNING *`,
+      [JSON.stringify(sessions), eventId]
     );
     return normalizeEventRecord(result.rows[0]);
   },
