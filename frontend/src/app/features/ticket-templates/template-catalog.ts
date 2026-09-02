@@ -5,6 +5,7 @@ import { ceremonyTemplateHtml } from './templates/ceremony.template';
 import { boardingCoupleTemplateHtml, boardingSingleTemplateHtml } from './templates/boarding-pass.template';
 import { anniversarySingleTemplateHtml, anniversaryCoupleTemplateHtml } from './templates/anniversary.template';
 import { simpleSingleTemplateHtml, simpleCoupleTemplateHtml } from './templates/simple.template';
+import { midnightGalaSingleTemplateHtml, midnightGalaCoupleTemplateHtml } from './templates/midnight-gala.template';
 
 /**
  * The built-in designs. The stored template id on an event is one of these keys.
@@ -22,6 +23,8 @@ export const DESIGNS: Record<string, string> = {
   'anniversary-couple': anniversaryCoupleTemplateHtml,
   'simple-single': simpleSingleTemplateHtml,
   'simple-couple': simpleCoupleTemplateHtml,
+  'midnight-single': midnightGalaSingleTemplateHtml,
+  'midnight-couple': midnightGalaCoupleTemplateHtml,
 };
 
 export const ALLOWED_DESIGN_IDS = Object.keys(DESIGNS);
@@ -32,7 +35,7 @@ export function getTemplateHtml(designId: string): string {
 
 /** Fixed canvas width used by the gallery and PDF renderer for each base design. */
 export function getTemplateNaturalWidth(designId: string): number {
-  const wide = ['boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple'];
+  const wide = ['boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple', 'midnight-single', 'midnight-couple'];
   return wide.includes(designId) ? 960 : 360;
 }
 
@@ -44,27 +47,17 @@ export const CATEGORIES: TicketCategory[] = [
 ];
 
 export const GROUP_THEMES: TicketGroupTheme[] = [
-  { id: 'mar-elegant', categoryId: 'marriage', nameKey: 'ticketTemplates.themes.elegantBlush.name', descriptionKey: 'ticketTemplates.themes.elegantBlush.description' },
-  { id: 'mar-classic', categoryId: 'marriage', nameKey: 'ticketTemplates.themes.classicRomance.name', descriptionKey: 'ticketTemplates.themes.classicRomance.description' },
   { id: 'mar-boarding', categoryId: 'marriage', nameKey: '', descriptionKey: '', label: 'Boarding Pass Romance' },
   { id: 'ann-golden', categoryId: 'anniversary', nameKey: 'ticketTemplates.themes.goldenYears.name', descriptionKey: 'ticketTemplates.themes.goldenYears.description' },
-  { id: 'ann-modern', categoryId: 'anniversary', nameKey: 'ticketTemplates.themes.modernLove.name', descriptionKey: 'ticketTemplates.themes.modernLove.description' },
   { id: 'gala-midnight', categoryId: 'gala', nameKey: 'ticketTemplates.themes.midnightGala.name', descriptionKey: 'ticketTemplates.themes.midnightGala.description' },
-  { id: 'gala-charity', categoryId: 'gala', nameKey: 'ticketTemplates.themes.charityBall.name', descriptionKey: 'ticketTemplates.themes.charityBall.description' },
-  { id: 'simple-minimal', categoryId: 'simple', nameKey: 'ticketTemplates.themes.minimal.name', descriptionKey: 'ticketTemplates.themes.minimal.description' },
   { id: 'simple-essential', categoryId: 'simple', nameKey: 'ticketTemplates.themes.essential.name', descriptionKey: 'ticketTemplates.themes.essential.description' },
 ];
 
 // Maps each theme to the base design used for its single & couple templates.
 const THEME_DESIGN: Record<string, { single: string; couple: string }> = {
-  'mar-elegant':    { single: 'marriage',            couple: 'marriage' },
-  'mar-classic':    { single: 'marriage',            couple: 'marriage' },
   'mar-boarding':   { single: 'boarding-single',     couple: 'boarding-couple' },
   'ann-golden':     { single: 'anniversary-single',  couple: 'anniversary-couple' },
-  'ann-modern':     { single: 'anniversary-single',  couple: 'anniversary-couple' },
-  'gala-midnight':  { single: 'ceremony',            couple: 'ceremony' },
-  'gala-charity':   { single: 'ceremony',            couple: 'ceremony' },
-  'simple-minimal': { single: 'simple-single',       couple: 'simple-couple' },
+  'gala-midnight':  { single: 'midnight-single',  couple: 'midnight-couple' },
   'simple-essential':{ single: 'simple-single',      couple: 'simple-couple' },
 };
 

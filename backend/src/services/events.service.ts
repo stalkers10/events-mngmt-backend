@@ -531,7 +531,7 @@ export const EventsService = {
   },
 
   async setTicketTemplates(eventId: string, singleId: string, coupleId: string, userRole: RoleType, clientId?: string): Promise<EventRecord> {
-    const allowed = ['classic', 'marriage', 'anniversary', 'ceremony', 'boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple'];
+    const allowed = ['classic', 'marriage', 'anniversary', 'ceremony', 'boarding-single', 'boarding-couple', 'anniversary-single', 'anniversary-couple', 'simple-single', 'simple-couple', 'midnight-single', 'midnight-couple'];
     const validate = async (id: string): Promise<void> => {
       if (allowed.includes(id)) return;
       const match = id.match(/^(.+?)__(single|couple)$/);

@@ -10,8 +10,9 @@ import { ToastService } from '../../core/services/toast.service';
 import { VenueService } from '../../core/services/venue.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
-import { getEventState, isEventVisible, EventState } from '../../core/utils/event-status';
+import { getEventState, isEventVisible, isEventFinished, EventState } from '../../core/utils/event-status';
 import { ClientFilterService } from '../../core/services/client-filter.service';
+import { CustomSelectComponent, SelectOption } from '../../shared/components/custom-select/custom-select.component';
 
 export type FilterTab = 'all' | 'drafts' | 'upcoming' | 'live' | 'past';
 export type SortOrder = 'latest' | 'oldest';
@@ -19,7 +20,7 @@ export type SortOrder = 'latest' | 'oldest';
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule, ConfirmationDialogComponent],
+  imports: [CommonModule, RouterLink, I18nextPipe, FormsModule, ConfirmationDialogComponent, CustomSelectComponent],
   templateUrl: './events.component.html',
   styleUrl: './events.component.scss',
 })
@@ -33,6 +34,11 @@ export class EventsComponent implements OnInit {
   readonly filterTabs: FilterTab[] = ['all', 'drafts', 'upcoming', 'live', 'past'];
   readonly activeFilter = signal<FilterTab>('all');
   readonly sortOrder = signal<SortOrder>('latest');
+
+  readonly sortOptions = computed<SelectOption[]>(() => [
+    { value: 'latest', label: this.i18n.t('events.sortLatest') },
+    { value: 'oldest', label: this.i18n.t('events.sortOldest') },
+  ]);
 
   readonly filteredEvents = computed(() => {
     const filter = this.activeFilter();
@@ -170,7 +176,7 @@ export class EventsComponent implements OnInit {
   }
 
   canEditSeating(event: EventSummary): boolean {
-    return !this.isDraft(event) && isEventVisible(event.start_time, event.end_time);
+    return !this.isDraft(event) && !isEventFinished(event.end_time);
   }
 
   openSeatingMap(eventId: string): void {
@@ -223,10 +229,10 @@ export class EventsComponent implements OnInit {
     this.pendingDeleteEventId.set(null);
     this.venueService.deleteEvent(eventId).subscribe({
       next: () => {
-        this.toast.success(this.i18n.t('events.deleteSuccess') || 'Event deleted successfully');
+        this.toast.success(this.i18n.t('events.deleteSuccess'));
         this.loadData();
       },
-      error: () => this.toast.error(this.i18n.t('errors.deleteFailed') || 'Failed to delete event'),
+      error: () => this.toast.error(this.i18n.t('events.deleteFailed')),
     });
   }
 }

@@ -17,7 +17,8 @@
     "actions": "Actions",
     "processing": "Processing...",
     "saving": "Saving…",
-    "allClients": "All Clients"
+    "allClients": "All Clients",
+    "backToHome": "Back to Home"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -225,7 +226,10 @@
       "upcoming": "Upcoming",
       "past": "Finished",
       "draft": "Draft"
-    }
+    },
+    "deleteSuccess": "Event deleted successfully.",
+    "deleteFailed": "Failed to delete event.",
+    "finishedReadonly": "This event has already finished. It is now read-only and can no longer be edited."
   },
   "clients": {
     "title": "Clients",
@@ -314,7 +318,13 @@
     "coupleHint": "The next seat will be reserved automatically for your partner.",
     "coupleAssigned": "Couple seats assigned successfully.",
     "coupleNoAdjacent": "Cannot reserve a couple: no adjacent seat available.",
-    "chairUnavailableForCouple": "Cannot reserve a couple: the adjacent seat is already taken."
+    "chairUnavailableForCouple": "Cannot reserve a couple: the adjacent seat is already taken.",
+    "finished": "This event has already finished, so seating can no longer be edited.",
+    "seatAssigned": "Seat assigned successfully.",
+    "reservationCancelled": "Reservation cancelled successfully.",
+    "cancelFailed": "Failed to cancel reservation.",
+    "assignFailed": "Failed to assign seat.",
+    "guestNameRequired": "Please enter guest name."
   },
   "ticket": {
     "coupleLabel": "Couple reservation"
@@ -329,6 +339,7 @@
     "preview": "Preview",
     "saved": "Ticket template updated.",
     "saveError": "Failed to update template.",
+    "alreadyCurrent": "This template is already active for this event.",
     "entryLink": "Ticket Templates",
     "templates": {
       "classic": {
@@ -631,7 +642,20 @@
     "fillAllFields": "Please fill in all required fields.",
     "roomNotConfigured": "All selected rooms must be configured before creating the event.",
     "startTimeInPast": "Event start time cannot be in the past.",
-    "createFailed": "Failed to create event. Please try again."
+    "createFailed": "Failed to create event. Please try again.",
+    "emailTaken": "An account with this email already exists.",
+    "usernameMinLength": "Username must be at least 3 characters.",
+    "passwordMinLength": "Password must be at least 8 characters.",
+    "emailInvalidRaw": "A valid email is required.",
+    "nameRequired": "Organization name is required.",
+    "credentialsRequired": "Username and password are required.",
+    "codeRequired": "A valid 8-character code is required.",
+    "selectAtLeastOneRoom": "Select at least one room for this event.",
+    "cannotChangeRooms": "Rooms cannot be changed once tickets have been issued.",
+    "roomNotFound": "Room not found.",
+    "tableNotFound": "Table not found.",
+    "roomBooked": "The room \"{{room}}\" is already booked during this time.",
+    "planLimitReached": "Your plan limit has been reached. Upgrade to continue."
   },
   "upgrade": {
     "titleBuildings": "Upgrade to add more buildings",

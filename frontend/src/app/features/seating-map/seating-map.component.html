@@ -148,7 +148,7 @@
         @if (isEventExpired()) {
           <div class="expired-state card">
             <h4 class="text-label-caps section-title">Seating closed</h4>
-            <p class="text-body-sm">This event has already finished, so seating can no longer be edited.</p>
+            <p class="text-body-sm">{{ 'seating.finished' | translate }}</p>
           </div>
         } @else if (chair.reservation_id) {
           <!-- Reserved Chair Information -->

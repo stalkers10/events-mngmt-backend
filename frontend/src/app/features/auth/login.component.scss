@@ -8,6 +8,32 @@
   position: relative;
 }
 
+.back-link {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  z-index: 5;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-on-surface);
+  }
+}
+
 .lang-switcher-wrap {
   position: absolute;
   top: var(--space-md);
@@ -33,6 +59,10 @@
   .lang-switcher-wrap {
     top: 12px;
     right: var(--space-md);
+  }
+
+  .back-link {
+    top: 12px;
   }
 }
 

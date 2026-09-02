@@ -11,5 +11,7 @@ export function isBoardingPassDesign(designId: string): boolean {
     'anniversary-couple',
     'simple-single',
     'simple-couple',
+    'midnight-single',
+    'midnight-couple',
   ].includes(designId);
 }

@@ -742,7 +742,7 @@ export const boardingSingleTemplateHtml = `<link rel="preconnect" href="https://
                     style="align-self: stretch; color: #2C1A0E; font-size: 14px; font-family: Cormorant Garamond; font-weight: 700; text-transform: uppercase; word-wrap: break-word">
                     Wedding Ticket</div>
                 <div data-layer="couple-names" class="CoupleNames"
-                    style="align-self: stretch; color: #2C1A0E; font-size: 48px; font-family: Pinyon Script; font-weight: 400; line-height: 64px; word-wrap: break-word">{{invitee_name}}</div>
+                    style="align-self: stretch; color: #2C1A0E; font-size: 48px; font-family: Pinyon Script; font-weight: 400; line-height: 64px; padding-left: 15px; word-wrap: break-word">{{invitee_name}}</div>
                 <div data-layer="Line" class="Line" style="width: 560px; height: 0px; border: 1px #C9A84C solid"></div>
             </div>
             <div data-layer="events-schedule" class="EventsSchedule"
@@ -1546,7 +1546,7 @@ export const boardingCoupleTemplateHtml = `<link rel="preconnect" href="https://
                     style="align-self: stretch; color: #2C1A0E; font-size: 14px; font-family: Cormorant Garamond; font-weight: 700; text-transform: uppercase; word-wrap: break-word">
                     Wedding Ticket</div>
                 <div data-layer="couple-names" class="CoupleNames"
-                    style="align-self: stretch; color: #2C2415; font-size: 48px; font-family: Pinyon Script; font-weight: 400; line-height: 64px; word-wrap: break-word">{{invitee_name}}</div>
+                    style="align-self: stretch; color: #2C2415; font-size: 48px; font-family: Pinyon Script; font-weight: 400; line-height: 64px; padding-left: 15px; word-wrap: break-word">{{invitee_name}}</div>
                 <div data-layer="Line" class="Line" style="width: 560px; height: 0px; border: 1px #C0AA78 solid"></div>
             </div>
             <div data-layer="events-schedule" class="EventsSchedule"

@@ -1,6 +1,59 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-export type ErrorContext = 'login' | 'otp' | 'gateStaffCreate' | 'clientCreate' | 'gateStaffAction' | 'generic';
+export type ErrorContext = 'login' | 'otp' | 'gateStaffCreate' | 'clientCreate' | 'gateStaffAction' | 'signup' | 'generic';
+
+/**
+ * Maps known backend error strings (currently English-only) to i18n translation
+ * keys so the UI can display them in the user's active language instead of the
+ * raw English string.
+ */
+const BACKEND_ERROR_MAP: Record<string, { key: string; params?: (v: string) => Record<string, string | number> }> = {
+  'Username already taken': { key: 'errors.usernameTaken' },
+  'Reserved super admin username': { key: 'errors.reservedUsername' },
+  'A client account with this email already exists': { key: 'errors.emailTaken' },
+  'Username must be at least 3 characters': { key: 'errors.usernameMinLength' },
+  'Password must be at least 8 characters': { key: 'errors.passwordMinLength' },
+  'A valid email is required': { key: 'errors.emailInvalidRaw' },
+  'Organization name is required': { key: 'errors.nameRequired' },
+  'username and password are required': { key: 'errors.credentialsRequired' },
+  'A valid 8-character code is required': { key: 'errors.codeRequired' },
+  'Too many attempts. Please try again later.': { key: 'errors.rateLimitedGeneric' },
+  'Too many failed attempts. Please log in again.': { key: 'errors.rateLimitedGeneric' },
+  'Invalid or expired code': { key: 'errors.wrongOtp' },
+  'Invalid or expired code. Please try again.': { key: 'errors.wrongOtp' },
+  // Event lifecycle
+  'Start time must be before end time': { key: 'events.endBeforeStart' },
+  'Select at least one room for this event': { key: 'errors.selectAtLeastOneRoom' },
+  'Cannot change rooms for an event that has issued tickets': { key: 'errors.cannotChangeRooms' },
+  'Event name is required': { key: 'events.nameRequired' },
+  'Room not found': { key: 'errors.roomNotFound' },
+  'Table not found': { key: 'errors.tableNotFound' },
+};
+
+/** Order-sensitive fallback matchers for messages with dynamic interpolations. */
+const BACKEND_ERROR_PATTERNS: { pattern: RegExp; build: (m: RegExpMatchArray) => ErrorDescription }[] = [
+  {
+    pattern: /^Room '([^']*)' is already booked during this time$/,
+    build: (m) => ({ key: 'errors.roomBooked', params: { room: m[1] } }),
+  },
+];
+
+/**
+ * Attempts to translate a raw backend error string into an error description
+ * (i18n key + params). Returns the identity description (`__raw__`) when the
+ * string is not one we know how to translate.
+ */
+export function translateBackendError(message: string): ErrorDescription {
+  const match = BACKEND_ERROR_MAP[message];
+  if (match) {
+    return { key: match.key, params: match.params ? match.params(message) : undefined };
+  }
+  for (const { pattern, build } of BACKEND_ERROR_PATTERNS) {
+    const m = message.match(pattern);
+    if (m) return build(m);
+  }
+  return { key: '__raw__', params: { raw: message } };
+}
 
 export interface ErrorDescription {
   /** Translation key to look up (e.g. "errors.wrongCredentials") */
@@ -94,18 +147,25 @@ export function describeHttpError(err: unknown, context: ErrorContext = 'generic
       if (err.error?.error === 'Reserved super admin username') {
         return { key: 'errors.reservedUsername' };
       }
-      if (context === 'gateStaffCreate' || context === 'clientCreate') return { key: 'errors.usernameTaken' };
-      return { key: 'errors.conflict' };
+      if (context === 'gateStaffCreate' || context === 'clientCreate' || context === 'signup') {
+        return { key: 'errors.usernameTaken' };
+      }
+      return err.error?.error
+        ? translateBackendError(toErrorMessage(err.error.error))
+        : { key: 'errors.conflict' };
 
     case 422:
       return err.error?.error
-        ? { key: '__raw__', params: { raw: toErrorMessage(err.error.error) } }
+        ? translateBackendError(toErrorMessage(err.error.error))
         : { key: 'errors.invalidInput' };
 
     case 429: {
       const retryAfter = err.error?.retryAfterSeconds;
-      return retryAfter
-        ? { key: 'errors.rateLimited', params: { seconds: retryAfter } }
+      if (retryAfter) {
+        return { key: 'errors.rateLimited', params: { seconds: retryAfter } };
+      }
+      return err.error?.error
+        ? translateBackendError(toErrorMessage(err.error.error))
         : { key: 'errors.rateLimitedGeneric' };
     }
 
@@ -117,7 +177,7 @@ export function describeHttpError(err: unknown, context: ErrorContext = 'generic
 
     default:
       return err.error?.error || err.error
-        ? { key: '__raw__', params: { raw: toErrorMessage(err.error?.error ?? err.error) } }
+        ? translateBackendError(toErrorMessage(err.error?.error ?? err.error))
         : { key: 'errors.generic' };
   }
 }

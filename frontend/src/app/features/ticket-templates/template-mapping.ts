@@ -1,7 +1,8 @@
 import { TicketTemplateContext } from './ticket-template.types';
 
 export type TicketFieldMapping = Partial<Record<
-  'guest' | 'eventName' | 'start' | 'end' | 'venue' | 'seating' | 'qr',
+  'guest' | 'eventName' | 'start' | 'end' | 'venue' | 'seating' | 'qr'
+  | 'session1Start' | 'session1Venue' | 'session2Start' | 'session2Venue',
   string
 >>;
 
@@ -10,6 +11,8 @@ export const requiredMappingFields: (keyof TicketFieldMapping)[] = ['guest', 'ev
 export const mappingLabels: Record<keyof TicketFieldMapping, string> = {
   guest: 'Guest name', eventName: 'Event name', start: 'Start date & time', end: 'End date & time',
   venue: 'Room & floor', seating: 'Room, table & chair(s)', qr: 'QR-code frame',
+  session1Start: 'Session 1 date & time', session1Venue: 'Session 1 location',
+  session2Start: 'Session 2 date & time', session2Venue: 'Session 2 location',
 };
 
 /** A plain value such as `CoupleNames` means the designer's `.CoupleNames` class. */
@@ -55,6 +58,10 @@ export function renderMappedTemplate(html: string, ctx: TicketTemplateContext, m
     seating: ctx.reservation_type === 'Couple'
       ? `Room ${ctx.room_number} · Table ${ctx.table_number} · Chairs ${ctx.chair_number} & ${ctx.paired_chair_number}`
       : `Room ${ctx.room_number} · Table ${ctx.table_number} · Chair ${ctx.chair_number}`,
+    session1Start: ctx.session_1_datetime,
+    session1Venue: ctx.session_1_location,
+    session2Start: ctx.session_2_datetime,
+    session2Venue: ctx.session_2_location,
   };
   for (const [field, selector] of Object.entries(mapping)) {
     if (!selector?.trim()) continue;

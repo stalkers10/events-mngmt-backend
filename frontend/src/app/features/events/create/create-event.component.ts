@@ -6,6 +6,7 @@ import { I18nextPipe } from '../../../core/pipes/i18next.pipe';
 import { I18nextService } from '../../../core/services/i18next.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { VenueService } from '../../../core/services/venue.service';
+import { describeHttpError } from '../../../core/utils/http-error.util';
 
 @Component({
   selector: 'app-create-event',
@@ -45,8 +46,8 @@ export class CreateEventComponent {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        const msg = err?.error?.error ?? err?.message;
-        this.toast.error(msg || this.i18n.t('errors.createFailed'));
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.i18n.t(description.key, description.params));
       },
     });
   }

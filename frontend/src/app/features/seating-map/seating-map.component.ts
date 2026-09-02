@@ -10,8 +10,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { I18nextService } from '../../core/services/i18next.service';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { CustomSelectComponent, SelectOption } from '../../shared/components/custom-select/custom-select.component';
-import { isEventExpired } from '../../core/utils/event-status';
-import { toErrorMessage } from '../../core/utils/http-error.util';
+import { isEventFinished } from '../../core/utils/event-status';
+import { describeHttpError } from '../../core/utils/http-error.util';
 import { formatTableName } from '../../core/utils/table-name';
 import { tableCircleSize } from '../../core/utils/table-size';
 import { relaxTableLayout } from '../../core/utils/table-layout';
@@ -101,7 +101,7 @@ export class SeatingMapComponent implements OnInit {
 
   readonly isEventExpired = computed(() => {
     const activeEvent = this.event();
-    return !!activeEvent && isEventExpired(activeEvent.start_time, activeEvent.end_time);
+    return !!activeEvent && isEventFinished(activeEvent.end_time);
   });
 
   readonly showCancelReservationConfirmation = signal(false);
@@ -258,7 +258,7 @@ export class SeatingMapComponent implements OnInit {
 
   selectChair(table: OccupancyTable, chair: OccupancyChair): void {
     if (this.isEventExpired()) {
-      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      this.toast.error(this.translation.t('seating.finished'));
       return;
     }
     if (this.selectedChair()?.id === chair.id) {
@@ -280,7 +280,7 @@ export class SeatingMapComponent implements OnInit {
 
   selectTable(table: OccupancyTable): void {
     if (this.isEventExpired()) {
-      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      this.toast.error(this.translation.t('seating.finished'));
       return;
     }
     if (this.selectedTable()?.id === table.id && !this.selectedChair()) {
@@ -298,7 +298,7 @@ export class SeatingMapComponent implements OnInit {
     if (!activeEvent || !table) return;
 
     if (this.isEventExpired()) {
-      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      this.toast.error(this.translation.t('seating.finished'));
       return;
     }
 
@@ -312,14 +312,13 @@ export class SeatingMapComponent implements OnInit {
     this.venues.updateTable(activeEvent.id, table.id, { tableNumber: name }).subscribe({
       next: () => {
         this.isSavingTable.set(false);
-        this.toast.success(this.translation.t('events.tableNameSaved') || 'Table name updated.');
+        this.toast.success(this.translation.t('events.tableNameSaved'));
         this.loadData();
       },
       error: (err: any) => {
         this.isSavingTable.set(false);
-        const msg = err?.error?.error
-          || (this.translation.t('events.tableNameDuplicate') || 'A table with that name already exists.');
-        this.toast.error(msg);
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.translation.t(description.key, description.params));
       },
     });
   }
@@ -348,12 +347,12 @@ export class SeatingMapComponent implements OnInit {
     if (!activeEvent || !table || !chair) return;
 
     if (this.isEventExpired()) {
-      this.toast.error('This event has already finished, so seating can no longer be edited.');
+      this.toast.error(this.translation.t('seating.finished'));
       return;
     }
 
     if (!this.inviteeName.trim()) {
-      this.toast.error(this.translation.t('errors.fillAllFields') || 'Please enter guest name.');
+      this.toast.error(this.translation.t('seating.guestNameRequired'));
       return;
     }
 
@@ -396,16 +395,16 @@ export class SeatingMapComponent implements OnInit {
         this.isAssigning = false;
         this.toast.success(
           type === 'COUPLE'
-            ? (this.translation.t('seating.coupleAssigned') || 'Couple seats assigned successfully.')
-            : 'Seat assigned successfully.'
+            ? this.translation.t('seating.coupleAssigned')
+            : this.translation.t('seating.seatAssigned')
         );
         this.closeSidebar();
         this.router.navigate(['/tickets', res.ticketId]);
       },
       error: (err) => {
         this.isAssigning = false;
-        const msg = toErrorMessage(err.error?.error ?? err.error) || 'Failed to assign seat.';
-        this.toast.error(msg);
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.translation.t(description.key, description.params));
       },
     });
   }
@@ -429,11 +428,11 @@ export class SeatingMapComponent implements OnInit {
 
     this.venues.cancelReservation(pending.reservationId).subscribe({
       next: () => {
-        this.toast.success('Reservation cancelled successfully.');
+        this.toast.success(this.translation.t('seating.reservationCancelled'));
         this.loadData();
       },
       error: () => {
-        this.toast.error('Failed to cancel reservation.');
+        this.toast.error(this.translation.t('seating.cancelFailed'));
       },
     });
   }

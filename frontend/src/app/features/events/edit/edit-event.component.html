@@ -9,6 +9,13 @@
 
   } @else {
 
+    @if (isExpired()) {
+      <div class="expired-banner">
+        <span class="material-symbols-outlined">lock</span>
+        {{ 'events.finishedReadonly' | translate }}
+      </div>
+    }
+
     <div class="split-layout">
 
       <!-- ── Left Panel: Configuration ── -->
@@ -50,6 +57,7 @@
               [(ngModel)]="eventName"
               [placeholder]="'events.namePlaceholder' | translate"
               [class.field-invalid]="submitted() && !eventName().trim()"
+              [disabled]="isExpired()"
             />
             @if (submitted() && !eventName().trim()) {
               <p class="invalid-feedback">{{ 'events.nameRequired' | translate }}</p>
@@ -64,6 +72,7 @@
               class="room-dropdown-toggle"
               [class.open]="roomDropdownOpen()"
               (click)="toggleRoomDropdown()"
+              [disabled]="isExpired()"
             >
               <span class="room-dropdown-toggle-label" *ngIf="selectedRoomIds().length === 0">{{ 'events.selectRooms' | translate }}</span>
               <span class="room-dropdown-toggle-label" *ngIf="selectedRoomIds().length > 0">{{ selectedRoomLabel() }}</span>
@@ -113,6 +122,7 @@
                 [(ngModel)]="startTime"
                 [min]="minStartTime()"
                 [class.field-invalid]="submitted() && !startTime()"
+                [disabled]="isExpired()"
               />
               @if (submitted() && !startTime()) {
                 <p class="invalid-feedback">{{ 'events.startTimeRequired' | translate }}</p>
@@ -125,6 +135,7 @@
                 [(ngModel)]="endTime"
                 [min]="minEndTime()"
                 [class.field-invalid]="submitted() && !endTime()"
+                [disabled]="isExpired()"
               />
               @if (submitted() && !endTime()) {
                 <p class="invalid-feedback">{{ 'events.endTimeRequired' | translate }}</p>
@@ -136,15 +147,15 @@
           <div class="form-row">
             <div class="form-field">
               <label>{{ 'events.tableCount' | translate }}</label>
-              <input type="number" [(ngModel)]="tableCount" min="1" max="50" />
+              <input type="number" [(ngModel)]="tableCount" min="1" max="50" [disabled]="isExpired()" />
             </div>
             <div class="form-field">
               <label>{{ 'events.chairsPerTable' | translate }}</label>
-              <input type="number" [(ngModel)]="chairsPerTable" min="1" max="20" />
+              <input type="number" [(ngModel)]="chairsPerTable" min="1" max="20" [disabled]="isExpired()" />
             </div>
           </div>
 
-          <button class="btn btn-secondary generate-btn" (click)="generateLayout()">
+          <button class="btn btn-secondary generate-btn" (click)="generateLayout()" [disabled]="isExpired()">
             <span class="material-symbols-outlined">grid_view</span>
             {{ 'events.generatePreview' | translate }}
           </button>
@@ -156,10 +167,12 @@
                 <span class="material-symbols-outlined">event_note</span>
                 <span>{{ 'events.sessions.title' | translate }}</span>
               </div>
-              <button type="button" class="btn-add-session" (click)="addSession()">
-                <span class="material-symbols-outlined">add</span>
-                {{ 'events.sessions.add' | translate }}
-              </button>
+              @if (!isExpired()) {
+                <button type="button" class="btn-add-session" (click)="addSession()">
+                  <span class="material-symbols-outlined">add</span>
+                  {{ 'events.sessions.add' | translate }}
+                </button>
+              }
             </div>
             <p class="sessions-hint">{{ 'events.sessions.hint' | translate }}</p>
 
@@ -181,12 +194,14 @@
                       [value]="session.label"
                       (input)="updateSession($index, 'label', $any($event.target).value)"
                       [placeholder]="'events.sessions.labelPlaceholder' | translate"
+                      [disabled]="isExpired()"
                     />
                     <input
                       type="datetime-local"
                       class="session-input session-input--datetime"
                       [value]="session.datetime"
                       (input)="updateSession($index, 'datetime', $any($event.target).value)"
+                      [disabled]="isExpired()"
                     />
                     <input
                       type="text"
@@ -194,21 +209,24 @@
                       [value]="session.location"
                       (input)="updateSession($index, 'location', $any($event.target).value)"
                       [placeholder]="'events.sessions.locationPlaceholder' | translate"
+                      [disabled]="isExpired()"
                     />
                   </div>
-                  <button
-                    type="button"
-                    class="session-remove"
-                    (click)="removeSession($index)"
-                    [title]="'events.sessions.removeTitle' | translate"
-                  >
-                    <span class="material-symbols-outlined">close</span>
-                  </button>
+                  @if (!isExpired()) {
+                    <button
+                      type="button"
+                      class="session-remove"
+                      (click)="removeSession($index)"
+                      [title]="'events.sessions.removeTitle' | translate"
+                    >
+                      <span class="material-symbols-outlined">close</span>
+                    </button>
+                  }
                 </div>
               }
             </div>
 
-            @if (sessions().length > 0) {
+            @if (sessions().length > 0 && !isExpired()) {
               <button
                 type="button"
                 class="sessions-save-btn"
@@ -226,7 +244,7 @@
           </div>
 
           <!-- Selected table editor -->
-          @if (selectedTable()) {
+          @if (selectedTable() && !isExpired()) {
             <div class="table-editor">
               <h3>{{ 'events.editTable' | translate }} {{ selectedTable()!.id }}</h3>
               <div class="form-field">
@@ -262,6 +280,7 @@
 
         <!-- ── Action buttons ── -->
         <div class="panel-actions">
+          @if (!isExpired()) {
           <button
             class="btn btn-secondary"
             (click)="saveChanges()"
@@ -288,6 +307,7 @@
               }
               {{ 'events.publish' | translate }}
             </button>
+          }
           }
         </div>
 

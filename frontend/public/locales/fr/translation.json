@@ -13,7 +13,8 @@
     "active": "Actif",
     "deactivated": "Désactivé",
     "logout": "Se déconnecter",
-    "saving": "Enregistrement…"
+    "saving": "Enregistrement…",
+    "backToHome": "Retour à l'accueil"
   },
   "nav": {
     "dashboard": "Accueil",
@@ -146,6 +147,7 @@
     "spotlightBody": "Nos suites premium sont disponibles pour les réservations fin 2028. Réservez le Grand Salon pour votre prochain gala.",
     "filter": {
       "all": "Tous",
+      "drafts": "Brouillons",
       "upcoming": "À venir",
       "live": "En cours",
       "past": "Terminés"
@@ -153,7 +155,8 @@
     "state": {
       "live": "En cours",
       "upcoming": "À venir",
-      "past": "Terminé"
+      "past": "Terminé",
+      "draft": "Brouillon"
     },
     "tableConfiguration": "Configuration des tables",
     "tableConfigurationHint": "Générez la configuration initiale pour cet événement.",
@@ -216,19 +219,9 @@
     "confirmDeleteTitle": "Supprimer l'événement",
     "configure": "Configurer",
     "draftNoDates": "Aucune date configurée",
-    "filter": {
-      "all": "Tous",
-      "drafts": "Brouillons",
-      "upcoming": "À venir",
-      "live": "En cours",
-      "past": "Terminés"
-    },
-    "state": {
-      "live": "En cours",
-      "upcoming": "À venir",
-      "past": "Terminé",
-      "draft": "Brouillon"
-    }
+    "deleteSuccess": "Événement supprimé avec succès.",
+    "deleteFailed": "Échec de la suppression de l'événement.",
+    "finishedReadonly": "Cet événement est déjà terminé. Il est en lecture seule et ne peut plus être modifié."
   },
   "clients": {
     "title": "Clients",
@@ -317,7 +310,13 @@
     "coupleHint": "Le siège suivant sera réservé automatiquement pour votre partenaire.",
     "coupleAssigned": "Places de couple réservées avec succès.",
     "coupleNoAdjacent": "Impossible de réserver en couple : aucun siège adjacent disponible.",
-    "chairUnavailableForCouple": "Impossible de réserver en couple : le siège adjacent est déjà pris."
+    "chairUnavailableForCouple": "Impossible de réserver en couple : le siège adjacent est déjà pris.",
+    "finished": "Cet événement est déjà terminé, le placement ne peut donc plus être modifié.",
+    "seatAssigned": "Siège attribué avec succès.",
+    "reservationCancelled": "Réservation annulée avec succès.",
+    "cancelFailed": "Échec de l'annulation de la réservation.",
+    "assignFailed": "Échec de l'attribution du siège.",
+    "guestNameRequired": "Veuillez saisir le nom de l'invité."
   },
   "ticket": {
     "coupleLabel": "Réservation en couple"
@@ -332,6 +331,7 @@
     "preview": "Aperçu",
     "saved": "Modèle de billet mis à jour.",
     "saveError": "Échec de la mise à jour du modèle.",
+    "alreadyCurrent": "Ce modèle est déjà actif pour cet événement.",
     "entryLink": "Modèles de billet",
     "templates": {
       "classic": {
@@ -635,7 +635,20 @@
     "fillAllFields": "Veuillez remplir tous les champs obligatoires.",
     "roomNotConfigured": "Toutes les salles sélectionnées doivent être configurées avant de créer l'événement.",
     "startTimeInPast": "L'heure de début de l'événement ne peut pas être antérieure à l'heure actuelle.",
-    "createFailed": "Échec de la création de l'événement. Veuillez réessayer."
+    "createFailed": "Échec de la création de l'événement. Veuillez réessayer.",
+    "emailTaken": "Un compte avec cet email existe déjà.",
+    "usernameMinLength": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
+    "passwordMinLength": "Le mot de passe doit comporter au moins 8 caractères.",
+    "emailInvalidRaw": "Un email valide est requis.",
+    "nameRequired": "Le nom de l'organisation est requis.",
+    "credentialsRequired": "Le nom d'utilisateur et le mot de passe sont requis.",
+    "codeRequired": "Un code à 8 caractères est requis.",
+    "selectAtLeastOneRoom": "Sélectionnez au moins une salle pour cet événement.",
+    "cannotChangeRooms": "Les salles ne peuvent plus être modifiées une fois les billets émis.",
+    "roomNotFound": "Salle introuvable.",
+    "tableNotFound": "Table introuvable.",
+    "roomBooked": "La salle « {{room}} » est déjà réservée à cette période.",
+    "planLimitReached": "Votre limite de plan est atteinte. Mettez à niveau pour continuer."
   },
   "upgrade": {
     "titleBuildings": "Passez à un plan supérieur pour ajouter des bâtiments",

@@ -241,6 +241,17 @@ h1 {
   }
 }
 
+.sort-control app-custom-select {
+  min-width: 0;
+  width: 180px;
+}
+.sort-control app-custom-select .cs-trigger {
+  padding: 10px 14px;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* ── Status / empty states ── */
 .status-state {
   display: flex;

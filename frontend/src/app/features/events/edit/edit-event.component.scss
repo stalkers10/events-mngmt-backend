@@ -32,6 +32,25 @@
   gap: 0;
 }
 
+/* ── Read-only (finished) banner ── */
+.expired-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--color-surface-container-high);
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+  font-size: 13px;
+  font-weight: 600;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--color-primary-container);
+  }
+}
+
+
 /* ── Left panel ── */
 .left-panel {
   display: flex;

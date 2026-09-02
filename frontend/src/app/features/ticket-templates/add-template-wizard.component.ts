@@ -37,6 +37,9 @@ export class AddTemplateWizardComponent {
     'room_number', 'floor_number', 'table_number', 'chair_number',
     'paired_table_number', 'paired_chair_number', 'seating_label',
     'reservation_type', 'status', 'ticket_id', 'qr_token', 'qr_image',
+    'session_1_datetime', 'session_1_location', 'session_2_datetime', 'session_2_location',
+    'session_3_datetime', 'session_3_location', 'session_4_datetime', 'session_4_location',
+    'session_5_datetime', 'session_5_location', 'session_6_datetime', 'session_6_location',
   ];
 
   get singleTokenWarning(): string {
@@ -101,6 +104,10 @@ export class AddTemplateWizardComponent {
       venue: 'EventLocation#1',
       seating: 'PleaseRespondViaOurWebsiteMe26weddingComIndexPhpRsvp',
       qr: 'QrCodeContainer',
+      session1Start: 'EventDateTitle#1',
+      session1Venue: 'EventLocation#1',
+      session2Start: 'EventDateTitle#2',
+      session2Venue: 'EventLocation#2',
     };
     return examples[field];
   }

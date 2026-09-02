@@ -79,14 +79,12 @@
 
     <div class="sort-control">
       <span class="sort-label">{{ 'events.sortBy' | translate }}</span>
-      <select
-        class="sort-select"
-        [value]="sortOrder()"
-        (change)="setSortOrder($any($event.target).value)"
-      >
-        <option value="latest">{{ 'events.sortLatest' | translate }}</option>
-        <option value="oldest">{{ 'events.sortOldest' | translate }}</option>
-      </select>
+      <app-custom-select
+        [options]="sortOptions()"
+        [selected]="sortOrder()"
+        [placeholder]="('events.sortBy' | translate)"
+        (selectedChange)="setSortOrder($event)"
+      ></app-custom-select>
     </div>
   </div>
 
@@ -192,6 +190,8 @@
                     type="button"
                     class="btn btn-secondary btn-icon-only"
                     (click)="openEditPage(event.id)"
+                    [disabled]="!canEditSeating(event)"
+                    [attr.aria-disabled]="!canEditSeating(event)"
                     [title]="'common.edit' | translate"
                   >
                     <span class="material-symbols-outlined">edit</span>

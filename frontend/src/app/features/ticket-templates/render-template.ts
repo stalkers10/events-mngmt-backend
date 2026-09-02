@@ -17,8 +17,8 @@ function fmtTime(value: unknown): string {
 export function buildContext(details: any, qrDataUrl: string): TicketTemplateContext {
   const isCouple = details?.reservation_type === 'COUPLE';
   const seating = isCouple
-    ? `Table ${details?.table_number ?? ''} · Chairs ${details?.chair_number ?? ''} & ${details?.paired_chair_number ?? ''}`
-    : `Table ${details?.table_number ?? ''} · Chair ${details?.chair_number ?? ''}`;
+    ? `Room ${details?.room_number ?? ''} · Table ${details?.table_number ?? ''} · Chairs ${details?.chair_number ?? ''} & ${details?.paired_chair_number ?? ''}`
+    : `Room ${details?.room_number ?? ''} · Table ${details?.table_number ?? ''} · Chair ${details?.chair_number ?? ''}`;
   const qrImage = qrDataUrl
     ? `<img class="tpl-qr" src="${qrDataUrl.replace(/"/g, '&quot;')}" alt="Ticket QR code" />`
     : '';

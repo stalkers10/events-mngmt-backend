@@ -67,12 +67,7 @@ export class SignupComponent {
         },
         error: (err) => {
           this.isSubmitting.set(false);
-          const serverMsg = err?.error?.error;
-          if (typeof serverMsg === 'string' && serverMsg) {
-            this.toast.error(serverMsg);
-            return;
-          }
-          const description = describeHttpError(err, 'generic');
+          const description = describeHttpError(err, 'signup');
           this.toast.error(this.translation.t(description.key, description.params));
         },
       });

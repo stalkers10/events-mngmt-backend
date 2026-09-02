@@ -14,7 +14,8 @@ import { CustomSelectComponent, SelectOption } from '../../../shared/components/
 import { tableCircleSize } from '../../../core/utils/table-size';
 import { relaxTableLayout } from '../../../core/utils/table-layout';
 import { planLimitFromError } from '../../../core/utils/plan-limit.util';
-import { toErrorMessage } from '../../../core/utils/http-error.util';
+import { describeHttpError } from '../../../core/utils/http-error.util';
+import { isEventFinished } from '../../../core/utils/event-status';
 import { EventSummary } from '../../../core/models/dashboard.model';
 
 interface TableItem {
@@ -78,20 +79,24 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   sessions = signal<EventSession[]>([]);
 
   addSession(): void {
+    if (this.isExpired()) return;
     this.sessions.update((s) => [...s, { label: '', datetime: '', location: '' }]);
   }
 
   removeSession(index: number): void {
+    if (this.isExpired()) return;
     this.sessions.update((s) => s.filter((_, i) => i !== index));
   }
 
   updateSession(index: number, field: keyof EventSession, value: string): void {
+    if (this.isExpired()) return;
     this.sessions.update((s) =>
       s.map((item, i) => i === index ? { ...item, [field]: value } : item)
     );
   }
 
   saveSessions(): void {
+    if (this.isExpired()) return;
     this.isSavingSessions.set(true);
     // Convert datetime-local strings to ISO-8601 for storage
     const payload = this.sessions().map((s) => ({
@@ -139,6 +144,12 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   get isDraft(): boolean {
     return this.event()?.status === 'DRAFT';
   }
+
+  /** True when a published event has already finished (past its end time). */
+  readonly isExpired = computed(() => {
+    const ev = this.event();
+    return !!ev && isEventFinished(ev.end_time);
+  });
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   private setCurrentTables(next: TableItem[]): void {
@@ -280,6 +291,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   toggleRoomDropdown(): void {
+    if (this.isExpired()) return;
     this.roomDropdownOpen.update((c) => !c);
   }
 
@@ -288,6 +300,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   toggleRoomSelection(roomId: string): void {
+    if (this.isExpired()) return;
     this.selectedRoomIds.update((current) => {
       const next = current.includes(roomId)
         ? current.filter((id) => id !== roomId)
@@ -330,6 +343,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   generateLayout(): void {
+    if (this.isExpired()) return;
     const cols = 3;
     const spacingX = 220;
     const spacingY = 220;
@@ -366,12 +380,14 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   onTableClick(table: TableItem, event: MouseEvent): void {
+    if (this.isExpired()) return;
     event.stopPropagation();
     this.updateCurrentTables((tabs) => tabs.map((t) => ({ ...t, selected: t.id === table.id })));
     this.selectedTable.set({ ...table, selected: true });
   }
 
   onCanvasClick(): void {
+    if (this.isExpired()) return;
     this.updateCurrentTables((tabs) => tabs.map((t) => ({ ...t, selected: false })));
     this.selectedTable.set(null);
   }
@@ -385,6 +401,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   onTableMouseDown(table: TableItem, event: MouseEvent): void {
+    if (this.isExpired()) return;
     event.stopPropagation();
     if (event.button !== 0) return;
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
@@ -398,6 +415,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   updateChairs(chairs: number): void {
+    if (this.isExpired()) return;
     if (!this.selectedTable()) return;
     this.updateCurrentTables((tabs) =>
       tabs.map((t) => (t.id === this.selectedTable()!.id ? { ...t, chairs } : t))
@@ -406,6 +424,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   updateName(name: string): void {
+    if (this.isExpired()) return;
     if (!this.selectedTable()) return;
     this.updateCurrentTables((tabs) =>
       tabs.map((t) => (t.id === this.selectedTable()!.id ? { ...t, name } : t))
@@ -415,6 +434,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   }
 
   removeTable(): void {
+    if (this.isExpired()) return;
     if (!this.selectedTable()) return;
     this.updateCurrentTables((tabs) => tabs.filter((t) => t.id !== this.selectedTable()!.id));
     this.selectedTable.set(null);
@@ -487,6 +507,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   // ── Save Changes (update without publishing) ─────────────────────────────
 
   saveChanges(): void {
+    if (this.isExpired()) return;
     const name = this.eventName().trim();
     if (!name) {
       this.toast.error(this.i18n.t('events.nameRequired'));
@@ -521,8 +542,8 @@ export class EditEventComponent implements OnInit, AfterViewInit {
         },
         error: (err) => {
           this.isSaving.set(false);
-          const msg = toErrorMessage(err.error?.error ?? err.error);
-          this.toast.error(msg || this.i18n.t('errors.generic'));
+          const description = describeHttpError(err, 'generic');
+          this.toast.error(this.i18n.t(description.key, description.params));
         },
       });
     } else {
@@ -537,6 +558,7 @@ export class EditEventComponent implements OnInit, AfterViewInit {
   // ── Publish ──────────────────────────────────────────────────────────────
 
   publishEvent(): void {
+    if (this.isExpired()) return;
     this.submitted.set(true);
     const name = this.eventName().trim();
     const selectedRoomIds = this.selectedRoomIds();
@@ -580,18 +602,12 @@ export class EditEventComponent implements OnInit, AfterViewInit {
         this.isPublishing.set(false);
         const limit = planLimitFromError(err);
         if (limit) {
-          this.toast.warning(limit.reason);
+          this.toast.warning(this.i18n.t('errors.planLimitReached'));
           setTimeout(() => this.upgrade.show(limit), 350);
           return;
         }
-        const msg = toErrorMessage(err.error?.error ?? err.error);
-        if (msg?.includes('past')) {
-          this.toast.error(this.i18n.t('errors.startTimeInPast'));
-        } else if (msg?.includes('end time')) {
-          this.toast.error(this.i18n.t('events.endBeforeStart'));
-        } else {
-          this.toast.error(msg || this.i18n.t('errors.createFailed'));
-        }
+        const description = describeHttpError(err, 'generic');
+        this.toast.error(this.i18n.t(description.key, description.params));
       },
     });
   }
