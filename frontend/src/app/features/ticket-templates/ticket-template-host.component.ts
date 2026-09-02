@@ -67,9 +67,6 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
   };
 
   ngOnChanges(): void {
-    // The supplied boarding-pass artwork has a fixed 960px canvas. Set this
-    // before the iframe is created so its document viewport is never the
-    // legacy 360px template width (which crops its right-hand stub).
     this.naturalWidth = isBoardingPassDesign(this.templateId)
       ? 960
       : (this.htmlOverride || isCustomDesign(this.templateId) ? 360 : getTemplateNaturalWidth(this.templateId));
@@ -143,7 +140,8 @@ export class TicketTemplateHostComponent implements OnChanges, AfterViewInit, On
 
   /** Appends a script that reports the rendered size to the parent for proper scrolling/fit. */
   private injectMeasureScript(html: string): string {
-    const canvasStyle = isBoardingPassDesign(this.templateId)
+    const isWide = isBoardingPassDesign(this.templateId);
+    const canvasStyle = isWide
       ? '<style>html,body{margin:0;padding:0;width:960px;min-width:960px;overflow:hidden}</style>'
       : '<style>html,body{margin:0;padding:0}</style>';
     const script = canvasStyle +

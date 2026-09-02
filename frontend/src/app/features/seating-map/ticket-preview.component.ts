@@ -91,50 +91,81 @@ export class TicketPreviewComponent implements OnInit {
     const finish = () => this.isDownloading.set(false);
 
     if (isCustomDesign(designId)) {
-      this.buildCustomPdf(designId, t).then(finish).catch(() => {
+      this.buildCustomPdf(designId, t).then(finish).catch((err) => {
+        console.error('Custom PDF failed:', err);
         this.toast.error('Failed to generate PDF ticket.');
         finish();
       });
       return;
     }
 
-    this.buildStaticPdf(designId, t).then(finish).catch(() => {
+    this.buildStaticPdf(designId, t).then(finish).catch((err) => {
+      console.error('Static PDF failed:', err);
       this.toast.error('Failed to generate PDF ticket.');
       finish();
     });
   }
 
-  /** Static templates: render an unscaled copy off-screen so the PDF is exactly the ticket size. */
+  /** All static templates — rendered in an off-screen element at their exact
+   *  natural size so the PDF is exactly the ticket dimensions. Templates are
+   *  self-contained (inline styles + system fonts) so html2canvas needs no
+   *  network requests or cross-origin access. */
   private async buildStaticPdf(designId: string, t: any): Promise<void> {
     const qr = t.qr_token ? await QRCode.toDataURL(t.qr_token, { errorCorrectionLevel: 'H', width: 240, margin: 1 }) : '';
     const ctx = buildContext(t, qr);
     const html = renderTemplateHtml(getHtmlForDesign(designId), ctx);
-
-    const width = getTemplateNaturalWidth(designId);
-    // For wide boarding-pass style tickets (960px) the natural height is 400px.
-    // We must set both dimensions explicitly so the off-screen div doesn't
-    // collapse and clip the right-hand stub section.
-    const height = (designId === 'boarding-single' || designId === 'boarding-couple' ||
-                    designId === 'anniversary-single' || designId === 'anniversary-couple' ||
-                    designId === 'simple-single' || designId === 'simple-couple') ? 400 : 'auto';
+    const W = getTemplateNaturalWidth(designId);
+    const H = isBoardingPassDesign(designId) ? 400 : undefined;
 
     const host = document.createElement('div');
-    host.style.cssText = `position:absolute;left:-99999px;top:0;width:${width}px;${height !== 'auto' ? `height:${height}px;` : ''}overflow:visible;`;
+    host.style.cssText =
+      `position:absolute;left:-99999px;top:0;width:${W}px;${H ? `height:${H}px;` : ''}overflow:hidden;`;
     host.innerHTML = html;
+    // html2canvas's flexbox engine collapses `inline-flex` root containers to a
+    // fraction of their width (all content squashed left, stub/QR pushed out of
+    // the capture). Rendered identically in the browser for the preview, so
+    // normalize only the captured root to `flex` for a faithful PDF. Column
+    // roots (designer boarding-pass) are left untouched.
+    const rootEl = host.firstElementChild as HTMLElement | null;
+    if (rootEl && rootEl.style.display === 'inline-flex' && rootEl.style.flexDirection !== 'column') {
+      rootEl.style.display = 'flex';
+    }
     document.body.appendChild(host);
 
-    // Give fonts and images a moment to load before capturing
-    await new Promise(r => setTimeout(r, 400));
+    // Wait for any <link> stylesheets (e.g. Google Fonts) injected by the
+    // template to load, then for the webfont faces themselves to be ready,
+    // so the PDF captures the correct custom font instead of a generic fallback.
+    const links = Array.from(host.querySelectorAll('link[rel="stylesheet"]'));
+    await Promise.all([
+      new Promise<void>((resolve) => {
+        if (!links.length) return resolve();
+        let remaining = links.length;
+        const settle = () => { if (--remaining <= 0) resolve(); };
+        links.forEach((l) => {
+          l.addEventListener('load', settle);
+          l.addEventListener('error', settle);
+        });
+      }),
+      document.fonts?.ready?.catch?.(() => undefined) ?? Promise.resolve(),
+      new Promise((r) => setTimeout(r, 400)),
+    ]);
+
+    const captureH = H ?? host.scrollHeight;
 
     try {
       const canvas = await html2canvas(host, {
         backgroundColor: '#ffffff',
         scale: 2,
-        width,
-        height: height !== 'auto' ? height as number : host.scrollHeight,
-        windowWidth: width,
+        width: W,
+        height: captureH,
+        windowWidth: W,
+        windowHeight: captureH,
         useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
       });
+
       const pdf = new jsPDF({
         orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
         unit: 'pt',
