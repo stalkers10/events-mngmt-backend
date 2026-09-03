@@ -64,6 +64,9 @@
   background: #0a0a0a;
   box-shadow: var(--shadow-level-2);
 }
+.scanner-frame.hidden {
+  display: none;
+}
 
 .scanner-preview {
   width: 100%;

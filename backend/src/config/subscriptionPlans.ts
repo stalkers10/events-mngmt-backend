@@ -18,7 +18,8 @@ export interface SubscriptionPlan {
     eventCreationsPerPeriod: number | null;
     tablesPerEvent: number | null;
   };
-  features: string[];
+  /** Marketing feature rows. `key` maps to an i18n key under `billing.planFeatures.*`; */
+  features: { key: string; available: boolean }[];
 }
 
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> = {
@@ -28,15 +29,27 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
     priceXaf: 0,
     interval: 'MONTHLY',
     limits: { buildings: 1, eventCreationsPerPeriod: 2, tablesPerEvent: 8 },
-    features: ['Venue management', 'Event seating', 'QR tickets', 'Gate check-in'],
+    features: [
+      { key: 'buildings', available: true },
+      { key: 'eventsPerMonth', available: true },
+      { key: 'basicScan', available: true },
+      { key: 'csvExport', available: false },
+      { key: 'support', available: false },
+    ],
   },
   GO: {
     code: 'GO',
     name: 'Go',
     priceXaf: 10,
     interval: 'MONTHLY',
-    limits: { buildings: 3, eventCreationsPerPeriod: 4, tablesPerEvent: 13 },
-    features: ['Everything in Free', 'Up to 3 buildings', '4 event creations per month', 'Up to 13 tables per event'],
+    limits: { buildings: 3, eventCreationsPerPeriod: 15, tablesPerEvent: 13 },
+    features: [
+      { key: 'buildings', available: true },
+      { key: 'eventsPerMonth', available: true },
+      { key: 'gateStaff', available: true },
+      { key: 'instantExport', available: true },
+      { key: 'phoneSupport', available: false },
+    ],
   },
   PRO: {
     code: 'PRO',
@@ -44,7 +57,13 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
     priceXaf: 15,
     interval: 'MONTHLY',
     limits: { buildings: null, eventCreationsPerPeriod: null, tablesPerEvent: null },
-    features: ['Everything in Go', 'Unlimited buildings', 'Unlimited event creation', 'Unlimited tables per event'],
+    features: [
+      { key: 'unlimitedBuildings', available: true },
+      { key: 'unlimitedEvents', available: true },
+      { key: 'unlimitedStaffQr', available: true },
+      { key: 'vipSuites', available: true },
+      { key: 'concierge', available: true },
+    ],
   },
 };
 

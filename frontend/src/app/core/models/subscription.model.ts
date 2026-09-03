@@ -1,6 +1,11 @@
 export type SubscriptionPlanCode = 'FREE' | 'GO' | 'PRO';
 export type SubscriptionStatus = 'FREE' | 'PENDING_PAYMENT' | 'ACTIVE' | 'PAST_DUE' | 'CANCEL_AT_PERIOD_END' | 'EXPIRED';
 
+export interface SubscriptionPlanFeature {
+  key: string;
+  available: boolean;
+}
+
 export interface SubscriptionPlan {
   code: SubscriptionPlanCode;
   name: string;
@@ -11,7 +16,7 @@ export interface SubscriptionPlan {
     eventCreationsPerPeriod: number | null;
     tablesPerEvent: number | null;
   };
-  features: string[];
+  features: SubscriptionPlanFeature[];
 }
 
 export interface SubscriptionSummary {
@@ -27,4 +32,14 @@ export interface SubscriptionSummary {
 export interface SubscriptionUsage {
   buildings: { used: number; limit: number | null };
   eventCreations: { used: number; limit: number | null; periodStart: string };
+}
+
+export interface Invoice {
+  id: string;
+  number: string;
+  date: string;
+  amountXaf: number;
+  currency: string;
+  status: string;
+  clientName?: string;
 }

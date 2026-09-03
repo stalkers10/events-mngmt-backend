@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { SubscriptionPlan, SubscriptionSummary, SubscriptionUsage } from '../models/subscription.model';
+import { SubscriptionPlan, SubscriptionSummary, SubscriptionUsage, Invoice } from '../models/subscription.model';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
@@ -18,6 +18,10 @@ export class SubscriptionService {
 
   usage(): Observable<SubscriptionUsage> {
     return this.http.get<SubscriptionUsage>(`${environment.apiUrl}/billing/usage`);
+  }
+
+  invoices(): Observable<Invoice[]> {
+    return this.http.get<Invoice[]>(`${environment.apiUrl}/billing/invoices`);
   }
 
   checkout(planCode: 'GO' | 'PRO', phone: string): Observable<{ paymentId: string; reference: string; status: string; ussdCode?: string }> {

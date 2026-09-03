@@ -1,59 +1,173 @@
-<section class="billing-page">
-  <header class="page-header">
-    <div>
+<div class="billing-page">
+  <header class="page-intro">
+    <div class="intro-left">
       <p class="eyebrow">{{ 'billing.eyebrow' | translate }}</p>
-      <h1 class="text-display-lg">{{ 'billing.title' | translate }}</h1>
+      <h1>{{ 'billing.title' | translate }}</h1>
       <p class="subtitle">{{ 'billing.subtitle' | translate }}</p>
+    </div>
+    <div class="security-pill">
+      <svg class="shield-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path clip-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"/>
+      </svg>
+      <span>{{ 'billing.securityPill' | translate }}</span>
     </div>
   </header>
 
   @if (isLoading()) {
     <div class="loading card"><span class="material-symbols-outlined spin">progress_activity</span>{{ 'common.loading' | translate }}</div>
   } @else if (subscription() && usage()) {
-    <section class="overview-grid">
-      <article class="current-plan card">
-        <span class="eyebrow">{{ 'billing.currentPlan' | translate }}</span>
-        <div class="plan-heading"><h2>{{ subscription()!.plan.name }}</h2><span class="status-chip">{{ subscription()!.status }}</span></div>
-        <p class="price">{{ price(subscription()!.plan) }}</p>
-        <p class="period">{{ 'billing.periodStarted' | translate }} {{ subscription()!.currentPeriodStart | date:'mediumDate' }}</p>
-        @if (subscription()!.plan.code !== 'FREE') {
-          <p class="period">{{ 'billing.accessUntil' | translate }} {{ subscription()!.currentPeriodEnd | date:'mediumDate' }}</p>
-          <button type="button" class="renewal-button" (click)="manageCancellation()">{{ subscription()!.cancelAtPeriodEnd ? ('billing.resume' | translate) : ('billing.cancelRenewal' | translate) }}</button>
-        }
-      </article>
+    <!-- Active Plan Hero -->
+    <section class="current-plan-card">
+      <div class="hero-accent" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-row">
+          <div class="hero-left">
+            <div class="hero-labels">
+              <span class="plan-eyebrow">{{ 'billing.currentPlan' | translate }}</span>
+              <span class="status-chip active">{{ statusLabel() }}</span>
+            </div>
+            <div class="hero-title-row">
+              <h2 class="plan-name">{{ planName(subscription()!.plan) }}</h2>
+              <div class="hero-price">
+                <span class="amount">{{ priceAmount(subscription()!.plan) }}</span>
+                @if (subscription()!.plan.priceXaf !== 0) {
+                  <span class="period">{{ 'billing.pricePerMonth' | translate }}</span>
+                }
+              </div>
+            </div>
+            <div class="hero-period">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>{{ 'billing.periodStarted' | translate }} <strong>{{ subscription()!.currentPeriodStart | date:'mediumDate' }}</strong> • {{ 'billing.accessUntil' | translate }} <strong>{{ (subscription()!.currentPeriodEnd ?? subscription()!.currentPeriodStart) | date:'mediumDate' }}</strong></span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <button type="button" class="btn-hero primary" (click)="openCheckout(subscription()!.plan)">{{ 'billing.btnModifyPlan' | translate }}</button>
+            @if (subscription()!.plan.code !== 'FREE') {
+              <button type="button" class="btn-hero ghost" (click)="manageCancellation()">{{ subscription()!.cancelAtPeriodEnd ? ('billing.resume' | translate) : ('billing.cancelRenewal' | translate) }}</button>
+            }
+          </div>
+        </div>
 
-      <article class="usage-card card">
-        <div class="usage-title"><span>{{ 'billing.buildings' | translate }}</span><strong>{{ usage()!.buildings.used }} / {{ limit(usage()!.buildings.limit) }}</strong></div>
-        @if (usage()!.buildings.limit !== null) { <div class="progress"><span [style.width.%]="percent(usage()!.buildings.used, usage()!.buildings.limit)"></span></div> }
-      </article>
-
-      <article class="usage-card card">
-        <div class="usage-title"><span>{{ 'billing.events' | translate }}</span><strong>{{ usage()!.eventCreations.used }} / {{ limit(usage()!.eventCreations.limit) }}</strong></div>
-        @if (usage()!.eventCreations.limit !== null) { <div class="progress"><span [style.width.%]="percent(usage()!.eventCreations.used, usage()!.eventCreations.limit)"></span></div> }
-      </article>
+        <div class="quota-section">
+          <h3 class="quota-title">{{ 'billing.quoteTitle' | translate }}</h3>
+          <div class="quota-grid">
+            <div class="quota-card">
+              <div class="quota-head">
+                <span class="quota-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect height="20" rx="2" width="16" x="4" y="2"></rect></svg>
+                  {{ 'billing.buildingsQuota' | translate }}
+                </span>
+                <span class="quota-value">{{ usage()!.buildings.used }} / {{ limit(usage()!.buildings.limit) }}</span>
+              </div>
+              <div class="progress"><span [style.width.%]="percent(usage()!.buildings.used, usage()!.buildings.limit)"></span></div>
+              <p class="quota-hint">{{ 'billing.buildingsHint' | translate }}</p>
+            </div>
+            <div class="quota-card">
+              <div class="quota-head">
+                <span class="quota-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect height="18" rx="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line></svg>
+                  {{ 'billing.eventsQuota' | translate }}
+                </span>
+                <span class="quota-value">{{ usage()!.eventCreations.used }} / {{ limit(usage()!.eventCreations.limit) }}</span>
+              </div>
+              <div class="progress"><span [style.width.%]="percent(usage()!.eventCreations.used, usage()!.eventCreations.limit)"></span></div>
+              <p class="quota-hint">{{ 'billing.eventsHint' | translate }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="plans-section">
-      <div class="section-heading"><h2>{{ 'billing.choosePlan' | translate }}</h2><p>{{ 'billing.choosePlanHint' | translate }}</p></div>
-      <div class="plans-grid">
+    <!-- Pricing Tiers -->
+    <section class="tiers-section">
+      <div class="tiers-heading">
+        <h2>{{ 'billing.choosePlan' | translate }}</h2>
+        <p>{{ 'billing.choosePlanHint' | translate }}</p>
+      </div>
+      <div class="tiers-grid">
         @for (plan of plans(); track plan.code) {
-          <article class="plan-card card" [class.current]="isCurrentPlan(plan)">
-            <span class="plan-label">{{ plan.name }}</span>
-            <h3>{{ price(plan) }}</h3>
-            <span class="current-badge" *ngIf="isCurrentPlan(plan)">{{ 'billing.current' | translate }}</span>
-            <ul>
-              <li>{{ limit(plan.limits.buildings) }} {{ 'billing.buildings' | translate }}</li>
-              <li>{{ limit(plan.limits.eventCreationsPerPeriod) }} {{ 'billing.eventsPerMonth' | translate }}</li>
-              <li>{{ limit(plan.limits.tablesPerEvent) }} {{ 'billing.tablesPerEvent' | translate }}</li>
-              @for (feature of plan.features; track feature) { <li>{{ feature }}</li> }
-            </ul>
-            @if (!isCurrentPlan(plan)) {
-              <button type="button" class="btn btn-primary" [disabled]="plan.priceXaf === 0" (click)="openCheckout(plan)">{{ 'billing.upgrade' | translate }}</button>
-            }
+          <article class="tier-card" [class.current]="isCurrentPlan(plan)">
+            @if (isCurrentPlan(plan)) { <span class="tier-current-badge">{{ 'billing.current' | translate }}</span> }
+            <div class="tier-body">
+              <span class="tier-tagline">{{ tagline(plan) }}</span>
+              <h3 class="tier-name">{{ planName(plan) }}</h3>
+              <div class="tier-price">
+                <span class="tier-amount">{{ priceAmount(plan) }}</span>
+                <span class="tier-period">{{ 'billing.pricePerMonth' | translate }}</span>
+              </div>
+              <p class="tier-sub">{{ planSubtitle(plan) }}</p>
+              <ul class="tier-features">
+                @for (feature of plan.features; track feature.key) {
+                  <li class="feature" [class.muted]="!feature.available">
+                    @if (feature.available) {
+                      <span class="check available"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    } @else {
+                      <span class="check not"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg></span>
+                    }
+                    <span [innerHTML]="featureText(plan, feature)"></span>
+                  </li>
+                }
+              </ul>
+            </div>
+            <div class="tier-foot">
+              @if (!isCurrentPlan(plan)) {
+                <button type="button" class="tier-btn" [class.outline]="plan.code !== 'FREE'" [class.base-disabled]="plan.priceXaf === 0" [disabled]="plan.priceXaf === 0" (click)="openCheckout(plan)">{{ plan.priceXaf === 0 ? ('billing.btnBase' | translate) : ('billing.btnChoose' | translate) }}</button>
+              } @else {
+                <button type="button" class="tier-btn current-plan" disabled>
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                  {{ 'billing.btnCurrent' | translate }}
+                </button>
+              }
+            </div>
           </article>
         }
       </div>
     </section>
+
+    <!-- Invoice History -->
+    <section class="invoices-section">
+      <div class="invoice-head">
+        <div>
+          <h3>{{ 'billing.invoiceTitle' | translate }}</h3>
+          <p>{{ 'billing.invoiceSubtitle' | translate }}</p>
+        </div>
+        @if (invoices().length) { <button type="button" class="export-all" (click)="exportAllInvoices()">{{ 'billing.invoiceExportAll' | translate }}</button> }
+      </div>
+      @if (invoices().length) {
+        <div class="invoice-table-wrap">
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>{{ 'billing.invoiceColNumber' | translate }}</th>
+                <th>{{ 'billing.invoiceColDate' | translate }}</th>
+                <th>{{ 'billing.invoiceColAmount' | translate }}</th>
+                <th>{{ 'billing.invoiceColStatus' | translate }}</th>
+                <th class="ta-right">{{ 'billing.invoiceColReceipt' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of invoices()">
+                <td class="invoice-no">{{ invoice.number }}</td>
+                <td>{{ invoice.date | date:'mediumDate' }}</td>
+                <td class="invoice-amount">{{ invoiceAmount(invoice) }}</td>
+                <td>
+                  <span class="invoice-status" [class.paid]="invoice.status === 'SUCCESSFUL'">{{ invoiceStatusLabel(invoice.status) }}</span>
+                </td>
+                <td class="ta-right">
+                  <button type="button" class="receipt-btn" (click)="downloadInvoice(invoice)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                    {{ 'billing.invoicePdf' | translate }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="invoice-empty">{{ 'billing.invoiceEmpty' | translate }}</p>
+      }
+    </section>
   }
-  @if (selectedPlan()) { <div class="modal-backdrop"><section class="checkout-modal card"><button class="close" (click)="closeCheckout()">×</button><p class="eyebrow">{{ 'billing.checkout' | translate }}</p><h2>{{ selectedPlan()!.name }} - {{ price(selectedPlan()!) }}</h2><label>{{ 'billing.phone' | translate }}<input [(ngModel)]="phone" placeholder="2376XXXXXXXX" [disabled]="checkoutLoading()" /></label><p class="payment-message" *ngIf="paymentMessage()">{{ paymentMessage() }}</p><button class="btn btn-primary" (click)="submitCheckout()" [disabled]="checkoutLoading() || phone.length < 9">{{ checkoutLoading() ? ('common.processing' | translate) : ('billing.confirmPayment' | translate) }}</button></section></div> }
-</section>
+
+  @if (selectedPlan()) { <div class="modal-backdrop"><section class="checkout-modal card"><button class="close" (click)="closeCheckout()">×</button><p class="eyebrow">{{ 'billing.checkout' | translate }}</p><h2>{{ planName(selectedPlan()!) }} - {{ priceAmount(selectedPlan()!) }}</h2><label>{{ 'billing.phone' | translate }}<input [(ngModel)]="phone" placeholder="2376XXXXXXXX" [disabled]="checkoutLoading()" /></label><p class="payment-message" *ngIf="paymentMessage()">{{ paymentMessage() }}</p><button class="btn btn-primary" (click)="submitCheckout()" [disabled]="checkoutLoading() || phone.length < 9">{{ checkoutLoading() ? ('common.processing' | translate) : ('billing.confirmPayment' | translate) }}</button></section></div> }
+</div>

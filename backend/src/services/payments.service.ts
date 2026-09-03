@@ -33,6 +33,29 @@ export const PaymentsService = {
     );
     return result.rows;
   },
+  /** Client-facing invoice history: issued/payable invoice records derived from
+   * successful and pending payment transactions. */
+  async listInvoicesForClient(clientId: string) {
+    const result = await query(
+      `SELECT pt.id, pt.intended_plan_code, pt.amount_xaf, pt.currency, pt.status,
+              pt.initiated_at, pt.confirmed_at, pt.created_at,
+              u.name AS client_name, u.username AS client_username
+       FROM payment_transactions pt
+       JOIN users u ON u.id = pt.client_id
+       WHERE pt.client_id = $1 AND pt.status IN ('SUCCESSFUL', 'PENDING', 'FAILED', 'EXPIRED', 'CANCELLED')
+       ORDER BY pt.created_at DESC`,
+      [clientId],
+    );
+    return result.rows.map((row) => ({
+      id: row.id,
+      number: `INV-${String(row.created_at).slice(0, 10)}-${row.id.slice(0, 4).toUpperCase()}`,
+      date: row.initiated_at ?? row.created_at,
+      amountXaf: row.amount_xaf,
+      currency: row.currency,
+      status: row.status,
+      clientName: row.client_name ?? row.client_username ?? '',
+    }));
+  },
   async checkout(
     clientId: string,
     planCode: SubscriptionPlanCode,

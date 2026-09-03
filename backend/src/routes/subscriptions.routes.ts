@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PUBLIC_SUBSCRIPTION_PLANS } from '../config/subscriptionPlans';
 import { requireAuth, requireRole } from '../middlewares/auth.middleware';
 import { SubscriptionsService } from '../services/subscriptions.service';
+import { PaymentsService } from '../services/payments.service';
 import { RoleType } from '../types/auth';
 
 const router = Router();
@@ -47,6 +48,15 @@ router.post('/resume', async (req: Request, res: Response) => {
     res.json(await SubscriptionsService.resumeRenewal(req.user!.clientId!));
   } catch (error: any) {
     res.status(error.statusCode ?? 500).json({ error: error.message });
+  }
+});
+
+router.get('/invoices', async (req: Request, res: Response) => {
+  try {
+    res.json(await PaymentsService.listInvoicesForClient(req.user!.clientId!));
+  } catch (error) {
+    console.error('Failed to fetch invoice history:', error);
+    res.status(500).json({ error: 'Failed to fetch invoice history' });
   }
 });
 

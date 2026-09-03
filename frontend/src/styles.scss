@@ -218,6 +218,7 @@ textarea {
 .btn-primary {
   background-color: var(--color-primary-container);
   color: var(--color-on-primary);
+  text-decoration: none;
 }
 .btn-primary:hover {
   box-shadow: var(--shadow-level-2);

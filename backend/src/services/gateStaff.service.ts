@@ -68,9 +68,9 @@ export const GateStaffService = {
 
     for (const eventId of eventIds) {
       await query(
-        `INSERT INTO gate_staff_assignments (user_id, event_id, client_id) VALUES ($1, $2, $3)
+        `INSERT INTO gate_staff_assignments (user_id, event_id) VALUES ($1, $2)
          ON CONFLICT (user_id, event_id) DO NOTHING`,
-        [user.id, eventId, effectiveClientId]
+        [user.id, eventId]
       );
     }
 
@@ -136,12 +136,11 @@ export const GateStaffService = {
       const event = await EventsService.getById(eventId, userRole, clientId);
       if (!event) throw new NotFoundOrForbiddenError('Event not found or access denied');
     }
-    
-    const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
+
     await query(
-      `INSERT INTO gate_staff_assignments (user_id, event_id, client_id) VALUES ($1, $2, $3)
+      `INSERT INTO gate_staff_assignments (user_id, event_id) VALUES ($1, $2)
        ON CONFLICT (user_id, event_id) DO NOTHING`,
-      [userId, eventId, effectiveClientId]
+      [userId, eventId]
     );
   },
 

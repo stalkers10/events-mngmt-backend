@@ -6,8 +6,8 @@
       <span class="material-symbols-outlined icon-filled">qr_code_scanner</span>
     </div>
     <div>
-      <h1 class="scanner-header__title">Gate Scanner</h1>
-      <p class="scanner-header__sub">Point the camera at a QR code or enter the token manually.</p>
+      <h1 class="scanner-header__title">{{ 'scanner.title' | translate }}</h1>
+      <p class="scanner-header__sub">{{ 'scanner.subtitle' | translate }}</p>
     </div>
   </header>
 
@@ -21,14 +21,14 @@
       <span class="material-symbols-outlined icon-filled">check_circle</span>
     </div>
 
-    <h2 class="result-title">Access Granted</h2>
+    <h2 class="result-title">{{ 'scanner.accessGranted' | translate }}</h2>
     <p class="result-subtitle">{{ scanResult!.message }}</p>
 
     <div class="result-details" *ngIf="scanResult!.details as d">
       <div class="detail-chip">
         <span class="material-symbols-outlined">person</span>
         <span class="detail-chip__body">
-          <span class="detail-chip__label">Guest</span>
+          <span class="detail-chip__label">{{ 'scanner.labelGuest' | translate }}</span>
           <span class="detail-chip__value">{{ d.invitee_name }}</span>
         </span>
       </div>
@@ -36,7 +36,7 @@
       <div class="detail-chip">
         <span class="material-symbols-outlined">event</span>
         <span class="detail-chip__body">
-          <span class="detail-chip__label">Event</span>
+          <span class="detail-chip__label">{{ 'scanner.labelEvent' | translate }}</span>
           <span class="detail-chip__value">{{ d.event_name }}</span>
         </span>
       </div>
@@ -44,24 +44,24 @@
       <div class="detail-chip">
         <span class="material-symbols-outlined">chair</span>
         <span class="detail-chip__body">
-          <span class="detail-chip__label">Seat</span>
-          <span class="detail-chip__value">Table {{ d.table_number }} &middot; Chair {{ d.chair_number }}</span>
+          <span class="detail-chip__label">{{ 'scanner.labelSeat' | translate }}</span>
+          <span class="detail-chip__value">{{ 'scanner.seatValue' | translate: { table: d.table_number, chair: d.chair_number } }}</span>
         </span>
       </div>
 
       <div class="detail-chip">
         <span class="material-symbols-outlined">schedule</span>
         <span class="detail-chip__body">
-          <span class="detail-chip__label">Checked in</span>
+          <span class="detail-chip__label">{{ 'scanner.labelCheckedIn' | translate }}</span>
           <span class="detail-chip__value">{{ d.checked_in_at | date:'shortTime' }}</span>
         </span>
       </div>
     </div>
 
     <div class="countdown-bar">
-      <div class="countdown-bar__fill countdown-bar__fill--success" style="animation-duration: 5s"></div>
+      <div class="countdown-bar__fill countdown-bar__fill--success" style="animation-duration: 7s"></div>
     </div>
-    <p class="countdown-label">Resuming scanner in a moment…</p>
+    <p class="countdown-label">{{ 'scanner.resuming' | translate }}</p>
   </div>
 
   <!-- ❌ ERROR -->
@@ -70,33 +70,34 @@
       <span class="material-symbols-outlined icon-filled">cancel</span>
     </div>
 
-    <h2 class="result-title">Access Denied</h2>
+    <h2 class="result-title">{{ 'scanner.accessDenied' | translate }}</h2>
     <p class="result-subtitle">{{ scanResult.message }}</p>
 
     <div class="countdown-bar">
-      <div class="countdown-bar__fill countdown-bar__fill--error" style="animation-duration: 3s"></div>
+      <div class="countdown-bar__fill countdown-bar__fill--error" style="animation-duration: 5s"></div>
     </div>
-    <p class="countdown-label">Resuming scanner in a moment…</p>
+    <p class="countdown-label">{{ 'scanner.resuming' | translate }}</p>
   </div>
 
   <!-- ────────────────────────────────────────────────
-       CAMERA VIEW — shown while scanning
+       CAMERA VIEW — video stays mounted so the stream survives scans;
+       overlays hide while a result is displayed
        ──────────────────────────────────────────────── -->
-  <div class="scanner-frame" *ngIf="!scanResult">
+  <div class="scanner-frame" [class.hidden]="!!scanResult">
 
-    <!-- Video feed -->
+    <!-- Video feed (always mounted) -->
     <video
       #video
       class="scanner-preview"
       muted
       playsinline
       autoplay
-      aria-label="Camera preview for QR scanner"
+      [attr.aria-label]="'scanner.videoLabel' | translate"
     ></video>
     <canvas #canvas hidden></canvas>
 
     <!-- Animated viewfinder (only when camera active and not processing) -->
-    <div class="viewfinder" *ngIf="cameraSupported && !isSubmitting" aria-hidden="true">
+    <div class="viewfinder" *ngIf="cameraSupported && !isSubmitting && !scanResult" aria-hidden="true">
       <div class="viewfinder__corner viewfinder__corner--tl"></div>
       <div class="viewfinder__corner viewfinder__corner--tr"></div>
       <div class="viewfinder__corner viewfinder__corner--bl"></div>
@@ -107,13 +108,13 @@
     <!-- Verifying spinner -->
     <div class="scanner-loading" *ngIf="isSubmitting" aria-live="polite">
       <div class="scanner-loading__spinner"></div>
-      <p class="scanner-loading__text">Verifying ticket…</p>
+      <p class="scanner-loading__text">{{ 'scanner.verifying' | translate }}</p>
     </div>
 
     <!-- Camera unavailable banner -->
     <div class="scanner-no-camera" *ngIf="!cameraSupported">
       <span class="material-symbols-outlined">no_photography</span>
-      <span>Camera unavailable — use the manual input below.</span>
+      <span>{{ 'scanner.noCamera' | translate }}</span>
     </div>
   </div>
 
@@ -122,12 +123,12 @@
        ──────────────────────────────────────────────── -->
   <form class="manual-form" (ngSubmit)="submitManualToken()">
     <div class="form-field">
-      <label for="qrToken">Manual QR Token</label>
+      <label for="qrToken">{{ 'scanner.manualTokenLabel' | translate }}</label>
       <input
         id="qrToken"
         name="qrToken"
         type="text"
-        placeholder="Paste QR token here"
+        [attr.placeholder]="'scanner.manualTokenPlaceholder' | translate"
         [(ngModel)]="manualToken"
         [disabled]="isSubmitting"
         autocomplete="off"
@@ -141,7 +142,7 @@
       [disabled]="!manualToken.trim() || isSubmitting"
     >
       <span class="material-symbols-outlined" aria-hidden="true">{{ isSubmitting ? 'hourglass_empty' : 'qr_code' }}</span>
-      {{ isSubmitting ? 'Scanning…' : 'Scan Token' }}
+      {{ isSubmitting ? ('scanner.scanning' | translate) : ('scanner.scanToken' | translate) }}
     </button>
   </form>
 

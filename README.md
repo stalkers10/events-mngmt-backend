@@ -109,3 +109,57 @@ npm start   # starts on http://localhost:4200
 - **Email (OTP):** requires a real SMTP relay (e.g. Brevo) with a *verified sender* and the SMTP-specific key (not your account password) — see chat history for the exact steps if you hit a `535` or silent-delivery issue.
 - **Security reminder:** Angular route guards are UX convenience only. The Express `requireRole` middleware is the actual enforcement boundary — this was tested directly (Gate Staff → 403 on Admin routes).
 - Full specification: see `Elite_Events_Specification.pdf` / `project1_updated.md` (provided separately in chat).
+
+## Deployment
+
+The app is split into two deployables:
+
+| Part | Stack | Host | Files |
+|------|-------|------|-------|
+| Backend API | Express + TypeScript + PostgreSQL | **Render** | `render.yaml`, `backend/` |
+| Frontend | Angular 18 static SPA | **Vercel** | `frontend/vercel.json`, `frontend/src/environments/environment.prod.ts` |
+
+### Backend — Render
+
+A [`render.yaml`](./render.yaml) Blueprint is included. Two options:
+
+**Option A — Blueprint (recommended, creates DB too):**
+1. Push this repo to GitHub.
+2. Render → **New +** → **Blueprint** → select the repo.
+3. Render creates a PostgreSQL database and the web service automatically.
+4. Before the service starts, set the **secret env vars** (Marked `sync: false` in the blueprint, so they must be provided in the dashboard → Environment — otherwise the app fails to boot because `src/config/env.ts` requires them):
+   - `JWT_SECRET` — long random string
+   - `ADMIN_USERNAME`, `ADMIN_PASSWORD`
+   - `ADMIN_OTP_EMAIL`
+5. Run migrations once (Render console/shell in the service):
+   ```bash
+   npm run migrate:up
+   ```
+6. The service starts with `npm start` → `node dist/server.js` on the `PORT` Render assigns. Health check at `/health`.
+
+**Option B — Manual web service (DB already exists):**
+- Root directory: `backend`
+- Build: `npm install && npm run build`
+- Start: `npm start`
+- Set all required env vars listed above, plus `DATABASE_URL` pointing at your existing Postgres.
+
+**CORS:** the API only allows origin `FRONTEND_URL` (see `backend/src/app.ts`). Set `FRONTEND_URL` (and `LOCAL_URL`) to your Vercel URL. If you hit CORS errors, that's the variable to change.
+
+### Frontend — Vercel
+
+1. Push the repo to GitHub and import `frontend/` on Vercel (or the repo root and set the framework to **Angular**).
+2. `vercel.json` is already configured: build `npm install && npx ng build --configuration=production`, output `dist/frontend/browser`, with an SPA rewrite so deep links serve `index.html`.
+3. **Point the API at Render** — update `frontend/src/environments/environment.prod.ts`:
+   ```ts
+   export const environment = {
+     production: true,
+     apiUrl: 'https://<your-render-service>.onrender.com',
+   };
+   ```
+   (Replace the placeholder before/at deploy time.)
+
+### After deploying
+
+1. Open Vercel's URL → log in as the Admin you set in `ADMIN_USERNAME`/`ADMIN_PASSWORD`.
+2. Baseline is the Free plan; checkout (CamPay) and upgrades run in sandbox mode until you add CamPay production keys.
+

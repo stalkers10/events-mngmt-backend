@@ -1,0 +1,54 @@
+# Render Blueprint — Elite Events backend (Express API + PostgreSQL)
+#
+# Usage:
+#   1. Push this repo to GitHub.
+#   2. On Render, "New +" -> "Blueprint" -> select the repo.
+#   3. Render provisions PostgreSQL and a web service using this file.
+#   4. Replace the ENV_PLACEHOLDER values with real secrets before/after deploy
+#      (you can edit them in the Render dashboard -> Environment).
+#   5. Run migrations once (Render console or shell):
+#        npm run migrate:up
+#
+# Recommended option: create the PostgreSQL separately, or let this file create it.
+
+databases:
+  - name: elite-events-db
+    plan: free
+    databaseName: elite_events
+    user: elite_events
+
+services:
+  - type: web
+    name: elite-events-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elite-events-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false              # set a strong secret in the dashboard
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_OTP_EMAIL
+        sync: false
+      - key: FRONTEND_URL
+        value: https://elite-events.vercel.app
+      - key: LOCAL_URL
+        value: https://elite-events.vercel.app
+      # CamPay (optional; defaults to sandbox)
+      - key: CAMPAY_MODE
+        value: sandbox
