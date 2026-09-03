@@ -4,12 +4,13 @@
 #   1. Push this repo to GitHub.
 #   2. On Render, "New +" -> "Blueprint" -> select the repo.
 #   3. Render provisions PostgreSQL and a web service using this file.
-#   4. Replace the ENV_PLACEHOLDER values with real secrets before/after deploy
-#      (you can edit them in the Render dashboard -> Environment).
-#   5. Run migrations once (Render console or shell):
+#   4. Any var marked `sync: false` is a SECRET and is NOT set automatically.
+#      You MUST provide it in the dashboard (Service -> Environment) before the
+#      service boots, otherwise the app fails to start (env.ts uses required()).
+#   5. Run migrations once (Render console/shell in the service):
 #        npm run migrate:up
 #
-# Recommended option: create the PostgreSQL separately, or let this file create it.
+# Full env inventory mirrors backend/src/config/env.ts.
 
 databases:
   - name: elite-events-db
@@ -27,6 +28,7 @@ services:
     startCommand: npm start
     healthCheckPath: /health
     envVars:
+      # ---- Core / required (required() in env.ts) ----
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -36,19 +38,50 @@ services:
           name: elite-events-db
           property: connectionString
       - key: JWT_SECRET
-        sync: false              # set a strong secret in the dashboard
+        sync: false                      # REQUIRED — set a long random secret
+      - key: ADMIN_USERNAME
+        sync: false                      # REQUIRED — admin login
+      - key: ADMIN_PASSWORD
+        sync: false                      # REQUIRED — admin password
+      - key: ADMIN_OTP_EMAIL
+        sync: false                      # REQUIRED — inbox that receives OTP codes
+
+      # ---- Defaults (safe to leave as-is; override if needed) ----
       - key: JWT_EXPIRES_IN
         value: 8h
-      - key: ADMIN_USERNAME
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: ADMIN_OTP_EMAIL
-        sync: false
+      - key: OTP_LENGTH
+        value: "8"
+      - key: OTP_EXPIRY_MINUTES
+        value: "10"
+      - key: OTP_MAX_ATTEMPTS
+        value: "5"
+
+      # ---- Frontend origins (CORS: api only allows env.frontendUrl) ----
       - key: FRONTEND_URL
-        value: https://elite-events.vercel.app
+        value: https://elite-events.vercel.app   # set to your Vercel URL
       - key: LOCAL_URL
         value: https://elite-events.vercel.app
-      # CamPay (optional; defaults to sandbox)
+
+      # ---- Email / SMTP (Brevo etc.) — needed for OTP delivery ----
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false                      # your SMTP username
+      - key: SMTP_PASSWORD
+        sync: false                      # your SMTP key (not account password)
+      - key: SMTP_FROM
+        value: Elite Events <no-reply@elite-events.example.com>  # use a verified sender
+
+      # ---- CamPay (sandbox by default; fill for live checkout) ----
       - key: CAMPAY_MODE
         value: sandbox
+      - key: CAMPAY_APP_USERNAME
+        sync: false
+      - key: CAMPAY_APP_PASSWORD
+        sync: false
+      - key: CAMPAY_PERMANENT_ACCESS_TOKEN
+        sync: false
+      - key: CAMPAY_WEBHOOK_KEY
+        sync: false
