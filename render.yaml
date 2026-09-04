@@ -25,7 +25,7 @@ services:
     rootDir: backend
     plan: free
     buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm start
+    startCommand: npm run migrate:up && npm start
     healthCheckPath: /health
     envVars:
       # ---- Core / required (required() in env.ts) ----
