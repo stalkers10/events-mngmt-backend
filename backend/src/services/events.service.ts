@@ -1,4 +1,5 @@
-import { query } from '../config/db';
+import { query, withTransaction } from '../config/db';
+import { PoolClient } from 'pg';
 import { RoleType } from '../types/auth';
 import { EntitlementsService } from './entitlements.service';
 import { TicketTemplatesService } from './ticket-templates.service';
@@ -8,6 +9,10 @@ export function isEventExpired(endTime: Date | string | null | undefined, now: D
   if (endTime == null) return false; // drafts with no end_time are never expired
   const expiryTime = new Date(endTime).getTime() + graceMinutes * 60 * 1000;
   return expiryTime < now.getTime();
+}
+
+export function isEventVisible(endTime: Date | string | null | undefined, now: Date = new Date(), graceMinutes = EVENT_GRACE_MINUTES): boolean {
+  return !isEventExpired(endTime, now, graceMinutes);
 }
 
 export interface EventSession {
@@ -239,8 +244,7 @@ export const EventsService = {
     const roomIdsPayload = JSON.stringify(uniqueRoomIds);
     const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
 
-    const { withTransaction } = await import('../config/db');
-    return await withTransaction(async (client) => {
+    return await withTransaction(async (client: PoolClient) => {
       // Plan limit check only fires at publish time
       const subscription = effectiveClientId
         ? await EntitlementsService.assertCanCreateEvent(client, effectiveClientId)
@@ -380,8 +384,7 @@ export const EventsService = {
     // Auto-stamp client_id for CLIENT_ADMIN users, leave null for SUPER_ADMIN
     const effectiveClientId = userRole === RoleType.CLIENT_ADMIN ? clientId : null;
 
-    const { withTransaction } = await import('../config/db');
-    return await withTransaction(async (client) => {
+    return await withTransaction(async (client: PoolClient) => {
       const subscription = effectiveClientId
         ? await EntitlementsService.assertCanCreateEvent(client, effectiveClientId)
         : undefined;
@@ -433,8 +436,7 @@ export const EventsService = {
       return result.rows[0];
     }
 
-    const { withTransaction } = await import('../config/db');
-    return withTransaction(async (client) => {
+    return withTransaction(async (client: PoolClient) => {
       await EntitlementsService.assertCanAddTables(client, clientId, eventId, 1);
       const result = await client.query<TableRecord>(
         `INSERT INTO tables (event_id, table_number, position, room_id) VALUES ($1, $2, $3, $4) RETURNING *`,

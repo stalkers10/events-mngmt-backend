@@ -22,8 +22,8 @@ describe('room id normalization', () => {
 describe('event visibility helpers', () => {
   it('considers an event visible until 30 minutes after its end time', () => {
     const now = new Date('2026-08-04T12:00:00Z');
-    expect(isEventExpired('2026-08-04T11:00:00Z', now)).toBe(false);
-    expect(isEventVisible('2026-08-04T11:00:00Z', now)).toBe(true);
+    expect(isEventExpired('2026-08-04T11:45:00Z', now)).toBe(false);
+    expect(isEventVisible('2026-08-04T11:45:00Z', now)).toBe(true);
   });
 
   it('considers an event expired after the grace period ends', () => {
