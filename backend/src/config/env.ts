@@ -28,7 +28,7 @@ export const env = {
   adminOtpEmail: required('ADMIN_OTP_EMAIL'),
 
   smtpHost: process.env.SMTP_HOST || '',
-  smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
+  smtpPort: parseInt(process.env.SMTP_PORT || '465', 10),
   smtpUser: process.env.SMTP_USER || '',
   smtpPassword: process.env.SMTP_PASSWORD || '',
   smtpFrom: process.env.SMTP_FROM || 'Elite Events <no-reply@elite-events.example.com>',

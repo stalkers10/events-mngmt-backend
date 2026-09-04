@@ -66,7 +66,7 @@ services:
       - key: SMTP_HOST
         value: smtp-relay.brevo.com
       - key: SMTP_PORT
-        value: "587"
+        value: "465"
       - key: SMTP_USER
         sync: false                      # your SMTP username
       - key: SMTP_PASSWORD
