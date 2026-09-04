@@ -42,11 +42,13 @@ function parseSender(fromStr: string) {
 
 async function tryBrevoApi(toEmail: string, subject: string, text: string, html: string): Promise<boolean> {
   const apiKey = env.smtpPassword;
-  if (!apiKey || !apiKey.startsWith('xkeysib-')) {
+  if (!apiKey) {
     return false;
   }
 
   const sender = parseSender(env.smtpFrom);
+  console.log(`[OTP] Attempting email delivery via Brevo HTTPS REST API to ${toEmail}...`);
+
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -65,7 +67,8 @@ async function tryBrevoApi(toEmail: string, subject: string, text: string, html:
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Brevo REST API HTTP ${response.status}: ${errText}`);
+    console.warn(`[OTP] Brevo HTTPS REST API returned HTTP ${response.status}: ${errText}`);
+    return false;
   }
 
   return true;
